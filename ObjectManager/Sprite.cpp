@@ -1,0 +1,22 @@
+#include "Sprite.h"
+
+#include <iostream>
+
+#include "ImageRenderer.h"
+
+
+Sprite::Sprite(point2D pos, std::string assetName)
+{
+	m_pos = pos;
+	m_assetPath = assetsFolderPath + assetName + ".bmp";
+	std::cout << "created sprite " << m_assetPath << std::endl;
+}
+
+bool Sprite::createRenderer(SDL_Renderer* renderer)
+{
+	ImageRenderer* imageRenderer = new ImageRenderer(m_pos.toSDL(), m_assetPath, renderer);
+	m_renderer = imageRenderer;
+	m_size = imageRenderer->getImageSize();
+
+	return m_renderer->isGenerated();
+}

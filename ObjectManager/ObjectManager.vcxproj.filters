@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Fichiers sources">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Fichiers d%27en-tête">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Fichiers de ressources">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Fichiers d%27en-tête\Objects">
+      <UniqueIdentifier>{d946637c-6701-425a-af83-5f1941cfb2a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\Objects">
+      <UniqueIdentifier>{d5aca832-a591-48aa-9e39-282d3fc78163}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers d%27en-tête\Renderers">
+      <UniqueIdentifier>{d7cac01a-bfe9-4e7c-a57d-82d6fd3214de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\Renderers">
+      <UniqueIdentifier>{4e5ed9b1-e4e8-43af-89c4-68cea9742032}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="World.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="Geometry.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>Fichiers d%27en-tête\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Sprite.h">
+      <Filter>Fichiers d%27en-tête\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseRenderer.h">
+      <Filter>Fichiers d%27en-tête\Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageRenderer.h">
+      <Filter>Fichiers d%27en-tête\Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectManager.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="World.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Geometry.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>Fichiers sources\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Sprite.cpp">
+      <Filter>Fichiers sources\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseRenderer.cpp">
+      <Filter>Fichiers sources\Renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageRenderer.cpp">
+      <Filter>Fichiers sources\Renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectManager.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
