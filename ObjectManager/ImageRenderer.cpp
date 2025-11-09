@@ -1,7 +1,7 @@
 #include "ImageRenderer.h"
 #include <iostream>
 
-ImageRenderer::ImageRenderer(const SDL_FPoint pos, const std::string imagePath, SDL_Renderer* renderer)
+ImageRenderer::ImageRenderer(SDL_Renderer* renderer, const std::string imagePath)
 {
     m_renderer = renderer;
     m_surface = SDL_LoadBMP(imagePath.c_str());
@@ -25,10 +25,5 @@ ImageRenderer::ImageRenderer(const SDL_FPoint pos, const std::string imagePath, 
 }
 
 ImageRenderer::~ImageRenderer() {
-    if (m_texture) {
-        SDL_DestroyTexture(m_texture);
-    }
-    if (m_surface) {
-        SDL_DestroySurface(m_surface);
-    }
+    cleanSurfaceAndRenderer();
 }

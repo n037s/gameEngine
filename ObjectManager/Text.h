@@ -7,7 +7,7 @@ class Text :
     public Object
 {
 public:
-    Text(point2D pos, std::string text, std::string font, float fontSize, SDL_Color color = {0, 0, 0, 1});
+    Text(rect2D shape, std::string text, std::string font, float fontSize, SDL_Color color = {0, 0, 0, 1});
 
     bool createRenderer(SDL_Renderer* renderer) override;
 

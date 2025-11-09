@@ -28,10 +28,27 @@ public:
 	 */
 	virtual bool render();
 
+	bool isHovered() { return m_isHoovered; }
+	/*
+	 * @brief the item begins to be hoovered
+	 */
+	void onHoover();
+	/*
+	 * @brief the button is no more hoovered
+	 */
+	void offHoover();
+
+	/*
+	 * @brief Hoovering item callback
+	 */
+	virtual void hoover();
+	/*
+	 * @brief No more hoovering item callback
+	 */
+	virtual void leftFocus();
+
 	/*
 	 * @brief callback of the item when it is clicked on
-	 * 
-	 * @return bool if a callback is performed successfully
 	 */
 	virtual void onClick();
 
@@ -56,5 +73,7 @@ protected:
 	size2D m_size{ 0,0 };
 	rect2D m_renderingRect{ 0,0,0,0 };
 	BaseRenderer* m_renderer{ nullptr };
+
+	bool m_isHoovered{ false };
 };
 

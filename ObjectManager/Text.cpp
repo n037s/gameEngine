@@ -6,9 +6,10 @@
 
 const std::string assetPath = "C:\\Users\\leoqu\\Desktop\\Code\\Project\\Assets\\";
 
-Text::Text(point2D pos, std::string text, std::string font, float fontSize, SDL_Color color)
+Text::Text(rect2D shape, std::string text, std::string font, float fontSize, SDL_Color color)
 {
-	m_pos = pos;
+	m_pos = shape.position;
+	m_size = shape.size;
 	m_text = text;
 	m_font = assetPath + font;
 	m_fontSize = fontSize;
@@ -17,7 +18,7 @@ Text::Text(point2D pos, std::string text, std::string font, float fontSize, SDL_
 
 bool Text::createRenderer(SDL_Renderer* renderer)
 {
-	m_renderer = new TextRenderer(m_pos.toSDL(), m_text, m_font, m_fontSize, renderer, m_color);
+	m_renderer = new TextRenderer(renderer, m_text, m_size, new Font(m_font, m_fontSize), m_color);
 	m_size = m_renderer->getSize();
 
 	return m_renderer->isGenerated();

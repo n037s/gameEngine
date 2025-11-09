@@ -15,7 +15,7 @@ Sprite::Sprite(point2D pos, std::string assetName)
 
 bool Sprite::createRenderer(SDL_Renderer* renderer)
 {
-	ImageRenderer* imageRenderer = new ImageRenderer(m_pos.toSDL(), m_assetPath, renderer);
+	ImageRenderer* imageRenderer = new ImageRenderer(renderer, m_assetPath);
 	m_renderer = imageRenderer;
 	m_size = imageRenderer->getSize();
 

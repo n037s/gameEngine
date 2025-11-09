@@ -4,10 +4,13 @@
 #include "CommandProxy.h"
 #include "Controls.h"
 
+#include "Geometry.h"
+
 #include "World.h"
 #include "Sprite.h"
 #include "Text.h"
 #include "Button.h"
+#include "Font.h"
 
 #include <iostream>
 
@@ -48,11 +51,16 @@ int main(int argc, char* argv[]) {
     img4->createRenderer(renderer);
     world.addObject(img4);
 
-    Text* text = new Text({ -100, 0 }, "test", "arial.ttf", 30, { 255, 0, 0, 255 });
+    rect2D textPosition = rect2D(-100, 0, 100, 30);
+    Text* text = new Text(textPosition, "test", "arial.ttf", 30, { 255, 0, 0, 255 });
     text->createRenderer(renderer);
     world.addObject(text);
 
-    Button* button = new Button({ 0,0 }, "blip", Osef);
+    rect2D buttonPosition = rect2D(-50, -50, 100, 25);
+    Font* font = new Font("C:\\Users\\leoqu\\Desktop\\Code\\Project\\Assets\\arial.ttf", 25);
+    SDL_Color color = { 100, 100, 100, 255 };
+    SDL_Color fontColor = { 255, 255, 255, 255 };
+    Button* button = new Button(buttonPosition, "blip", color, font, fontColor, Osef);
     button->createRenderer(renderer);
     world.addObject(button);
 

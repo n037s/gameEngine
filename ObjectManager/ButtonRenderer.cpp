@@ -4,31 +4,32 @@
 
 #include <iostream>
 
-
-ButtonRenderer::ButtonRenderer(const SDL_FPoint pos, SDL_Renderer* renderer)
+ButtonRenderer::ButtonRenderer(SDL_Renderer* renderer, size2D size, SDL_Color& color, std::string label, Font* font, SDL_Color& fontColor)
 {
-	// Here we define the button, its size and its look
 	m_renderer = renderer;
+	m_size = size;
+	m_color = color;
+	m_label = label;
+	m_font = font;
+	m_fontColor = fontColor;
+
 	generateTexture();
 }
 
 ButtonRenderer::~ButtonRenderer()
 {
-	// Destroy the texture
+	cleanSurfaceAndRenderer();
 }
 
 void ButtonRenderer::generateTexture()
 {
-	size2D size{ 100,25 };
-	m_surface = SDL_CreateSurface(size.w, size.h, SDL_PIXELFORMAT_RGBA8888);
-	SDL_Rect brect = { 0, 0, size.w, size.h };
-	SDL_FillSurfaceRect(m_surface, &brect, SDL_MapSurfaceRGB(m_surface, 255, 255, 255));
+	cleanSurfaceAndRenderer();
+	m_surface = SDL_CreateSurface(m_size.w, m_size.h, SDL_PIXELFORMAT_RGBA8888);
+	point2D rel_pos(0, 0);
+	SDL_Rect brect = { rel_pos.x, rel_pos.y, m_size.w, m_size.h };
+	SDL_FillSurfaceRect(m_surface, &brect, SDL_MapSurfaceRGBA(m_surface, m_color.r, m_color.g, m_color.b, m_color.a));
 
-	point2D pos(0, 0);
-	std::string label = "button";
-	std::string fontPath = "C:\\Users\\leoqu\\Desktop\\Code\\Project\\Assets\\arial.ttf";
-	SDL_Color color = { 50, 50, 50, 255 };
-	TextRenderer* textRend = new TextRenderer(pos.toSDL(), label, fontPath, 25.0, m_renderer, color);
+	TextRenderer* textRend = new TextRenderer(m_renderer, m_label, m_size, m_font, m_fontColor);
 
 	auto textSurface = textRend->getSurface();
 
@@ -39,4 +40,10 @@ void ButtonRenderer::generateTexture()
 		std::cout << "blit not successfull : " << SDL_GetError() << std::endl;
 
 	m_texture = SDL_CreateTextureFromSurface(m_renderer, m_surface);
+}
+
+void  ButtonRenderer::setColor(SDL_Color& color)
+{
+	m_color = color;
+	generateTexture();
 }

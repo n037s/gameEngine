@@ -63,6 +63,9 @@
     <ClInclude Include="TextRenderer.h">
       <Filter>Fichiers d%27en-tête\Renderers</Filter>
     </ClInclude>
+    <ClInclude Include="Font.h">
+      <Filter>Fichiers d%27en-tête\Objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="World.cpp">
@@ -100,6 +103,9 @@
     </ClCompile>
     <ClCompile Include="TextRenderer.cpp">
       <Filter>Fichiers sources\Renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="Font.cpp">
+      <Filter>Fichiers sources\Objects</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

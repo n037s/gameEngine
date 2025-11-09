@@ -11,10 +11,17 @@ rect2D Camera::getRenderingRect()
 	return rect2D(m_pos - renderingSize/2, renderingSize);
 }
 
-rect2D Camera::computeRenderingRect(const rect2D& objShape)
+rect2D Camera::WorldToWindow(const rect2D& objShape)
 {
 	point2D pos = objShape.position - m_pos + windowSize * z / 2;
 	size2D size = objShape.size / z;
+	return rect2D(pos, size);
+}
+
+rect2D Camera::WindowToWorld(const rect2D& windowCoords)
+{
+	point2D pos = windowCoords.position + m_pos - windowSize * z / 2;
+	size2D size = windowCoords.size * z;
 	return rect2D(pos, size);
 }
 

@@ -2,6 +2,18 @@
 
 #include <iostream>
 
+void BaseRenderer::cleanSurfaceAndRenderer()
+{
+    if (m_surface)
+    {
+        SDL_DestroySurface(m_surface);
+    }
+    if (m_texture)
+    {
+        SDL_DestroyTexture(m_texture);
+    }
+}
+
 size2D BaseRenderer::getSize()
 {
     size2D result = size2D(0, 0);

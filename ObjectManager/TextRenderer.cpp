@@ -3,73 +3,51 @@
 #include <iostream>
 
 
-TextRenderer::TextRenderer(const SDL_FPoint& pos, const std::string& text, const std::string font, const float fontSize, SDL_Renderer* renderer, SDL_Color& color)
+TextRenderer::TextRenderer(SDL_Renderer* renderer, const std::string& text, size2D size, Font* font, SDL_Color& color)
 {
 	m_renderer = renderer;
+	m_size = size;
 	m_color = color;
 	m_text = text;
-	m_policy = font;
-	m_policySize = fontSize;
-
-	m_font = TTF_OpenFont(m_policy.c_str(), m_policySize);
+	m_font = font;
 
 	generateTexture();
 }
 
 TextRenderer::~TextRenderer()
 {
-	if (TTF_WasInit()) {
-		TTF_CloseFont(m_font);
-	}
-	if (m_surface)
-	{
-		SDL_DestroySurface(m_surface);
-	}
-	if (m_texture)
-	{
-		SDL_DestroyTexture(m_texture);
-	}
-}
-
-void TextRenderer::cleanTexture()
-{
-	if (m_surface)
-	{
-		std::cout << "surface destroyed" << std::endl;
-		SDL_DestroySurface(m_surface);
-	}
-	if (m_texture)
-	{
-		std::cout << "texture destroyed" << std::endl;
-		SDL_DestroyTexture(m_texture);
-	}
+	cleanSurfaceAndRenderer();
 }
 
 void TextRenderer::generateTexture()
 {
-	cleanTexture();
-	if (!m_font)
+	cleanSurfaceAndRenderer();
+	if (!m_font->isGenerated())
 	{
 		std::cout << "Error loading font: " << SDL_GetError() << '\n';
 	}
 	else
 	{
-		m_surface = TTF_RenderText_Blended(m_font, m_text.c_str(), 0, m_color);
-		if (!m_surface)
+		m_surface = SDL_CreateSurface(m_size.w, m_size.h, SDL_PIXELFORMAT_RGBA8888);
+		SDL_Surface* textSurface = TTF_RenderText_Blended(m_font->toSDL(), m_text.c_str(), 0, m_color);
+		if (!m_surface && !textSurface)
 		{
 			std::cout << "Error generating text surface" << SDL_GetError() << std::endl;
 		}
 		else
 		{
-			m_texture = SDL_CreateTextureFromSurface(m_renderer, m_surface);
-			if (!m_surface)
+			if (setupTextInSurface(textSurface))
 			{
-				std::cout << "Error generating text texture" << SDL_GetError() << std::endl;
-			}
-			else
-			{
-				std::cout << "text is generated " << m_policySize << std::endl;
-				m_isGenerated = true;
+				m_texture = SDL_CreateTextureFromSurface(m_renderer, m_surface);
+				if (!m_surface)
+				{
+					std::cout << "Error generating text texture" << SDL_GetError() << std::endl;
+				}
+				else
+				{
+					std::cout << "text is generated " << std::endl;
+					m_isGenerated = true;
+				}
 			}
 		}
 	}
@@ -89,16 +67,39 @@ void TextRenderer::setColor(SDL_Color& color)
 
 void TextRenderer::setFont(std::string& font)
 {
-	m_policy = font;
-	TTF_CloseFont(m_font);
-	m_font = TTF_OpenFont(m_policy.c_str(), m_policySize);
+	m_font->setFontPath(font);
 	generateTexture();
 }
 
 void TextRenderer::setPoliceSize(float size)
 {
-	m_policySize = size;
-	TTF_CloseFont(m_font);
-	m_font = TTF_OpenFont(m_policy.c_str(), m_policySize);
+	m_font->setPolicySize(size);
 	generateTexture();
+}
+
+bool TextRenderer::setupTextInSurface(SDL_Surface* textSurface)
+{
+	// Compute the position and mix the text surface to the main surface
+	size2D textSurfaceSize = size2D(textSurface->w, textSurface->h);
+	size2D surfaceSize = size2D(m_surface->w, m_surface->h);
+
+	size2D oversize = surfaceSize - textSurfaceSize;
+	std::cout << "oversize : " << oversize.toString() << std::endl;
+	point2D offset = point2D(0, 0);
+	
+	TextAlignement textAlignement = m_font->getTextAlignement();
+	// we have an offset to compute according to font alignement
+	offset.x = oversize.w * ( textAlignement.horizontalAlignement / 2.0);
+	offset.y = oversize.h * ( textAlignement.verticalAlignement / 2.0);
+
+	SDL_Rect textRect = rect2D(point2D(0, 0), textSurfaceSize).tointSDL();
+	SDL_Rect surfaceRect = rect2D(offset, surfaceSize).tointSDL();
+
+	bool success = SDL_BlitSurface(textSurface, &textRect, m_surface, &surfaceRect);
+	if (success)
+		std::cout << "blit is successfull" << std::endl;
+	else
+		std::cout << "blit not successfull : " << SDL_GetError() << std::endl;
+
+	return success;
 }

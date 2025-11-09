@@ -32,10 +32,31 @@ void World::render(SDL_Renderer* renderer)
 	{
 		if (renderingRect.isCollide(obj->getShape()))
 		{
-			rect2D renderingShape = m_camera->computeRenderingRect(obj->getShape());
+			rect2D renderingShape = m_camera->WorldToWindow(obj->getShape());
 
 			obj->setRenderingRect(renderingShape);
 			bool success = obj->render();
+		}
+	}
+}
+
+void World::Hoovering(point2D pos)
+{
+	rect2D mouseRect = rect2D(pos, size2D(5, 5)); // in window 
+	rect2D mouseRectWorld = m_camera->WindowToWorld(mouseRect);
+
+	for (Object* obj : m_objects)
+	{
+		bool wasHoovered = obj->isHovered();
+		bool isHoovered = mouseRectWorld.isCollide(obj->getShape());
+
+		if (!wasHoovered && isHoovered)
+		{
+			obj->onHoover();
+		}
+		else if (wasHoovered && !isHoovered)
+		{
+			obj->offHoover();
 		}
 	}
 }

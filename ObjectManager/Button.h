@@ -1,6 +1,8 @@
 #pragma once
 #include "Object.h"
 
+#include "Font.h"
+
 #include <functional>
 #include <string>
 
@@ -9,9 +11,11 @@ using buttonFunction = std::function<void()>;
 class Button : public Object
 {
 public:
-	Button(point2D pos, std::string text, buttonFunction callback = nullptr);
+	Button(rect2D shape, std::string text, SDL_Color& color, Font* font, SDL_Color& fontColor, buttonFunction callback = nullptr);
 
 	bool createRenderer(SDL_Renderer* renderer) override;
+	void hoover() override;
+	void leftFocus() override;
 	void onClick() override;
 
 	const rect2D getShape() const override { return rect2D(m_pos - m_size / 2, m_size); };
@@ -25,6 +29,10 @@ public:
 
 private:
 	std::string m_label;
+	size2D m_size;
+	SDL_Color m_color;
+	Font* m_font;
+	SDL_Color m_fontColor;
 	buttonFunction m_callback;
 	
 };

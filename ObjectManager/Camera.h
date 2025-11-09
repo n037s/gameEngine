@@ -20,7 +20,8 @@ public:
 	void movePos(point2D dpos);
 
 	rect2D getRenderingRect();
-	rect2D computeRenderingRect(const rect2D& objShape);
+	rect2D WorldToWindow(const rect2D& objShape);
+	rect2D WindowToWorld(const rect2D& windowCoords);
 
 private:
 	static Camera* m_instance;

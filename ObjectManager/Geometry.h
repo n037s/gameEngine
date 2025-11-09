@@ -6,10 +6,12 @@
 class size2D
 {
 public:
+	size2D() : w(0), h(0) {};
 	size2D(float w, float h) : w(w), h(h) {};
 
 	size2D operator*(float mul) const;
 	size2D operator/(float div) const; 
+	size2D operator-(size2D other) const;
 	std::string toString() const;
 
 	float w{ 0 };
@@ -44,6 +46,7 @@ public:
 	bool isCollide(const rect2D& rect);
 
 	SDL_FRect toSDL() { return SDL_FRect{ position.x, position.y, size.w, size.h }; }
+	SDL_Rect tointSDL() { return SDL_Rect{ (int)position.x, (int)position.y, (int)size.w, (int)size.h }; }
 
 	point2D position{ 0, 0 };
 	size2D size{ 0,0 };

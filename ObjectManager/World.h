@@ -19,8 +19,11 @@ public:
 
 	void render(SDL_Renderer* renderer);
 
+	void Hoovering(point2D pos);
+
 private:
 	Camera* m_camera{ nullptr };
 	std::vector<Object*> m_objects{ std::vector<Object*>() };
+	std::vector<Object*> m_hooveredObjects{ std::vector<Object*>() };
 };
 

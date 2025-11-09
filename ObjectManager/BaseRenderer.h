@@ -13,6 +13,8 @@ public:
 	BaseRenderer() : m_renderer(nullptr), m_isGenerated(true) {};
 	BaseRenderer(SDL_Renderer* renderer) : m_renderer(renderer), m_isGenerated(true) {};
 
+	void cleanSurfaceAndRenderer();
+
 	bool isGenerated() { return m_isGenerated; };
 	virtual bool render(SDL_FRect& renderingRect);
 

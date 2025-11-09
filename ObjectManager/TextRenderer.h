@@ -2,6 +2,7 @@
 #include "BaseRenderer.h"
 
 #include "Geometry.h"
+#include "Font.h"
 
 #include "SDL_ttf.h"
 
@@ -9,7 +10,7 @@ class TextRenderer :
     public BaseRenderer
 {
 public:
-    TextRenderer(const SDL_FPoint& pos, const std::string& text, const std::string font, const float fontSize, SDL_Renderer* renderer, SDL_Color& color);
+    TextRenderer(SDL_Renderer* renderer, const std::string& text, size2D size, Font* font, SDL_Color& color);
     ~TextRenderer();
 
     void cleanTexture();
@@ -21,10 +22,11 @@ public:
     void setPoliceSize(float size);
 
 private:
+    bool setupTextInSurface(SDL_Surface* textSurface);
+
     std::string m_text;
-    TTF_Font* m_font;
+    size2D m_size;
     SDL_Color m_color;
-    std::string m_policy{ "" };
-    float m_policySize;
+    Font* m_font;
 };
 

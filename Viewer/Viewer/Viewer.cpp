@@ -118,6 +118,7 @@ void Viewer::manageUserInput(SDL_Event event)
         m_commandProxy->removeRunningCallback(keycode);
     }
     case SDL_EVENT_MOUSE_BUTTON_DOWN:
+    {
         point2D clickpos = point2D(event.button.x, event.button.y);
         if (event.button.button == SDL_BUTTON_LEFT)
         {
@@ -133,4 +134,11 @@ void Viewer::manageUserInput(SDL_Event event)
             // Then it will create a sort of list of button at the position of the right click.
         }
     }
+    case SDL_EVENT_MOUSE_MOTION:
+    {
+        point2D clickpos = point2D(event.button.x, event.button.y);
+        m_world->Hoovering(clickpos);
+    }
+    }
+    
 }

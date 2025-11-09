@@ -29,12 +29,17 @@ std::string point2D::toString() const
 
 size2D size2D::operator*(float mul) const
 {
-	return size2D(mul * this->w, mul * this->h);
+	return size2D(mul * w, mul * h);
 }
 
 size2D size2D::operator/(float div) const
 {
-	return size2D(this->w / div, this->h / div);
+	return size2D(w / div, h / div);
+}
+
+size2D size2D::operator-(size2D other) const
+{
+	return size2D(w - other.w, h - other.h);
 }
 
 std::string size2D::toString() const
