@@ -1,5 +1,9 @@
 #include "Button.h"
 
+#include "ButtonRenderer.h"
+
+#include <iostream>
+
 Button::Button(point2D pos, std::string text, buttonFunction callback)
 {
 	m_pos = pos;
@@ -14,9 +18,8 @@ void Button::onClick()
 
 bool Button::createRenderer(SDL_Renderer* renderer)
 {
-	ButtonRender* buttonRenderer = new ButtonRender(m_pos.toSDL(), m_assetPath, renderer);
-	m_renderer = buttonRenderer;
-	m_size = buttonRenderer->getImageSize();
+	m_renderer = new ButtonRenderer({ 0,0 }, renderer);
+	m_size = m_renderer->getSize();
 
 	return m_renderer->isGenerated();
 }

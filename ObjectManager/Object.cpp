@@ -6,7 +6,7 @@ bool Object::render()
 	return m_renderer->render(renderingRect);
 }
 
-bool Object::onClick()
+void Object::onClick()
 {
-	return false;
+	// do nothing
 }

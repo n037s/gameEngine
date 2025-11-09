@@ -6,6 +6,15 @@
 
 #include "World.h"
 #include "Sprite.h"
+#include "Text.h"
+#include "Button.h"
+
+#include <iostream>
+
+void Osef()
+{
+
+}
 
 int main(int argc, char* argv[]) {
 	// Define a viewer
@@ -23,7 +32,7 @@ int main(int argc, char* argv[]) {
 	// Define its objects
     world.createCamera({ 0,0 }, windowSize);
 
-    Sprite* img = new Sprite({ 0,0 }, "boule");
+    Sprite* img = new Sprite({0,0}, "boule");
     img->createRenderer(renderer);
     world.addObject(img);
 
@@ -38,6 +47,14 @@ int main(int argc, char* argv[]) {
     Sprite* img4 = new Sprite({ 128,0 }, "boule");
     img4->createRenderer(renderer);
     world.addObject(img4);
+
+    Text* text = new Text({ -100, 0 }, "test", "arial.ttf", 30, { 255, 0, 0, 255 });
+    text->createRenderer(renderer);
+    world.addObject(text);
+
+    Button* button = new Button({ 0,0 }, "blip", Osef);
+    button->createRenderer(renderer);
+    world.addObject(button);
 
 	// Define controller manager and its callbacks
     CommandProxy cmdProxy;

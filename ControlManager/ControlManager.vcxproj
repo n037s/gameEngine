@@ -24,12 +24,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Button.h" />
     <ClInclude Include="CameraControl.h" />
     <ClInclude Include="Controls.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Button.cpp" />
     <ClCompile Include="CameraControl.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

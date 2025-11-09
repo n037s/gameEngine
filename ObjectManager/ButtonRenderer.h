@@ -9,8 +9,7 @@ public:
     ButtonRenderer(const SDL_FPoint pos, SDL_Renderer* renderer);
     ~ButtonRenderer();
 
-    size2D getImageSize();
-    bool render(SDL_FRect& renderingRect) override;
+    void generateTexture();
 
 private:
 

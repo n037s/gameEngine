@@ -5,6 +5,8 @@
 #include <iostream>
 #include <string>
 
+#include "SDL_ttf.h"
+
 #include "CommandProxy.h"
 
 const int fps = 20;
@@ -36,12 +38,23 @@ bool Viewer::Init(size2D windowSize)
         }
     }
 
+    if (!TTF_Init()) {
+        SDL_Log("Couldn't initialize SDL_ttf: %s\n", SDL_GetError());
+        return SDL_APP_FAILURE;
+    }
+
     return isFailure;
+}
+
+Viewer::Viewer()
+{
+
 }
 
 Viewer::~Viewer()
 {
     // Clean up
+    TTF_Quit();
     SDL_DestroyRenderer(m_renderer);
     SDL_DestroyWindow(m_window);
     SDL_Quit();
@@ -49,6 +62,7 @@ Viewer::~Viewer()
 
 void Viewer::startLoop()
 {
+    int iii = 1;
     m_running = true;
     while (m_running) {
         std::cout << "[Application loop iteration]" << std::endl;
@@ -62,11 +76,10 @@ void Viewer::startLoop()
         m_commandProxy->runCallbacks();
 
         // Clear the screen
-        SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
+        SDL_SetRenderDrawColor(m_renderer, 0, 0, 100, 255);
         SDL_RenderClear(m_renderer);
 
         m_world->render(m_renderer);
-
 
         // Present the screen
         SDL_RenderPresent(m_renderer);

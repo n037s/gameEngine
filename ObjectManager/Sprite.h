@@ -4,9 +4,6 @@
 
 #include "Object.h"
 
-
-const std::string assetsFolderPath = "C:\\Users\\leoqu\\Desktop\\Code\\Project\\Assets\\";
-
 class Sprite : public Object
 {
 public:

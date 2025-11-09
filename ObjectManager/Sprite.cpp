@@ -4,6 +4,7 @@
 
 #include "ImageRenderer.h"
 
+const std::string assetsFolderPath = "C:\\Users\\leoqu\\Desktop\\Code\\Project\\Assets\\";
 
 Sprite::Sprite(point2D pos, std::string assetName)
 {
@@ -16,7 +17,7 @@ bool Sprite::createRenderer(SDL_Renderer* renderer)
 {
 	ImageRenderer* imageRenderer = new ImageRenderer(m_pos.toSDL(), m_assetPath, renderer);
 	m_renderer = imageRenderer;
-	m_size = imageRenderer->getImageSize();
+	m_size = imageRenderer->getSize();
 
 	return m_renderer->isGenerated();
 }

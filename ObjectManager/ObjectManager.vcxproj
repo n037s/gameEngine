@@ -113,7 +113,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>C:\Users\leoqu\Desktop\Code\Project\extern\SDL3-3.2.26\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\leoqu\Desktop\Code\Project\extern\SDL3-3.2.26\include;C:\Users\leoqu\Desktop\Code\Project\extern\SDL3_ttf-3.1.0\include\SDL3_ttf</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -121,8 +121,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);opengl32.lib;SDL3.lib;SDL3_test.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\leoqu\Desktop\Code\Project\extern\SDL3-3.2.26\lib\x64</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);opengl32.lib;SDL3.lib;SDL3_ttf.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\leoqu\Desktop\Code\Project\extern\SDL3-3.2.26\lib\x64;C:\Users\leoqu\Desktop\Code\Project\extern\SDL3_ttf-3.1.0\lib\x64</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -136,7 +136,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>C:\Users\leoqu\Desktop\Code\Project\extern\SDL3-3.2.26\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\leoqu\Desktop\Code\Project\extern\SDL3-3.2.26\include;C:\Users\leoqu\Desktop\Code\Project\extern\SDL3_ttf-3.1.0\include\SDL3_ttf</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -146,29 +146,36 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);opengl32.lib;SDL3.lib;SDL3_test.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\leoqu\Desktop\Code\Project\extern\SDL3-3.2.26\lib\x64</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);opengl32.lib;SDL3.lib;SDL3_ttf.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\leoqu\Desktop\Code\Project\extern\SDL3-3.2.26\lib\x64;C:\Users\leoqu\Desktop\Code\Project\extern\SDL3_ttf-3.1.0\lib\x64</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="BaseRenderer.h" />
+    <ClInclude Include="Button.h" />
+    <ClInclude Include="ButtonRenderer.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ImageRenderer.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="ObjectManager.h" />
-    <ClInclude Include="pch.h" />
     <ClInclude Include="Sprite.h" />
+    <ClInclude Include="Text.h" />
+    <ClInclude Include="TextRenderer.h" />
     <ClInclude Include="World.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BaseRenderer.cpp" />
+    <ClCompile Include="Button.cpp" />
+    <ClCompile Include="ButtonRenderer.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ImageRenderer.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="ObjectManager.cpp" />
     <ClCompile Include="Sprite.cpp" />
+    <ClCompile Include="Text.cpp" />
+    <ClCompile Include="TextRenderer.cpp" />
     <ClCompile Include="World.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
