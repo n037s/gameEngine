@@ -113,7 +113,8 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>C:\Users\leoqu\Desktop\Code\Project\extern\SDL3-3.2.26\include;C:\Users\leoqu\Desktop\Code\Project\extern\SDL3_ttf-3.1.0\include\SDL3_ttf</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\leoqu\Desktop\Code\Project\extern\SDL3-3.2.26\include;C:\Users\leoqu\Desktop\Code\Project\extern\SDL3_ttf-3.1.0\include\SDL3_ttf;C:\Users\leoqu\Desktop\Code\Project\extern\SDL3_image-3.2.4\include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -122,7 +123,7 @@
     </Link>
     <Lib>
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);opengl32.lib;SDL3.lib;SDL3_ttf.lib;</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\leoqu\Desktop\Code\Project\extern\SDL3-3.2.26\lib\x64;C:\Users\leoqu\Desktop\Code\Project\extern\SDL3_ttf-3.1.0\lib\x64</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\leoqu\Desktop\Code\Project\extern\SDL3-3.2.26\lib\x64;C:\Users\leoqu\Desktop\Code\Project\extern\SDL3_ttf-3.1.0\lib\x64;C:\Users\leoqu\Desktop\Code\Project\extern\SDL3_image-3.2.4\lib\x64;SDL3_image.lib;</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -136,7 +137,8 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>C:\Users\leoqu\Desktop\Code\Project\extern\SDL3-3.2.26\include;C:\Users\leoqu\Desktop\Code\Project\extern\SDL3_ttf-3.1.0\include\SDL3_ttf</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\leoqu\Desktop\Code\Project\extern\SDL3-3.2.26\include;C:\Users\leoqu\Desktop\Code\Project\extern\SDL3_ttf-3.1.0\include\SDL3_ttf;C:\Users\leoqu\Desktop\Code\Project\extern\SDL3_image-3.2.4\include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -147,15 +149,19 @@
     </Link>
     <Lib>
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);opengl32.lib;SDL3.lib;SDL3_ttf.lib;</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\leoqu\Desktop\Code\Project\extern\SDL3-3.2.26\lib\x64;C:\Users\leoqu\Desktop\Code\Project\extern\SDL3_ttf-3.1.0\lib\x64</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\leoqu\Desktop\Code\Project\extern\SDL3-3.2.26\lib\x64;C:\Users\leoqu\Desktop\Code\Project\extern\SDL3_ttf-3.1.0\lib\x64;C:\Users\leoqu\Desktop\Code\Project\extern\SDL3_image-3.2.4\lib\x64;SDL3_image.lib;</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Asset.h" />
+    <ClInclude Include="AssetsManager.h" />
     <ClInclude Include="BaseRenderer.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="ButtonRenderer.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Font.h" />
+    <ClInclude Include="FrameRateText.h" />
+    <ClInclude Include="Image.h" />
     <ClInclude Include="ImageRenderer.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Geometry.h" />
@@ -166,11 +172,15 @@
     <ClInclude Include="World.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Asset.cpp" />
+    <ClCompile Include="AssetsManager.cpp" />
     <ClCompile Include="BaseRenderer.cpp" />
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="ButtonRenderer.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Font.cpp" />
+    <ClCompile Include="FrameRateText.cpp" />
+    <ClCompile Include="Image.cpp" />
     <ClCompile Include="ImageRenderer.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Geometry.cpp" />

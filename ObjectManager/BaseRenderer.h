@@ -14,6 +14,7 @@ public:
 	BaseRenderer(SDL_Renderer* renderer) : m_renderer(renderer), m_isGenerated(true) {};
 
 	void cleanSurfaceAndRenderer();
+	void cleanRenderer();
 
 	bool isGenerated() { return m_isGenerated; };
 	virtual bool render(SDL_FRect& renderingRect);

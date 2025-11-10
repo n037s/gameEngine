@@ -25,6 +25,12 @@
     <Filter Include="Fichiers sources\Renderers">
       <UniqueIdentifier>{4e5ed9b1-e4e8-43af-89c4-68cea9742032}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fichiers d%27en-tête\Asset">
+      <UniqueIdentifier>{406e9a4e-cb7c-4c9f-b1fd-194212d01318}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\Asset">
+      <UniqueIdentifier>{97457f0f-8417-4892-b2db-44a75e360853}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="World.h">
@@ -66,6 +72,18 @@
     <ClInclude Include="Font.h">
       <Filter>Fichiers d%27en-tête\Objects</Filter>
     </ClInclude>
+    <ClInclude Include="FrameRateText.h">
+      <Filter>Fichiers d%27en-tête\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetsManager.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="Asset.h">
+      <Filter>Fichiers d%27en-tête\Asset</Filter>
+    </ClInclude>
+    <ClInclude Include="Image.h">
+      <Filter>Fichiers d%27en-tête\Asset</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="World.cpp">
@@ -106,6 +124,18 @@
     </ClCompile>
     <ClCompile Include="Font.cpp">
       <Filter>Fichiers sources\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameRateText.cpp">
+      <Filter>Fichiers sources\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetsManager.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Asset.cpp">
+      <Filter>Fichiers sources\Asset</Filter>
+    </ClCompile>
+    <ClCompile Include="Image.cpp">
+      <Filter>Fichiers sources\Asset</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

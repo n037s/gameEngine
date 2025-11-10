@@ -16,8 +16,12 @@ public:
 	void moveCameraPos(float dx, float dy);
 
 	bool addObject(Object* object);
+	bool removeObject(Object* object);
+	bool addOverlayObject(Object* object);
+	bool removeOverlayObject(Object* object);
 
 	void render(SDL_Renderer* renderer);
+	void update();
 
 	void mouseMove(point2D pos);
 	void Hoovering(point2D pos);
@@ -29,9 +33,12 @@ public:
 	void releaseLeftClick(point2D pos);
 
 private:
+	bool addobject(Object* object, std::vector<Object*>& object_list);
+	bool removeobject(Object* object, std::vector<Object*>& object_list);
 
 	Camera* m_camera{ nullptr };
 	std::vector<Object*> m_objects{ std::vector<Object*>() };
+	std::vector<Object*> m_overlayObjects{ std::vector<Object*>() };
 	std::vector<Object*> m_hooveredObjects{ std::vector<Object*>() };
 
 	bool m_isLeftClicked{ false };

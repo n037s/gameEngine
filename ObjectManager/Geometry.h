@@ -27,6 +27,7 @@ public:
 	point2D operator+(size2D other) const;
 	point2D operator-(point2D other) const;
 	point2D operator-(size2D other) const;
+	point2D operator*(size2D other) const;
 	std::string toString() const;
 
 	SDL_FPoint toSDL() { return SDL_FPoint{ x, y }; };

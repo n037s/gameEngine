@@ -4,6 +4,8 @@
 
 #include "Object.h"
 
+#include "Image.h"
+
 class Sprite : public Object
 {
 public:
@@ -14,6 +16,6 @@ public:
 	const rect2D getShape() const override { return rect2D(m_pos - m_size / 2, m_size); };
 
 private:
-	std::string m_assetPath{ "" };
+	Image* m_asset{ nullptr };
 };
 

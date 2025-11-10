@@ -3,15 +3,14 @@
 #include <iostream>
 
 #include "TextRenderer.h"
-
-const std::string assetPath = "C:\\Users\\leoqu\\Desktop\\Code\\Project\\Assets\\";
+#include "AssetsManager.h"
 
 Text::Text(rect2D shape, std::string text, std::string font, float fontSize, SDL_Color color)
 {
 	m_pos = shape.position;
 	m_size = shape.size;
 	m_text = text;
-	m_font = assetPath + font;
+	m_font = font;
 	m_fontSize = fontSize;
 	m_color = color;
 }

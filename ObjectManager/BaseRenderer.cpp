@@ -14,6 +14,14 @@ void BaseRenderer::cleanSurfaceAndRenderer()
     }
 }
 
+void BaseRenderer::cleanRenderer()
+{
+    if (m_texture)
+    {
+        SDL_DestroyTexture(m_texture);
+    }
+}
+
 size2D BaseRenderer::getSize()
 {
     size2D result = size2D(0, 0);

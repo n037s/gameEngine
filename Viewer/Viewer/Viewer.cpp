@@ -19,7 +19,7 @@ bool Viewer::Init(size2D windowSize)
     m_windowSize = windowSize;
     SDL_Init(SDL_INIT_VIDEO);
 
-    std::cout << "basepath : " << SDL_GetBasePath() << std::endl;
+    std::cout << "Viewer::Init() - Appication basepath : " << SDL_GetBasePath() << std::endl;
 
     m_window = SDL_CreateWindow("MyApp", (int)m_windowSize.w, (int)m_windowSize.h, 0);
     if (m_window == nullptr) {
@@ -79,6 +79,7 @@ void Viewer::startLoop()
         SDL_SetRenderDrawColor(m_renderer, 0, 20, 70, 255);
         SDL_RenderClear(m_renderer);
 
+        m_world->update();
         m_world->render(m_renderer);
 
         // Present the screen

@@ -13,7 +13,6 @@ public:
     TextRenderer(SDL_Renderer* renderer, const std::string& text, size2D size, Font* font, SDL_Color& color);
     ~TextRenderer();
 
-    void cleanTexture();
     void generateTexture();
 
     void setText(std::string& text);

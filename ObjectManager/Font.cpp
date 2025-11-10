@@ -1,19 +1,22 @@
 #include "Font.h"
+
 #include <iostream>
+
+#include "AssetsManager.h"
 
 
 Font::Font()
 {
-	m_fontPath = "";
+	m_fontID = "";
 	m_policySize = 0;
 	m_textAlignement = { Alignement::CENTER, Alignement::CENTER };
 	m_font = nullptr;
 	m_isGenerated = false;
 }
 
-Font::Font(std::string fontPath, float policySize, TextAlignement textAlignement)
+Font::Font(std::string fontID, float policySize, TextAlignement textAlignement)
 {
-	m_fontPath = fontPath;
+	m_fontID = fontID;
 	m_policySize = policySize;
 	m_textAlignement = textAlignement;
 	loadFont();
@@ -24,9 +27,9 @@ Font::~Font()
 	TTF_CloseFont(m_font);
 }
 
-void Font::setFontPath(std::string fontPath)
+void Font::setFontID(std::string fontID)
 {
-	m_fontPath = fontPath;
+	m_fontID = fontID;
 	loadFont();
 }
 
@@ -39,7 +42,7 @@ void Font::setPolicySize(float policySize)
 void Font::loadFont()
 {
 	TTF_CloseFont(m_font);
-	m_font = TTF_OpenFont(m_fontPath.c_str(), m_policySize);
+	m_font = TTF_OpenFont(AssetsManager::getInstance()->getPath(m_fontID).c_str(), m_policySize);
 	if (!m_font)
 	{
 		m_isGenerated = false;

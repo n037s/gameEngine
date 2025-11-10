@@ -6,6 +6,11 @@ bool Object::render()
 	return m_renderer->render(renderingRect);
 }
 
+void Object::update()
+{
+	// do nothing
+}
+
 void Object::onHoover()
 {
 	m_isHoovered = true;

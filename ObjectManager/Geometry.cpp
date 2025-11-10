@@ -21,6 +21,11 @@ point2D point2D::operator-(size2D other) const
 	return point2D(this->x - other.w, this->y - other.h);
 }
 
+point2D point2D::operator*(size2D other) const
+{
+	return point2D(x * other.w, y * other.h);
+}
+
 std::string point2D::toString() const
 {
 	return "(" + std::to_string(x) + ";" + std::to_string(y) + ")";

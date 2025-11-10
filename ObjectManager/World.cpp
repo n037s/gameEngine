@@ -16,11 +16,44 @@ void World::moveCameraPos(float dx, float dy)
 	m_camera->setPos(m_camera->getPos() + dxy);
 }
 
-bool World::addObject(Object* object)
+bool World::addobject(Object* object, std::vector<Object*>& object_list)
 {
 	bool success = true;
-	m_objects.push_back(object);
+	object_list.push_back(object);
 	return success;
+}
+
+bool World::removeobject(Object* object, std::vector<Object*>& object_list)
+{
+	bool success = false;
+
+	auto target = std::find(object_list.begin(), object_list.end(), object);
+	if (target != object_list.end())
+	{
+		object_list.erase(target);
+		success = true;
+	}
+	else
+		std::cout << "Object is not found to deletion" << std::endl;
+
+	return success;
+}
+
+bool World::addObject(Object* object)
+{
+	return addobject(object, m_objects);
+}
+bool World::removeObject(Object* object)
+{
+	return removeobject(object, m_objects);
+}
+bool World::addOverlayObject(Object* object)
+{
+	return addobject(object, m_overlayObjects);
+}
+bool World::removeOverlayObject(Object* object)
+{
+	return removeobject(object, m_overlayObjects);
 }
 
 void World::render(SDL_Renderer* renderer)
@@ -31,13 +64,34 @@ void World::render(SDL_Renderer* renderer)
 	// let's check all of items that are inside the rect. 
 	for (Object* obj : m_objects)
 	{
-		if (renderingRect.isCollide(obj->getShape()))
+		if (!obj->isHidden() && renderingRect.isCollide(obj->getShape()))
 		{
 			rect2D renderingShape = m_camera->WorldToWindow(obj->getShape());
 
 			obj->setRenderingRect(renderingShape);
 			bool success = obj->render();
 		}
+	}
+	for (Object* obj : m_overlayObjects)
+	{
+		if (!obj->isHidden())
+		{
+			rect2D renderingShape = obj->getShape();
+
+			obj->setRenderingRect(renderingShape);
+			bool success = obj->render();
+		}
+	}
+}
+void World::update()
+{
+	for (Object* obj : m_objects)
+	{
+		obj->update();
+	}
+	for (Object* obj : m_overlayObjects)
+	{
+		obj->update();
 	}
 }
 

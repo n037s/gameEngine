@@ -12,6 +12,9 @@ public:
 	Object(point2D pos) : m_pos(pos) {};
 	Object(point2D pos, size2D size) : m_pos(pos), m_size(size) {};
 
+	bool isHidden() { return m_isHidden; }
+	void setIsHidden(bool isHidden) { m_isHidden = isHidden; }
+
 	/*
 	 * @brief create the item renderer
 	 *
@@ -27,6 +30,10 @@ public:
 	 * @return bool if the rendering is successfull
 	 */
 	virtual bool render();
+	/*
+	 * @brief the item is updated at each frame rate
+	 */
+	virtual void update();
 
 	bool isHovered() { return m_isHoovered; }
 	/*
@@ -103,6 +110,8 @@ protected:
 	size2D m_size{ 0,0 };
 	rect2D m_renderingRect{ 0,0,0,0 };
 	BaseRenderer* m_renderer{ nullptr };
+
+	bool m_isHidden{ false };
 
 	bool m_isHoovered{ false };
 	bool m_isLeftClicked{ false };

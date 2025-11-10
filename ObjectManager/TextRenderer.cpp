@@ -66,7 +66,7 @@ void TextRenderer::setColor(SDL_Color& color)
 
 void TextRenderer::setFont(std::string& font)
 {
-	m_font->setFontPath(font);
+	m_font->setFontID(font);
 	generateTexture();
 }
 

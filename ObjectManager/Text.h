@@ -16,7 +16,7 @@ public:
     bool setFont(std::string font);
     void setPoliceSize(float size);
 
-private:
+protected:
     std::string m_text;
     std::string m_font;
     float m_fontSize;
