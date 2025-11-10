@@ -26,7 +26,24 @@ void Object::leftFocus()
 {
 	// do nothing
 }
-void Object::onClick()
+
+bool Object::onLeftClick(point2D pos)
+{
+	m_isLeftClicked = true;
+	return leftClick(pos);
+}
+void Object::offLeftClick(point2D pos)
+{
+	m_isLeftClicked = false;
+	releaseLeftClick(pos);
+}
+
+bool Object::leftClick(point2D pos)
+{
+	// do nothing
+	return false;
+}
+void Object::releaseLeftClick(point2D pos)
 {
 	// do nothing
 }

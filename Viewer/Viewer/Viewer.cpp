@@ -9,7 +9,7 @@
 
 #include "CommandProxy.h"
 
-const int fps = 20;
+const int fps = 60;
 
 Viewer* Viewer::m_instance = nullptr;
 bool Viewer::m_running = false;
@@ -76,7 +76,7 @@ void Viewer::startLoop()
         m_commandProxy->runCallbacks();
 
         // Clear the screen
-        SDL_SetRenderDrawColor(m_renderer, 0, 0, 100, 255);
+        SDL_SetRenderDrawColor(m_renderer, 0, 20, 70, 255);
         SDL_RenderClear(m_renderer);
 
         m_world->render(m_renderer);
@@ -116,16 +116,14 @@ void Viewer::manageUserInput(SDL_Event event)
         SDL_Keycode keycode = event.key.key;
         std::cout << "key released : " << SDL_GetKeyName(keycode) << std::endl;
         m_commandProxy->removeRunningCallback(keycode);
+        break;
     }
     case SDL_EVENT_MOUSE_BUTTON_DOWN:
     {
         point2D clickpos = point2D(event.button.x, event.button.y);
         if (event.button.button == SDL_BUTTON_LEFT)
         {
-            std::cout << "left click done " << clickpos.toString() << std::endl;
-            // Need to define a class button that handle left click
-            // When a button is left clicked, it modify its look partially and it call a callback defined in itself.
-            // Warning : position of left click must be refered to the camera
+            m_world->leftClick(clickpos);
         }
         else if (event.button.button == SDL_BUTTON_RIGHT)
         {
@@ -133,11 +131,28 @@ void Viewer::manageUserInput(SDL_Event event)
             // Right click will for now make appear a contextual menu. So before let's handle left click
             // Then it will create a sort of list of button at the position of the right click.
         }
+        break;
+    }
+    case SDL_EVENT_MOUSE_BUTTON_UP:
+    {
+        point2D clickpos = point2D(event.button.x, event.button.y);
+        if (event.button.button == SDL_BUTTON_LEFT)
+        {
+            m_world->releaseLeftClick(clickpos);
+        }
+        else if (event.button.button == SDL_BUTTON_RIGHT)
+        {
+            std::cout << "right click released " << clickpos.toString() << std::endl;
+            // Right click will for now make appear a contextual menu. So before let's handle left click
+            // Then it will create a sort of list of button at the position of the right click.
+        }
+        break;
     }
     case SDL_EVENT_MOUSE_MOTION:
     {
         point2D clickpos = point2D(event.button.x, event.button.y);
-        m_world->Hoovering(clickpos);
+        m_world->mouseMove(clickpos);
+        break;
     }
     }
     

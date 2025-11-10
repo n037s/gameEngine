@@ -14,9 +14,16 @@
 
 #include <iostream>
 
-void Osef()
+bool Osef(point2D pos)
 {
+    std::cout << "my function click done at position : " << pos.toString() << std::endl;
+    return true;
+}
 
+bool Osef2(point2D pos)
+{
+    std::cout << "my function click released with position : " << pos.toString() << std::endl;
+    return true;
 }
 
 int main(int argc, char* argv[]) {
@@ -51,8 +58,8 @@ int main(int argc, char* argv[]) {
     img4->createRenderer(renderer);
     world.addObject(img4);
 
-    rect2D textPosition = rect2D(-100, 0, 100, 30);
-    Text* text = new Text(textPosition, "test", "arial.ttf", 30, { 255, 0, 0, 255 });
+    rect2D textPosition = rect2D(-200, 0, 100, 30);
+    Text* text = new Text(textPosition, "test", "arial.ttf", 30, { 255, 255, 0, 255 });
     text->createRenderer(renderer);
     world.addObject(text);
 
@@ -60,7 +67,7 @@ int main(int argc, char* argv[]) {
     Font* font = new Font("C:\\Users\\leoqu\\Desktop\\Code\\Project\\Assets\\arial.ttf", 25);
     SDL_Color color = { 100, 100, 100, 255 };
     SDL_Color fontColor = { 255, 255, 255, 255 };
-    Button* button = new Button(buttonPosition, "blip", color, font, fontColor, Osef);
+    Button* button = new Button(buttonPosition, "blip", color, font, fontColor, Osef, Osef2);
     button->createRenderer(renderer);
     world.addObject(button);
 

@@ -45,7 +45,6 @@ void TextRenderer::generateTexture()
 				}
 				else
 				{
-					std::cout << "text is generated " << std::endl;
 					m_isGenerated = true;
 				}
 			}
@@ -84,7 +83,6 @@ bool TextRenderer::setupTextInSurface(SDL_Surface* textSurface)
 	size2D surfaceSize = size2D(m_surface->w, m_surface->h);
 
 	size2D oversize = surfaceSize - textSurfaceSize;
-	std::cout << "oversize : " << oversize.toString() << std::endl;
 	point2D offset = point2D(0, 0);
 	
 	TextAlignement textAlignement = m_font->getTextAlignement();
@@ -96,10 +94,8 @@ bool TextRenderer::setupTextInSurface(SDL_Surface* textSurface)
 	SDL_Rect surfaceRect = rect2D(offset, surfaceSize).tointSDL();
 
 	bool success = SDL_BlitSurface(textSurface, &textRect, m_surface, &surfaceRect);
-	if (success)
-		std::cout << "blit is successfull" << std::endl;
-	else
-		std::cout << "blit not successfull : " << SDL_GetError() << std::endl;
+	if (!success)
+		std::cout << "[ERROR] Generating text, blit is unsuccessfull" << std::endl;
 
 	return success;
 }

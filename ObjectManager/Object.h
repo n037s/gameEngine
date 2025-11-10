@@ -47,10 +47,40 @@ public:
 	 */
 	virtual void leftFocus();
 
+
+	bool isLeftClicked() { return m_isLeftClicked; }
 	/*
-	 * @brief callback of the item when it is clicked on
+	 * @brief callback of the item when it is left clicked on
+	 * 
+	 * @param pos - position of the click
+	 * 
+	 * @return bool if a callback have been performed
 	 */
-	virtual void onClick();
+	bool onLeftClick(point2D pos);
+	/*
+	 * @brief the button is no more left clicked on
+	 * 
+	 * @param pos - position of the click
+	 * 
+	 * @return bool if a callback have been performed
+	 */
+	void offLeftClick(point2D pos);
+	/*
+	 * @brief leftClick item callback
+	 * 
+	 * @param pos - position of the click
+	 * 
+	 * @return bool if a callback have been performed
+	 */
+	virtual bool leftClick(point2D pos);
+	/*
+	 * @brief leftClick have been released
+	 * 	
+	 * @param pos - position of the click
+	 * 
+	 * @return bool if a callback have been performed
+	 */
+	virtual void releaseLeftClick (point2D pos);
 
 	/*
 	 * @brief get the position of the item
@@ -75,5 +105,6 @@ protected:
 	BaseRenderer* m_renderer{ nullptr };
 
 	bool m_isHoovered{ false };
+	bool m_isLeftClicked{ false };
 };
 

@@ -34,10 +34,8 @@ void ButtonRenderer::generateTexture()
 	auto textSurface = textRend->getSurface();
 
 	bool success = SDL_BlitSurface(textSurface, &brect, m_surface, &brect);
-	if (success)
-		std::cout << "blit is successfull" << std::endl;
-	else
-		std::cout << "blit not successfull : " << SDL_GetError() << std::endl;
+	if (!success)
+		std::cout << "[ERROR] Button renderer - blit is not successfull" << std::endl;
 
 	m_texture = SDL_CreateTextureFromSurface(m_renderer, m_surface);
 }

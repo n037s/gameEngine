@@ -6,17 +6,19 @@
 #include <functional>
 #include <string>
 
-using buttonFunction = std::function<void()>;
+using buttonFunction = std::function<bool(point2D pos)>;
 
 class Button : public Object
 {
 public:
-	Button(rect2D shape, std::string text, SDL_Color& color, Font* font, SDL_Color& fontColor, buttonFunction callback = nullptr);
+	Button(rect2D shape, std::string text, SDL_Color& color, Font* font, SDL_Color& fontColor, 
+		buttonFunction callback = nullptr, buttonFunction releaseCallback = nullptr);
 
 	bool createRenderer(SDL_Renderer* renderer) override;
 	void hoover() override;
 	void leftFocus() override;
-	void onClick() override;
+	bool leftClick(point2D pos) override;
+	void releaseLeftClick(point2D pos) override;
 
 	const rect2D getShape() const override { return rect2D(m_pos - m_size / 2, m_size); };
 
@@ -34,6 +36,7 @@ private:
 	Font* m_font;
 	SDL_Color m_fontColor;
 	buttonFunction m_callback;
+	buttonFunction m_releaseCallback;
 	
 };
 

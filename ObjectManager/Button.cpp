@@ -4,7 +4,8 @@
 
 #include <iostream>
 
-Button::Button(rect2D shape, std::string text, SDL_Color& color, Font* font, SDL_Color& fontColor, buttonFunction callback)
+Button::Button(rect2D shape, std::string text, SDL_Color& color, Font* font, SDL_Color& fontColor, 
+	buttonFunction callback, buttonFunction releaseCallback)
 {
 	m_pos = shape.position;
 	m_label = text;
@@ -13,6 +14,7 @@ Button::Button(rect2D shape, std::string text, SDL_Color& color, Font* font, SDL
 	m_font = font;
 	m_fontColor = fontColor;
 	m_callback = callback;
+	m_releaseCallback = releaseCallback;
 }
 
 void Button::hoover()
@@ -33,9 +35,18 @@ void Button::leftFocus()
 	static_cast<ButtonRenderer*>(m_renderer)->setColor(m_color);
 }
 
-void Button::onClick()
+bool Button::leftClick(point2D pos)
 {
-	m_callback();
+	bool success = false;
+	if (m_callback != nullptr)
+		success = m_callback(pos);
+	return success;
+}
+
+void Button::releaseLeftClick(point2D pos)
+{
+	if (m_releaseCallback != nullptr)
+		m_releaseCallback(pos);
 }
 
 bool Button::createRenderer(SDL_Renderer* renderer)
