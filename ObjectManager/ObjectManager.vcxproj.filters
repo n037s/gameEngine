@@ -84,6 +84,9 @@
     <ClInclude Include="Image.h">
       <Filter>Fichiers d%27en-tête\Asset</Filter>
     </ClInclude>
+    <ClInclude Include="AnimatedSprite.h">
+      <Filter>Fichiers d%27en-tête\Objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="World.cpp">
@@ -136,6 +139,9 @@
     </ClCompile>
     <ClCompile Include="Image.cpp">
       <Filter>Fichiers sources\Asset</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimatedSprite.cpp">
+      <Filter>Fichiers sources\Objects</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

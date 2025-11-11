@@ -153,6 +153,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AnimatedSprite.h" />
     <ClInclude Include="Asset.h" />
     <ClInclude Include="AssetsManager.h" />
     <ClInclude Include="BaseRenderer.h" />
@@ -172,6 +173,7 @@
     <ClInclude Include="World.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AnimatedSprite.cpp" />
     <ClCompile Include="Asset.cpp" />
     <ClCompile Include="AssetsManager.cpp" />
     <ClCompile Include="BaseRenderer.cpp" />

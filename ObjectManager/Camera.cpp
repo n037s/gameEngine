@@ -1,7 +1,7 @@
 #include "Camera.h"
 #include <iostream>
 
-const float z = 1;
+const float z = 2;
 
 Camera* Camera::m_instance = nullptr;
 

@@ -12,6 +12,7 @@
 #include "Button.h"
 #include "Font.h"
 #include "FrameRateText.h"
+#include "AnimatedSprite.h"
 
 #include <iostream>
 
@@ -92,6 +93,17 @@ int main(int argc, char* argv[]) {
     button->createRenderer(renderer);
     world.addObject(button);
 
+    std::string basename = "FarmRPG/Character/";
+    std::vector<std::string> persoAnimation = {
+        basename + "Idle_front1",
+        basename + "Idle_front2",
+        basename + "Idle_front3",
+        basename + "Idle_front4"
+    };
+    auto personnage = new AnimatedSprite(point2D(0,0), persoAnimation, 250);
+    personnage->createRenderer(renderer);
+    world.addObject(personnage);
+
 	// Define controller manager and its callbacks
     CommandProxy cmdProxy;
     viewer->setCommandProxy(&cmdProxy);
@@ -110,7 +122,7 @@ int main(int argc, char* argv[]) {
 
 
 // Then What to do : 
-// - Animated sprites. 
+// Images must be scaled to follow camera : SDL_BlitSurfaceScaled
 // - Worl Manager (saving and reading in a file)
 // - Start a project world editor. It needs to add the right click option to add a menu interfacing AssetsManager to create item
 // + items can be grabbed and moved and resized.

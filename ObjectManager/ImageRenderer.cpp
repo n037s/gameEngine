@@ -5,6 +5,23 @@ ImageRenderer::ImageRenderer(SDL_Renderer* renderer, Image* imageAsset)
 {
     m_renderer = renderer;
     m_image = imageAsset;
+    createTexture();
+}
+
+ImageRenderer::~ImageRenderer() {
+    cleanRenderer();
+}
+
+void ImageRenderer::setAsset(Image* imageAsset)
+{
+    m_image = imageAsset;
+    cleanRenderer();
+    createTexture();
+}
+
+
+void ImageRenderer::createTexture()
+{
     if (m_image)
     {
         m_surface = m_image->getSurface();
@@ -17,7 +34,6 @@ ImageRenderer::ImageRenderer(SDL_Renderer* renderer, Image* imageAsset)
             else
             {
                 m_isGenerated = true;
-                std::cout << "renderer is generated : " << m_isGenerated << std::endl;
             }
         }
         else
@@ -29,8 +45,4 @@ ImageRenderer::ImageRenderer(SDL_Renderer* renderer, Image* imageAsset)
     {
         std::cout << "Asset is not loaded" << std::endl;
     }
-}
-
-ImageRenderer::~ImageRenderer() {
-    cleanRenderer();
 }
