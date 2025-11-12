@@ -27,6 +27,7 @@ public:
 	void setWorld(World* world) { m_world = world; }
 	void setCommandProxy(CommandProxy* cmdProxy) { m_commandProxy = cmdProxy; }
 
+
 private:
 	Viewer();
 	~Viewer();
@@ -38,6 +39,7 @@ private:
 
 	SDL_Window* m_window{ nullptr };
 	SDL_Renderer* m_renderer{ nullptr };
+	float m_SDLRenderingScale{ 1 };
 
 	World* m_world{ nullptr };
 	CommandProxy* m_commandProxy{ nullptr };

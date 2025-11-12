@@ -18,6 +18,9 @@ public:
 	void setWindowSize(size2D size) { windowSize = size; }
 
 	void movePos(point2D dpos);
+	void moveZ(float z);
+	float getZ() { return m_height; }
+	float getRenderingScale();
 
 	rect2D getRenderingRect();
 	rect2D WorldToWindow(const rect2D& objShape);
@@ -28,5 +31,6 @@ private:
 	Camera(point2D pos, size2D windowSize) : m_pos{ pos }, windowSize(windowSize) {};
 
 	point2D m_pos;
+	float m_height{ 1 };
 	size2D windowSize;
 };

@@ -14,6 +14,7 @@ public:
 
 	void createCamera(point2D pos, size2D windowSize);
 	void moveCameraPos(float dx, float dy);
+	float getCameraRenderingScale();
 
 	bool addObject(Object* object);
 	bool removeObject(Object* object);
@@ -31,6 +32,8 @@ public:
 	virtual void offLeftClick(point2D pos);
 	void leftClick(point2D pos);
 	void releaseLeftClick(point2D pos);
+
+	void wheelScrolling(float dy);
 
 private:
 	bool addobject(Object* object, std::vector<Object*>& object_list);

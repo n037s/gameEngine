@@ -12,8 +12,13 @@ void World::createCamera(point2D pos, size2D windowSize)
 
 void World::moveCameraPos(float dx, float dy)
 {
-	point2D dxy = point2D(dx, dy);
+	point2D dxy = point2D(dx, dy) / m_camera->getRenderingScale();
 	m_camera->setPos(m_camera->getPos() + dxy);
+}
+
+float World::getCameraRenderingScale()
+{
+	return m_camera->getRenderingScale();
 }
 
 bool World::addobject(Object* object, std::vector<Object*>& object_list)
@@ -67,6 +72,7 @@ void World::render(SDL_Renderer* renderer)
 		if (!obj->isHidden() && renderingRect.isCollide(obj->getShape()))
 		{
 			rect2D renderingShape = m_camera->WorldToWindow(obj->getShape());
+			std::cout << "Initial shape : " << obj->getShape().toString() << " -> " << renderingShape.toString() << std::endl;
 
 			obj->setRenderingRect(renderingShape);
 			bool success = obj->render();
@@ -192,4 +198,10 @@ void World::onLeftClick(point2D pos)
 void World::offLeftClick(point2D pos)
 {
 	std::cout << "World is no more left clicked : " << pos.toString() << std::endl;
+}
+
+void World::wheelScrolling(float dy)
+{
+	const float wheelRatio = -0.2;
+	m_camera->moveZ(wheelRatio*dy);
 }

@@ -1,21 +1,35 @@
 #include "Geometry.h"
 #include <iostream>
 
+point2D point2D::operator*(float mul) const
+{
+	return point2D(x * mul, y * mul);
+}
+point2D point2D::operator/(float div) const
+{
+	return point2D(x / div, y / div);
+}
+point2D point2D::operator+(float add) const
+{
+	return point2D(x + add, y + add);
+}
+point2D point2D::operator-(float substr) const
+{
+	return point2D(x - substr, y - substr);
+}
+
 point2D point2D::operator+(point2D other) const
 {
 	return point2D(this->x + other.x, this->y + other.y);
 }
-
 point2D point2D::operator+(size2D other) const
 {
 	return point2D(this->x + other.w, this->y + other.h);
 }
-
 point2D point2D::operator-(point2D other) const
 {
 	return point2D(this->x - other.x, this->y - other.y);
 }
-
 point2D point2D::operator-(size2D other) const
 {
 	return point2D(this->x - other.w, this->y - other.h);
@@ -24,6 +38,11 @@ point2D point2D::operator-(size2D other) const
 point2D point2D::operator*(size2D other) const
 {
 	return point2D(x * other.w, y * other.h);
+}
+
+point2D point2D::operator/(size2D other) const
+{
+	return point2D(x / other.w, y / other.h);
 }
 
 std::string point2D::toString() const

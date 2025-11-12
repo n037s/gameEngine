@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
 
     size2D objSize = size2D(256, 256);
 
-    point2D r_pos = { 0,0 };
+    point2D r_pos = {0,0};
     img = new Sprite(r_pos * objSize, "craftpix/Tile/Top-Down Simple Summer_Ground 01");
     img->createRenderer(renderer);
     world.addObject(img);
@@ -85,7 +85,7 @@ int main(int argc, char* argv[]) {
     text->createRenderer(renderer);
     world.addOverlayObject(text);
 
-    rect2D buttonPosition = rect2D(-50, -100, 100, 25);
+    rect2D buttonPosition = rect2D(0, -100, 100, 25);
     Font* font = new Font("arial", 25);
     SDL_Color color = { 100, 100, 100, 255 };
     SDL_Color fontColor = { 255, 255, 255, 255 };
@@ -123,6 +123,7 @@ int main(int argc, char* argv[]) {
 
 // Then What to do : 
 // Images must be scaled to follow camera : SDL_BlitSurfaceScaled
+// Objects should have z parameters. When rendering we should display according to z layers. For this we need to sort object list by z.
 // - Worl Manager (saving and reading in a file)
 // - Start a project world editor. It needs to add the right click option to add a menu interfacing AssetsManager to create item
 // + items can be grabbed and moved and resized.

@@ -9,7 +9,7 @@
 
 #include "CommandProxy.h"
 
-const int fps = 60;
+const int fps = 30;
 
 Viewer* Viewer::m_instance = nullptr;
 bool Viewer::m_running = false;
@@ -153,6 +153,13 @@ void Viewer::manageUserInput(SDL_Event event)
     {
         point2D clickpos = point2D(event.button.x, event.button.y);
         m_world->mouseMove(clickpos);
+        break;
+    }
+    case SDL_EVENT_MOUSE_WHEEL:
+    {
+        float dy = event.wheel.y;
+        std::cout << "scrooled : " << dy << std::endl;
+        m_world->wheelScrolling(dy);
         break;
     }
     }

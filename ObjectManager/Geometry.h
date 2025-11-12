@@ -23,11 +23,16 @@ class point2D
 public:
 	point2D(float x, float y) : x(x), y(y) {};
 
+	point2D operator+(float add) const;
+	point2D operator-(float substr) const;
+	point2D operator*(float mul) const;
+	point2D operator/(float div) const;
 	point2D operator+(point2D other) const;
 	point2D operator+(size2D other) const;
 	point2D operator-(point2D other) const;
 	point2D operator-(size2D other) const;
 	point2D operator*(size2D other) const;
+	point2D operator/(size2D other) const;
 	std::string toString() const;
 
 	SDL_FPoint toSDL() { return SDL_FPoint{ x, y }; };
