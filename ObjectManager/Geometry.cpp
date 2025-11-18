@@ -73,6 +73,7 @@ std::string size2D::toString() const
 
 
 
+
 bool rect2D::isInside(const point2D& point)
 {
 	point2D low_bound = position;

@@ -5,10 +5,8 @@
 #include "TextRenderer.h"
 #include "AssetsManager.h"
 
-Text::Text(rect2D shape, std::string text, std::string font, float fontSize, SDL_Color color)
+Text::Text(rect2D shape, std::string text, std::string font, float fontSize, Color color) : Object(shape.position, shape.size)
 {
-	m_pos = shape.position;
-	m_size = shape.size;
 	m_text = text;
 	m_font = font;
 	m_fontSize = fontSize;
@@ -17,10 +15,28 @@ Text::Text(rect2D shape, std::string text, std::string font, float fontSize, SDL
 
 bool Text::createRenderer(SDL_Renderer* renderer)
 {
-	m_renderer = new TextRenderer(renderer, m_text, m_size, new Font(m_font, m_fontSize), m_color);
+	m_renderer = new TextRenderer(renderer, m_text, m_size, new Font(m_font, m_fontSize), m_color.toSDL());
 	m_size = m_renderer->getSize();
 
 	return m_renderer->isGenerated();
+}
+
+Text::Text(ObjectMemberHolder members) : Object(members)
+{
+	m_text = members.getMember<std::string>("textLabel");
+	m_font = members.getMember<std::string>("textFont");
+	m_fontSize = members.getMember<float>("textFontSize");
+	m_color = members.getMember<Color>("textColor");
+}
+
+ObjectMemberHolder Text::serialize() const
+{
+	ObjectMemberHolder objectMemberHolder = Object::serialize();
+	objectMemberHolder.addMember("textLabel", m_text);
+	objectMemberHolder.addMember("textFont", m_font);
+	objectMemberHolder.addMember("textFontSize", m_fontSize);
+	objectMemberHolder.addMember("textColor", m_color);
+	return objectMemberHolder;
 }
 
 bool Text::setText(std::string text)
@@ -35,13 +51,13 @@ bool Text::setText(std::string text)
 	return success;
 }
 
-bool Text::setColor(SDL_Color color)
+bool Text::setColor(Color color)
 {
 	bool success = false;
 	TextRenderer* textRend = static_cast<TextRenderer*>(m_renderer);
 	if (textRend)
 	{
-		textRend->setColor(color);
+		textRend->setColor(color.toSDL());
 		success = textRend->isGenerated();
 	}
 	return success;

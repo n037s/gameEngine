@@ -16,6 +16,7 @@ public:
 	size2D getWindowSize() { return windowSize; }
 	void setPos(point2D pos) { m_pos = pos; }
 	void setWindowSize(size2D size) { windowSize = size; }
+	void setCameraZLimits(float zMin, float zMax) { m_minCameraZ = zMin; m_maxCameraZ = zMax; }
 
 	void movePos(point2D dpos);
 	void moveZ(float z);
@@ -32,5 +33,7 @@ private:
 
 	point2D m_pos;
 	float m_height{ 1 };
+	float m_minCameraZ{ 0 };
+	float m_maxCameraZ{ 5 };
 	size2D windowSize;
 };

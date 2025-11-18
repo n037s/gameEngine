@@ -125,7 +125,8 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>C:\Users\leoqu\Desktop\Code\Project\extern\SDL3-3.2.26\include;C:\Users\leoqu\Desktop\Code\Project\ObjectManager</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\..\extern\SDL3-3.2.26\include;$(SolutionDir)\..\ObjectManager</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -150,7 +151,8 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>C:\Users\leoqu\Desktop\Code\Project\extern\SDL3-3.2.26\include;C:\Users\leoqu\Desktop\Code\Project\ObjectManager</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\..\extern\SDL3-3.2.26\include;$(SolutionDir)\..\ObjectManager</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>

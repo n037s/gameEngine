@@ -1,24 +1,30 @@
 #pragma once
 #include "Object.h"
 
+#include "Color.h"
+#include "ButtonCallbackRegistery.h"
+
 #include "Font.h"
 
 #include <functional>
 #include <string>
 
-using buttonFunction = std::function<bool(point2D pos)>;
-
 class Button : public Object
 {
 public:
-	Button(rect2D shape, std::string text, SDL_Color& color, Font* font, SDL_Color& fontColor, 
-		buttonFunction callback = nullptr, buttonFunction releaseCallback = nullptr);
+	Button(ObjectMemberHolder members);
+	Button(rect2D shape, std::string text, Color& color, Font* font, Color& fontColor,
+		std::string callbackID = "", std::string releaseCallbackID = "");
 
 	bool createRenderer(SDL_Renderer* renderer) override;
+
+	std::string getTypeName() const override { return "Button"; }
+	ObjectMemberHolder serialize() const override;
+
 	void hoover() override;
 	void leftFocus() override;
 	bool leftClick(point2D pos) override;
-	void releaseLeftClick(point2D pos) override;
+	bool releaseLeftClick(point2D pos) override;
 
 	const rect2D getShape() const override { return rect2D(m_pos - m_size / 2, m_size); };
 
@@ -31,12 +37,13 @@ public:
 
 private:
 	std::string m_label;
-	size2D m_size;
-	SDL_Color m_color;
+	Color m_color;
 	Font* m_font;
-	SDL_Color m_fontColor;
-	buttonFunction m_callback;
-	buttonFunction m_releaseCallback;
+	Color m_fontColor;
+	std::string m_callbackID;
+	std::string m_callbackReleaseID;
+	buttonCallback m_callback;
+	buttonCallback m_releaseCallback;
 	
 };
 

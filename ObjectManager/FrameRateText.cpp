@@ -4,14 +4,14 @@
 
 #include <iostream>
 
-FrameRateText::FrameRateText(rect2D shape, std::string font, float fontSize, SDL_Color color) :
+FrameRateText::FrameRateText(rect2D shape, std::string font, float fontSize, Color color) :
 	Text(shape, "fps", font, fontSize, color)
 {
 }
 
 bool FrameRateText::createRenderer(SDL_Renderer* renderer)
 {
-	m_renderer = new TextRenderer(renderer, m_text, m_size, new Font(m_font, m_fontSize), m_color);
+	m_renderer = new TextRenderer(renderer, m_text, m_size, new Font(m_font, m_fontSize), m_color.toSDL());
 	m_size = m_renderer->getSize();
 
 	return m_renderer->isGenerated();
@@ -33,6 +33,16 @@ void FrameRateText::update()
 		m_frameUpdated = 0;
 		m_lastTime = currentTime;
 	}
+}
+
+FrameRateText::FrameRateText(ObjectMemberHolder members) : Text(members)
+{
+
+}
+
+ObjectMemberHolder FrameRateText::serialize() const
+{
+	return Text::serialize();
 }
 
 bool FrameRateText::setColor(SDL_Color color)

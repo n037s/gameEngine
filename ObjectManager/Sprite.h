@@ -9,7 +9,11 @@
 class Sprite : public Object
 {
 public:
+	Sprite(ObjectMemberHolder members);
 	Sprite(point2D pos, std::string assetName);
+
+	std::string getTypeName() const override { return "Sprite"; }
+	ObjectMemberHolder serialize() const override;
 
 	bool createRenderer(SDL_Renderer* renderer) override;
 	const point2D getPos() const override { return m_pos + m_size / 2; }

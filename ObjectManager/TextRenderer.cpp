@@ -3,7 +3,7 @@
 #include <iostream>
 
 
-TextRenderer::TextRenderer(SDL_Renderer* renderer, const std::string& text, size2D size, Font* font, SDL_Color& color)
+TextRenderer::TextRenderer(SDL_Renderer* renderer, const std::string& text, size2D size, Font* font, SDL_Color color)
 {
 	m_renderer = renderer;
 	m_size = size;
@@ -58,7 +58,7 @@ void TextRenderer::setText(std::string& text)
 	generateTexture();
 }
 
-void TextRenderer::setColor(SDL_Color& color)
+void TextRenderer::setColor(SDL_Color color)
 {
 	m_color = color;
 	generateTexture();

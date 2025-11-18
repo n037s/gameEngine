@@ -60,16 +60,12 @@ void AssetsManager::parseFiles()
             Asset* asset = loadAsset(filePath);
             if (asset)
             {
+                asset->setAssetID(assetID);
                 m_nameToAsset[assetID] = asset;
             }
         }
     }
 
-    std::cout << "Parsed assets : " << std::endl;
-    for (auto it : m_nameToAsset)
-    {
-        std::cout << "item - " << it.first << std::endl;
-    }
 }
 
 Asset* AssetsManager::loadAsset(fs::path filePath)

@@ -5,9 +5,8 @@
 #include "ImageRenderer.h"
 #include "AssetsManager.h"
 
-Sprite::Sprite(point2D pos, std::string assetName)
+Sprite::Sprite(point2D pos, std::string assetName) : Object(pos)
 {
-	m_pos = pos;
 	m_asset = static_cast<Image*>(AssetsManager::getInstance()->getAsset(assetName));
 }
 
@@ -18,4 +17,17 @@ bool Sprite::createRenderer(SDL_Renderer* renderer)
 	m_size = imageRenderer->getSize();
 
 	return m_renderer->isGenerated();
+}
+
+Sprite::Sprite(ObjectMemberHolder members) : Object(members)
+{
+	static_cast<Image*>(AssetsManager::getInstance()->getAsset(members.getMember<std::string>("assetID")));
+}
+
+ObjectMemberHolder Sprite::serialize() const
+{
+	ObjectMemberHolder objectMemberHolder = Object::serialize();
+	std::string assetID = m_asset ? m_asset->getAssetID() : "";
+	objectMemberHolder.addMember("assetID", assetID);
+	return objectMemberHolder;
 }

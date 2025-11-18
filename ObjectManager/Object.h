@@ -1,19 +1,23 @@
 #pragma once
+#include <iostream>
 
 #include "Geometry.h"
 #include "BaseRenderer.h"
-#include "SDL3/SDL.h"
+#include "ObjectMemberHolder.h"
 
+#include "SDL3/SDL.h"
 
 class Object
 {
 public:
-	Object() : m_pos{ 0, 0 } {};
-	Object(point2D pos) : m_pos(pos) {};
-	Object(point2D pos, size2D size) : m_pos(pos), m_size(size) {};
+	Object(ObjectMemberHolder members);
+	Object(point2D pos = point2D(0, 0), size2D size = size2D(1, 1), float z = 0) : m_pos(pos), m_size(size), m_z(z) {}
 
 	bool isHidden() { return m_isHidden; }
 	void setIsHidden(bool isHidden) { m_isHidden = isHidden; }
+
+	virtual std::string getTypeName() const = 0;
+	virtual ObjectMemberHolder serialize() const;
 
 	/*
 	 * @brief create the item renderer
@@ -54,7 +58,7 @@ public:
 	 */
 	virtual void leftFocus();
 
-
+	void setLeftClicked(bool isLeftClicked) { m_isLeftClicked = isLeftClicked; }
 	bool isLeftClicked() { return m_isLeftClicked; }
 	/*
 	 * @brief callback of the item when it is left clicked on
@@ -71,7 +75,7 @@ public:
 	 * 
 	 * @return bool if a callback have been performed
 	 */
-	void offLeftClick(point2D pos);
+	bool offLeftClick(point2D pos);
 	/*
 	 * @brief leftClick item callback
 	 * 
@@ -87,7 +91,7 @@ public:
 	 * 
 	 * @return bool if a callback have been performed
 	 */
-	virtual void releaseLeftClick (point2D pos);
+	virtual bool releaseLeftClick (point2D pos);
 
 	/*
 	 * @brief get the position of the item
@@ -105,8 +109,19 @@ public:
 
 	void setRenderingRect(rect2D renderingRect) { m_renderingRect = renderingRect; }
 
+	void setZ(float z) { m_z = z; }
+	float getZ() { return m_z; }
+
+	bool operator>(Object* other) { std::cout << "m_z > other->m_z : " << (m_z > other->m_z) << std::endl; return (m_z > other->m_z); }
+	bool operator<(Object* other) { std::cout << "m_z < other->m_z : " << (m_z < other->m_z) << std::endl; return (m_z < other->m_z); }
+	bool operator<=(Object* other) { std::cout << "m_z <= other->m_z : " << (m_z <= other->m_z) << std::endl; return (m_z <= other->m_z); }
+	bool operator>=(Object* other) { std::cout << "m_z >= other->m_z : " << (m_z >= other->m_z) << std::endl; return (m_z >= other->m_z); }
+	bool operator==(Object* other) { std::cout << "m_z == other->m_z : " << (m_z == other->m_z) << std::endl; return (m_z == other->m_z); }
+
 protected:
+	ObjectMemberHolder m_members;
 	point2D m_pos{ 0, 0 };
+	float m_z{ 0 };
 	size2D m_size{ 0,0 };
 	rect2D m_renderingRect{ 0,0,0,0 };
 	BaseRenderer* m_renderer{ nullptr };
@@ -116,4 +131,3 @@ protected:
 	bool m_isHoovered{ false };
 	bool m_isLeftClicked{ false };
 };
-

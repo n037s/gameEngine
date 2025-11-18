@@ -29,3 +29,10 @@ bool CameraControl::moveRight()
 	Camera::getInstance()->movePos(dx);
 	return true;
 }
+
+bool CameraControl::moveZ(float dz)
+{
+	const float wheelRatio = -0.2;
+	Camera::getInstance()->moveZ(dz * wheelRatio);
+	return true;
+}

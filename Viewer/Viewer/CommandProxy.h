@@ -6,6 +6,7 @@
 #include <list>
 
 using callbackFunction = std::function<bool()>;
+using callbackMouseWheel = std::function<bool(float d)>;
 
 /*
 * This class manages user events repartition

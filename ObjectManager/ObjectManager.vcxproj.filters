@@ -31,15 +31,24 @@
     <Filter Include="Fichiers sources\Asset">
       <UniqueIdentifier>{97457f0f-8417-4892-b2db-44a75e360853}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fichiers d%27en-tête\Basics">
+      <UniqueIdentifier>{9669621b-99a0-40a5-87c0-e348cf235674}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\Basics">
+      <UniqueIdentifier>{3799e59c-901c-4074-89ee-d049dd7df475}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers d%27en-tête\Manager">
+      <UniqueIdentifier>{de095aa6-a3bf-464e-beb5-feb0369a37c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\Manager">
+      <UniqueIdentifier>{0be44025-a869-4cd0-b8f5-0b4a1de2d276}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="World.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
-    <ClInclude Include="Geometry.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="Object.h">
@@ -54,9 +63,6 @@
     <ClInclude Include="ImageRenderer.h">
       <Filter>Fichiers d%27en-tête\Renderers</Filter>
     </ClInclude>
-    <ClInclude Include="ObjectManager.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
     <ClInclude Include="Button.h">
       <Filter>Fichiers d%27en-tête\Objects</Filter>
     </ClInclude>
@@ -69,14 +75,8 @@
     <ClInclude Include="TextRenderer.h">
       <Filter>Fichiers d%27en-tête\Renderers</Filter>
     </ClInclude>
-    <ClInclude Include="Font.h">
-      <Filter>Fichiers d%27en-tête\Objects</Filter>
-    </ClInclude>
     <ClInclude Include="FrameRateText.h">
       <Filter>Fichiers d%27en-tête\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="AssetsManager.h">
-      <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="Asset.h">
       <Filter>Fichiers d%27en-tête\Asset</Filter>
@@ -87,15 +87,33 @@
     <ClInclude Include="AnimatedSprite.h">
       <Filter>Fichiers d%27en-tête\Objects</Filter>
     </ClInclude>
+    <ClInclude Include="Geometry.h">
+      <Filter>Fichiers d%27en-tête\Basics</Filter>
+    </ClInclude>
+    <ClInclude Include="Color.h">
+      <Filter>Fichiers d%27en-tête\Basics</Filter>
+    </ClInclude>
+    <ClInclude Include="Font.h">
+      <Filter>Fichiers d%27en-tête\Asset</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetsManager.h">
+      <Filter>Fichiers d%27en-tête\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="ButtonCallbackRegistery.h">
+      <Filter>Fichiers d%27en-tête\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectManager.h">
+      <Filter>Fichiers d%27en-tête\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectMemberHolder.h">
+      <Filter>Fichiers d%27en-tête\Manager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="World.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
-      <Filter>Fichiers sources</Filter>
-    </ClCompile>
-    <ClCompile Include="Geometry.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="Object.cpp">
@@ -110,9 +128,6 @@
     <ClCompile Include="ImageRenderer.cpp">
       <Filter>Fichiers sources\Renderers</Filter>
     </ClCompile>
-    <ClCompile Include="ObjectManager.cpp">
-      <Filter>Fichiers sources</Filter>
-    </ClCompile>
     <ClCompile Include="Button.cpp">
       <Filter>Fichiers sources\Objects</Filter>
     </ClCompile>
@@ -125,14 +140,8 @@
     <ClCompile Include="TextRenderer.cpp">
       <Filter>Fichiers sources\Renderers</Filter>
     </ClCompile>
-    <ClCompile Include="Font.cpp">
-      <Filter>Fichiers sources\Objects</Filter>
-    </ClCompile>
     <ClCompile Include="FrameRateText.cpp">
       <Filter>Fichiers sources\Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="AssetsManager.cpp">
-      <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="Asset.cpp">
       <Filter>Fichiers sources\Asset</Filter>
@@ -142,6 +151,27 @@
     </ClCompile>
     <ClCompile Include="AnimatedSprite.cpp">
       <Filter>Fichiers sources\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Geometry.cpp">
+      <Filter>Fichiers sources\Basics</Filter>
+    </ClCompile>
+    <ClCompile Include="Color.cpp">
+      <Filter>Fichiers sources\Basics</Filter>
+    </ClCompile>
+    <ClCompile Include="Font.cpp">
+      <Filter>Fichiers sources\Asset</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetsManager.cpp">
+      <Filter>Fichiers sources\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="ButtonCallbackRegistery.cpp">
+      <Filter>Fichiers sources\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectManager.cpp">
+      <Filter>Fichiers sources\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectMemberHolder.cpp">
+      <Filter>Fichiers sources\Manager</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

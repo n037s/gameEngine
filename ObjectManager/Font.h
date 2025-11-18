@@ -29,7 +29,9 @@ public:
 	void setFontID(std::string fontID);
 	void setPolicySize(float policySize);
 	void setTextAlignement(TextAlignement textAlignement) { m_textAlignement = textAlignement; }
-	TextAlignement getTextAlignement() { return m_textAlignement; }
+	const std::string getFontID() { return m_fontID; }
+	const float getPolicySize() { return m_policySize; }
+	const TextAlignement getTextAlignement() { return m_textAlignement; }
 
 	bool isGenerated() { return m_isGenerated; }
 	TTF_Font* toSDL() { return m_font; }

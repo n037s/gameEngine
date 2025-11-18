@@ -33,9 +33,6 @@
     <ClCompile Include="Viewer.cpp">
       <Filter>Fichiers sources\Viewer</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>Fichiers sources</Filter>
-    </ClCompile>
     <ClCompile Include="Viewer.h">
       <Filter>Fichiers d%27en-tête\Viewer</Filter>
     </ClCompile>

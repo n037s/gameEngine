@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-ButtonRenderer::ButtonRenderer(SDL_Renderer* renderer, size2D size, SDL_Color& color, std::string label, Font* font, SDL_Color& fontColor)
+ButtonRenderer::ButtonRenderer(SDL_Renderer* renderer, size2D size, SDL_Color color, std::string label, Font* font, SDL_Color fontColor)
 {
 	m_renderer = renderer;
 	m_size = size;
@@ -40,7 +40,7 @@ void ButtonRenderer::generateTexture()
 	m_texture = SDL_CreateTextureFromSurface(m_renderer, m_surface);
 }
 
-void  ButtonRenderer::setColor(SDL_Color& color)
+void  ButtonRenderer::setColor(SDL_Color color)
 {
 	m_color = color;
 	generateTexture();

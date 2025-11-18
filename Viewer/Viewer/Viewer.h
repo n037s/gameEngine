@@ -27,6 +27,8 @@ public:
 	void setWorld(World* world) { m_world = world; }
 	void setCommandProxy(CommandProxy* cmdProxy) { m_commandProxy = cmdProxy; }
 
+	void setWhellCallback(callbackMouseWheel callback) { m_wheelCallback = callback; }
+
 
 private:
 	Viewer();
@@ -43,4 +45,6 @@ private:
 
 	World* m_world{ nullptr };
 	CommandProxy* m_commandProxy{ nullptr };
+
+	callbackMouseWheel m_wheelCallback{ nullptr };
 };

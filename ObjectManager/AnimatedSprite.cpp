@@ -5,9 +5,8 @@
 
 #include <iostream>
 
-AnimatedSprite::AnimatedSprite(point2D pos, std::vector<std::string> assetNames, int animationSpeedMS)
+AnimatedSprite::AnimatedSprite(point2D pos, std::vector<std::string> assetNames, int animationSpeedMS) : Object(pos)
 {
-	m_pos = pos;
 	m_assets = std::vector<Image*>();
 	m_animationSpeed = animationSpeedMS;
 
@@ -25,6 +24,30 @@ bool AnimatedSprite::createRenderer(SDL_Renderer* renderer)
 	m_size = imageRenderer->getSize();
 
 	return m_renderer->isGenerated();
+}
+
+AnimatedSprite::AnimatedSprite(ObjectMemberHolder members) : Object(members)
+{
+	for (int i = 0; i < members.getMember<size_t>("AssetsCount"); ++i)
+	{
+		std::string assetName = members.getMember<std::string>("AssetID" + std::to_string(++i));
+		m_assets.push_back(static_cast<Image*>(AssetsManager::getInstance()->getAsset(assetName)));
+	}
+	m_animationSpeed = members.getMember<int>("AnimationSpeed");
+}
+
+ObjectMemberHolder AnimatedSprite::serialize() const
+{
+	ObjectMemberHolder objectMemberHolder = Object::serialize();
+	objectMemberHolder.addMember("AssetsCount", m_assets.size());
+	int i = 0;
+	for (auto asset : m_assets)
+	{
+		std::string assetID = asset ? asset->getAssetID() : "";
+		objectMemberHolder.addMember("AssetID" + std::to_string(++i), assetID);
+	}
+	objectMemberHolder.addMember("AnimationSpeed", m_animationSpeed);
+	return objectMemberHolder;
 }
 
 void AnimatedSprite::update()

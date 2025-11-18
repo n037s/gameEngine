@@ -36,9 +36,7 @@ void Camera::movePos(point2D dpos)
 
 void Camera::moveZ(float dz)
 {
-	const float cameraMinZ = 0.2;
-	const float cameraMaxZ = 5;
-	m_height = std::clamp(m_height + dz, cameraMinZ, cameraMaxZ);
+	m_height = std::clamp(m_height + dz, m_minCameraZ, m_maxCameraZ);
 }
 
 float Camera::getRenderingScale()

@@ -12,4 +12,5 @@ public:
 	static bool moveDown();
 	static bool moveLeft();
 	static bool moveRight();
+	static bool moveZ(float dz);
 };
