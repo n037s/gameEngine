@@ -17,10 +17,10 @@ public:
 	void moveCameraPos(float dx, float dy);
 	float getCameraRenderingScale();
 
-	bool addObject(Object* object);
-	bool removeObject(Object* object);
-	bool addOverlayObject(Object* object);
-	bool removeOverlayObject(Object* object);
+	bool addObject(std::shared_ptr<Object> object);
+	bool removeObject(std::shared_ptr<Object> object);
+	bool addOverlayObject(std::shared_ptr<Object> object);
+	bool removeOverlayObject(std::shared_ptr<Object> object);
 
 	void render(SDL_Renderer* renderer);
 	void update();
@@ -36,6 +36,7 @@ public:
 
 
 	void parseFile(std::string filePath);
+	void createRenderers(SDL_Renderer* renderer);
 	void saveFile(std::string filePath);
 
 private:

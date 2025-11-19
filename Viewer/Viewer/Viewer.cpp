@@ -40,7 +40,7 @@ bool Viewer::Init(size2D windowSize)
 
     if (!TTF_Init()) {
         SDL_Log("Couldn't initialize SDL_ttf: %s\n", SDL_GetError());
-        return SDL_APP_FAILURE;
+        return false; // SDL_APP_FAILURE;
     }
 
     return isFailure;

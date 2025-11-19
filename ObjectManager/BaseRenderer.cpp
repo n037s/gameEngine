@@ -27,7 +27,7 @@ size2D BaseRenderer::getSize()
     size2D result = size2D(0, 0);
     if (m_surface)
     {
-        result = size2D(m_surface->w, m_surface->h);
+        result = size2D(static_cast<float>(m_surface->w), static_cast<float>(m_surface->h));
     }
     return result;
 }

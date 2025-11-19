@@ -1,7 +1,5 @@
 #pragma once
 
-#include "SDL3/SDL.h"
-#include "Geometry.h"
 #include "World.h"
 #include "CommandProxy.h"
 

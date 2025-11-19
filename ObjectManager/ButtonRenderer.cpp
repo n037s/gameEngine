@@ -24,9 +24,9 @@ ButtonRenderer::~ButtonRenderer()
 void ButtonRenderer::generateTexture()
 {
 	cleanSurfaceAndRenderer();
-	m_surface = SDL_CreateSurface(m_size.w, m_size.h, SDL_PIXELFORMAT_RGBA8888);
+	m_surface = SDL_CreateSurface(static_cast<int>(m_size.w), static_cast<int>(m_size.h), SDL_PIXELFORMAT_RGBA8888);
 	point2D rel_pos(0, 0);
-	SDL_Rect brect = { rel_pos.x, rel_pos.y, m_size.w, m_size.h };
+	SDL_Rect brect = { static_cast<int>(rel_pos.x), static_cast<int>(rel_pos.y), static_cast<int>(m_size.w), static_cast<int>(m_size.h) };
 	SDL_FillSurfaceRect(m_surface, &brect, SDL_MapSurfaceRGBA(m_surface, m_color.r, m_color.g, m_color.b, m_color.a));
 
 	TextRenderer* textRend = new TextRenderer(m_renderer, m_label, m_size, m_font, m_fontColor);

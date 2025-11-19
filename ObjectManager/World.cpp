@@ -38,8 +38,10 @@ bool World::addobject(std::shared_ptr<Object> object, std::list<std::shared_ptr<
 {
 	bool success = true;
 	object_list.push_back(object);
-	std::cout << "sorting objects" << std::endl;
-	object_list.sort(std::greater<Object*>());
+	object_list.sort([](const std::shared_ptr<Object>& a, const std::shared_ptr<Object>& b) {
+			return *a > b.get();
+		});
+	object_list.sort(std::greater<std::shared_ptr<Object>>());
 	return success;
 }
 
@@ -59,21 +61,21 @@ bool World::removeobject(std::shared_ptr<Object> object, std::list<std::shared_p
 	return success;
 }
 
-bool World::addObject(Object* object)
+bool World::addObject(std::shared_ptr<Object> object)
 {
-	return addobject(std::make_shared<Object>(object), m_objects);
+	return addobject(object, m_objects);
 }
-bool World::removeObject(Object* object)
+bool World::removeObject(std::shared_ptr<Object> object)
 {
-	return removeobject(std::make_shared<Object>(object), m_objects);
+	return removeobject(object, m_objects);
 }
-bool World::addOverlayObject(Object* object)
+bool World::addOverlayObject(std::shared_ptr<Object> object)
 {
-	return addobject(std::make_shared<Object>(object), m_overlayObjects);
+	return addobject(object, m_overlayObjects);
 }
-bool World::removeOverlayObject(Object* object)
+bool World::removeOverlayObject(std::shared_ptr<Object> object)
 {
-	return removeobject(std::make_shared<Object>(object), m_overlayObjects);
+	return removeobject(object, m_overlayObjects);
 }
 
 void World::render(SDL_Renderer* renderer)
@@ -234,13 +236,13 @@ void World::parseFile(std::string filePath)
 		for (size_t i = 0; i < object_size; ++i)
 		{
 			std::string objectType = Value::readNextValue(inFile).getValue<std::string>();
-			std::cout << "object type detected : " << objectType << std::endl;
+			std::cout << "[" << objectType << "]" << std::endl;
 
 			// deseriailze members
 			ObjectMemberHolder members;
 			members.deserialize(inFile);
 
-			m_objects.push_back(ObjectManager::createObject(objectType, members));
+			addObject(ObjectManager::createObject(objectType, members));
 		}
 		
 		size_t overlay_size = Value::readNextValue(inFile).getValue<size_t>();
@@ -255,10 +257,21 @@ void World::parseFile(std::string filePath)
 			ObjectMemberHolder members;
 			members.deserialize(inFile);
 
-			std::shared_ptr<Object> object = ObjectManager::createObject(objectType, members);
-			if (object)
-				m_overlayObjects.push_back(object);
+			addOverlayObject(ObjectManager::createObject(objectType, members));
 		}
+	}
+}
+
+void World::createRenderers(SDL_Renderer* renderer)
+{
+	for (std::shared_ptr<Object> item : m_objects)
+	{
+		item->createRenderer(renderer);
+	}
+
+	for (std::shared_ptr<Object> item : m_overlayObjects)
+	{
+		item->createRenderer(renderer);
 	}
 }
 
@@ -271,9 +284,7 @@ void World::saveFile(std::string filePath)
 	}
 	else
 	{
-		// Write the world 
-
-		// First write all objects. 
+		// Write the world  
 		Value object_size = Value(m_objects.size());
 		object_size.serialize(outFile);
 		for (std::shared_ptr<Object> item : m_objects)

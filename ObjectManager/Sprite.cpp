@@ -21,7 +21,7 @@ bool Sprite::createRenderer(SDL_Renderer* renderer)
 
 Sprite::Sprite(ObjectMemberHolder members) : Object(members)
 {
-	static_cast<Image*>(AssetsManager::getInstance()->getAsset(members.getMember<std::string>("assetID")));
+	m_asset = static_cast<Image*>(AssetsManager::getInstance()->getAsset(members.getMember<std::string>("assetID")));
 }
 
 ObjectMemberHolder Sprite::serialize() const

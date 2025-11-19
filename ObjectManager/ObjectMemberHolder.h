@@ -38,6 +38,7 @@ public:
 
 	template<typename T>
 	T getValue() const;
+	friend std::ostream& operator<<(std::ostream& out, const Value& value);
 
 	void serialize(std::ostream& out);
 	void deserialize(std::istream& in);

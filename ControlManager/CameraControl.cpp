@@ -32,7 +32,7 @@ bool CameraControl::moveRight()
 
 bool CameraControl::moveZ(float dz)
 {
-	const float wheelRatio = -0.2;
+	const float wheelRatio = -0.2f;
 	Camera::getInstance()->moveZ(dz * wheelRatio);
 	return true;
 }

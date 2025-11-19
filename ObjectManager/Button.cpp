@@ -25,6 +25,8 @@ Button::Button(ObjectMemberHolder members) : Object(members)
 	m_fontColor = members.getMember<Color>("buttonLabelFontColor");
 	m_callbackID = members.getMember<std::string>("butonCallbackOnClick");
 	m_callbackReleaseID = members.getMember<std::string>("buttonCallbackOnRelease");
+	m_callback = ButtonCallbackRegistery::instance()->getCallback(m_callbackID);
+	m_releaseCallback = ButtonCallbackRegistery::instance()->getCallback(m_callbackReleaseID);
 }
 
 ObjectMemberHolder Button::serialize() const

@@ -28,7 +28,7 @@ void TextRenderer::generateTexture()
 	}
 	else
 	{
-		m_surface = SDL_CreateSurface(m_size.w, m_size.h, SDL_PIXELFORMAT_RGBA8888);
+		m_surface = SDL_CreateSurface(static_cast<int>(m_size.w), static_cast<int>(m_size.h), SDL_PIXELFORMAT_RGBA8888);
 		SDL_Surface* textSurface = TTF_RenderText_Blended(m_font->toSDL(), m_text.c_str(), 0, m_color);
 		if (!m_surface && !textSurface)
 		{
@@ -79,16 +79,16 @@ void TextRenderer::setPoliceSize(float size)
 bool TextRenderer::setupTextInSurface(SDL_Surface* textSurface)
 {
 	// Compute the position and mix the text surface to the main surface
-	size2D textSurfaceSize = size2D(textSurface->w, textSurface->h);
-	size2D surfaceSize = size2D(m_surface->w, m_surface->h);
+	size2D textSurfaceSize = size2D(static_cast<float>(textSurface->w), static_cast<float>(textSurface->h));
+	size2D surfaceSize = size2D(static_cast<float>(m_surface->w), static_cast<float>(m_surface->h));
 
 	size2D oversize = surfaceSize - textSurfaceSize;
 	point2D offset = point2D(0, 0);
 	
 	TextAlignement textAlignement = m_font->getTextAlignement();
 	// we have an offset to compute according to font alignement
-	offset.x = oversize.w * ( textAlignement.horizontalAlignement / 2.0);
-	offset.y = oversize.h * ( textAlignement.verticalAlignement / 2.0);
+	offset.x = oversize.w * ( textAlignement.horizontalAlignement / 2.0f);
+	offset.y = oversize.h * ( textAlignement.verticalAlignement / 2.0f);
 
 	SDL_Rect textRect = rect2D(point2D(0, 0), textSurfaceSize).tointSDL();
 	SDL_Rect surfaceRect = rect2D(offset, surfaceSize).tointSDL();

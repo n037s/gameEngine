@@ -21,8 +21,6 @@
 
 #include <iostream>
 
-Sprite* img, * img2, * img3, * img4;
-
 bool Osef(point2D pos, Object* caller)
 {
     return true;
@@ -31,10 +29,68 @@ bool Osef(point2D pos, Object* caller)
 bool Osef2(point2D pos, Object* caller)
 {
     std::cout << "osef2 called" << std::endl;
-    img->setIsHidden(!img->isHidden());
-    img2->setIsHidden(!img2->isHidden());
-    img4->setIsHidden(!img4->isHidden());
     return true;
+}
+
+void CreateMyObjects(SDL_Renderer* renderer, World& world)
+{
+    size2D objSize = size2D(256, 256);
+    std::cout << "Creating the world ..." << std::endl;
+
+    point2D r_pos = { 0,0 };
+    std::shared_ptr<Sprite> img = std::make_shared<Sprite>(r_pos * objSize, "craftpix/Tile/Top-Down Simple Summer_Ground 01");
+    img->createRenderer(renderer);
+    world.addObject(img);
+
+    r_pos = { 1,0 };
+    std::shared_ptr<Sprite> img2 = std::make_shared<Sprite>(r_pos * objSize, "craftpix/Tile/Top-Down Simple Summer_Ground 02");
+    img2->createRenderer(renderer);
+    world.addObject(img2);
+
+    r_pos = { 2,0 };
+    std::shared_ptr<Sprite> img3 = std::make_shared<Sprite>(r_pos * objSize, "craftpix/Tile/Top-Down Simple Summer_Ground 03");
+    img3->createRenderer(renderer);
+    world.addObject(img3);
+
+    r_pos = { 0,1 };
+    std::shared_ptr<Sprite> img4 = std::make_shared<Sprite>(r_pos * objSize, "craftpix/Tile/Top-Down Simple Summer_Ground 04");
+    img4->createRenderer(renderer);
+    world.addObject(img4);
+
+    for (int i = 5; i < 10; i++)
+    {
+        r_pos = point2D((i - 1) % 3, (i - 1) / 3);
+        std::cout << "rpos " << r_pos.toString() << " id : " << "craftpix/Tile/Top-Down Simple Summer_Ground 0" + std::to_string(i) << std::endl;
+        std::shared_ptr<Sprite> img5 = std::make_shared<Sprite>(r_pos * objSize, "craftpix/Tile/Top-Down Simple Summer_Ground 0" + std::to_string(i));
+        img5->createRenderer(renderer);
+        world.addObject(img5);
+    }
+
+    rect2D textPosition = rect2D(0, 0, 100, 30);
+    std::shared_ptr<FrameRateText> text = std::make_shared<FrameRateText>(textPosition, "arial", 30, Color(255, 255, 0));
+    text->createRenderer(renderer);
+    world.addOverlayObject(text);
+
+    rect2D buttonPosition = rect2D(0, -100, 100, 25);
+    Font* font = new Font("arial", 25);
+    Color color = Color(100, 100, 100, 255);
+    Color fontColor = Color(255, 255, 255, 255);
+    std::shared_ptr<Button> button = std::make_shared<Button>(buttonPosition, "blip", color, font, fontColor, "osef", "osef2");
+    button->setZ(3);
+    button->createRenderer(renderer);
+    world.addObject(button);
+
+    std::string basename = "FarmRPG/Character/";
+    std::vector<std::string> persoAnimation = {
+        basename + "Idle_front1",
+        basename + "Idle_front2",
+        basename + "Idle_front3",
+        basename + "Idle_front4"
+    };
+    auto personnage = std::make_shared<AnimatedSprite>(point2D(0, 0), persoAnimation, 250);
+    personnage->createRenderer(renderer);
+    personnage->setZ(1);
+    world.addObject(personnage);
 }
 
 int main(int argc, char* argv[]) 
@@ -60,68 +116,14 @@ int main(int argc, char* argv[])
     viewer->setWorld(&world);
 
     world.parseFile(worldFilePath);
+    world.createRenderers(renderer);
 
     // Define its objects
     world.createCamera({ 0,0 }, windowSize);
-    world.setCameraZLimits(0.2, 5);
+    world.setCameraZLimits(0.2f, 5);
 
-    size2D objSize = size2D(256, 256);
-    std::cout << "Creating the world ..." << std::endl;
-
-    point2D r_pos = {0,0};
-    img = new Sprite(r_pos * objSize, "craftpix/Tile/Top-Down Simple Summer_Ground 01");
-    img->createRenderer(renderer);
-    world.addObject(img);
-
-    r_pos = { 1,0 };
-    img2 = new Sprite(r_pos * objSize, "craftpix/Tile/Top-Down Simple Summer_Ground 02");
-    img2->createRenderer(renderer);
-    world.addObject(img2);
-
-    r_pos = { 2,0 };
-    img3 = new Sprite(r_pos * objSize, "craftpix/Tile/Top-Down Simple Summer_Ground 03");
-    img3->createRenderer(renderer);
-    world.addObject(img3);
-
-    r_pos = { 0,1 };
-    img4 = new Sprite(r_pos * objSize, "craftpix/Tile/Top-Down Simple Summer_Ground 04");
-    img4->createRenderer(renderer);
-    world.addObject(img4);
-
-    for (int i = 5; i < 10; i++)
-    {
-        r_pos = point2D((i - 1) % 3, (i - 1) / 3);
-        std::cout << "rpos " << r_pos.toString() << " id : " << "craftpix/Tile/Top-Down Simple Summer_Ground 0" + std::to_string(i) << std::endl;
-        Sprite* img5 = new Sprite(r_pos * objSize, "craftpix/Tile/Top-Down Simple Summer_Ground 0" + std::to_string(i));
-        img5->createRenderer(renderer);
-        world.addObject(img5);
-    }
-
-    rect2D textPosition = rect2D(0, 0, 100, 30);
-    FrameRateText* text = new FrameRateText(textPosition, "arial", 30, Color(255, 255, 0));
-    text->createRenderer(renderer);
-    world.addOverlayObject(text);
-
-    rect2D buttonPosition = rect2D(0, -100, 100, 25);
-    Font* font = new Font("arial", 25);
-    Color color = Color(100, 100, 100, 255);
-    Color fontColor = Color(255, 255, 255, 255);
-    Button* button = new Button(buttonPosition, "blip", color, font, fontColor, "osef", "osef2");
-    button->setZ(3);
-    button->createRenderer(renderer);
-    world.addObject(button);
-
-    std::string basename = "FarmRPG/Character/";
-    std::vector<std::string> persoAnimation = {
-        basename + "Idle_front1",
-        basename + "Idle_front2",
-        basename + "Idle_front3",
-        basename + "Idle_front4"
-    };
-    auto personnage = new AnimatedSprite(point2D(0, 0), persoAnimation, 250);
-    personnage->createRenderer(renderer);
-    personnage->setZ(1);
-    world.addObject(personnage);
+    // Create world
+    // CreateMyObjects(renderer, world);
 
     // Define controller manager and its callbacks
     CommandProxy cmdProxy;

@@ -146,6 +146,43 @@ Value Value::readNextValue(std::istream& in)
 	return item;
 }
 
+std::ostream& operator<<(std::ostream& out, const Value& value)
+{
+	switch (value.data.index())
+	{
+	case BOOL:
+		out << (value.getValue<bool>())?"true":"false";
+		break;
+	case INT:
+		out << value.getValue<int>();
+		break;
+	case FLOAT:
+		out << value.getValue<float>();
+		break;
+	case SIZE_T:
+		out << value.getValue<size_t>();
+		break;
+	case STRING:
+		out << value.getValue<std::string>();
+		break;
+	case POINT2D:
+		out << value.getValue<point2D>().x << ";" << value.getValue<point2D>().y;
+		break;
+	case SIZE2D:
+		out << value.getValue<size2D>().w << "x" << value.getValue<size2D>().h;
+		break;
+	case COLOR:
+		out << static_cast<int>(value.getValue<Color>().r) << ";" << static_cast<int>(value.getValue<Color>().g) << ";" <<
+			static_cast<int>(value.getValue<Color>().b) << ";" << static_cast<int>(value.getValue<Color>().a);
+		break;
+	case FONT:
+		out << "Font";
+		break;
+	}
+	
+	return out;
+}
+
 ObjectMemberHolder::ObjectMemberHolder()
 {
 	m_list = std::map<std::string, Value*>();
@@ -166,13 +203,13 @@ void ObjectMemberHolder::serialize(std::ostream& out)
 void ObjectMemberHolder::deserialize(std::istream& in)
 {
 	size_t memberCount = Value::readNextValue(in).getValue<size_t>();;
-	std::cout << "    member count : " << memberCount << std::endl;
 	for (size_t i = 0; i < memberCount; ++i)
 	{
 		std::string memberName = Value::readNextValue(in).getValue<std::string>();
-		std::cout << "        member name : " << memberName << std::endl;
+		std::cout << "    [" << memberName << "]" << std::endl;
 		Value* memberValue = new Value("\0");
 		memberValue->deserialize(in);
+		std::cout << "        value = " << *memberValue << std::endl;
 		m_list[memberName] = memberValue;
 	}
 }

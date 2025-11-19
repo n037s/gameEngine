@@ -112,11 +112,11 @@ public:
 	void setZ(float z) { m_z = z; }
 	float getZ() { return m_z; }
 
-	bool operator>(Object* other) { std::cout << "m_z > other->m_z : " << (m_z > other->m_z) << std::endl; return (m_z > other->m_z); }
-	bool operator<(Object* other) { std::cout << "m_z < other->m_z : " << (m_z < other->m_z) << std::endl; return (m_z < other->m_z); }
-	bool operator<=(Object* other) { std::cout << "m_z <= other->m_z : " << (m_z <= other->m_z) << std::endl; return (m_z <= other->m_z); }
-	bool operator>=(Object* other) { std::cout << "m_z >= other->m_z : " << (m_z >= other->m_z) << std::endl; return (m_z >= other->m_z); }
-	bool operator==(Object* other) { std::cout << "m_z == other->m_z : " << (m_z == other->m_z) << std::endl; return (m_z == other->m_z); }
+	bool operator>(Object* other) { return (m_z > other->m_z); }
+	bool operator<(Object* other) { return (m_z < other->m_z); }
+	bool operator<=(Object* other) { return (m_z <= other->m_z); }
+	bool operator>=(Object* other) { return (m_z >= other->m_z); }
+	bool operator==(Object* other) { return (m_z == other->m_z); }
 
 protected:
 	ObjectMemberHolder m_members;

@@ -26,7 +26,7 @@ void FrameRateText::update()
 
 	if (duration_ms.count() > m_displayRateTime_ms)
 	{
-		float displayUpdatingRatio = 1000.0 / m_displayRateTime_ms;
+		float displayUpdatingRatio = 1000.0f / m_displayRateTime_ms;
 		std::string fps = std::to_string((int)(displayUpdatingRatio * m_frameUpdated)) + "fps";
 		static_cast<TextRenderer*>(m_renderer)->setText(fps);
 

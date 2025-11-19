@@ -28,11 +28,13 @@ bool AnimatedSprite::createRenderer(SDL_Renderer* renderer)
 
 AnimatedSprite::AnimatedSprite(ObjectMemberHolder members) : Object(members)
 {
+	m_assets = std::vector<Image*>();
 	for (int i = 0; i < members.getMember<size_t>("AssetsCount"); ++i)
 	{
-		std::string assetName = members.getMember<std::string>("AssetID" + std::to_string(++i));
+		std::string assetName = members.getMember<std::string>("AssetID" + std::to_string(i+1));
 		m_assets.push_back(static_cast<Image*>(AssetsManager::getInstance()->getAsset(assetName)));
 	}
+	m_currentAsset = m_assets.at(0);
 	m_animationSpeed = members.getMember<int>("AnimationSpeed");
 }
 
