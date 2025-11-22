@@ -15,6 +15,8 @@
 #include "FrameRateText.h"
 #include "AnimatedSprite.h"
 
+#include "UIDGenerator.h"
+
 #include "ButtonCallbackRegistery.h"
 
 #include "ObjectMemberHolder.h"
@@ -29,6 +31,8 @@ bool Osef(point2D pos, Object* caller)
 bool Osef2(point2D pos, Object* caller)
 {
     std::cout << "osef2 called" << std::endl;
+    auto object = World::getObjectByUID("77d978d0-fcdc-4986-a708-a32f52a3c40c");
+    object->setIsHidden(!object->isHidden());
     return true;
 }
 
@@ -95,7 +99,8 @@ void CreateMyObjects(SDL_Renderer* renderer, World& world)
 
 int main(int argc, char* argv[]) 
 {
-
+    std::cout << UIDGenerator::generateUID() << std::endl;
+    std::cout << UIDGenerator::generateUID() << std::endl;
     std::string worldFilePath = "C:\\Users\\leoqu\\Desktop\\Code\\Project\\Configs\\world";
 
     // Define a viewer
@@ -141,14 +146,13 @@ int main(int argc, char* argv[])
     viewer->startLoop();
 
     // After the loop
-    // world.saveFile(worldFilePath);
+    world.saveFile(worldFilePath);
 
     return 0;
 }
 
 
 // Then What to do : 
-// - Worl Manager (saving and reading in a file)
 // - Start a project world editor. It needs to add the right click option to add a menu interfacing AssetsManager to create item
 // + items can be grabbed and moved and resized.
 // - issue on dependencies. WorldEditor should not be dependent of SDL3 ... caused by import on .h

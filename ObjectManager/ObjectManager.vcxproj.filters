@@ -108,6 +108,9 @@
     <ClInclude Include="ObjectMemberHolder.h">
       <Filter>Fichiers d%27en-tête\Manager</Filter>
     </ClInclude>
+    <ClInclude Include="UIDGenerator.h">
+      <Filter>Fichiers d%27en-tête\Basics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="World.cpp">
@@ -172,6 +175,9 @@
     </ClCompile>
     <ClCompile Include="ObjectMemberHolder.cpp">
       <Filter>Fichiers sources\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="UIDGenerator.cpp">
+      <Filter>Fichiers sources\Basics</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

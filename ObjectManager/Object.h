@@ -4,6 +4,7 @@
 #include "Geometry.h"
 #include "BaseRenderer.h"
 #include "ObjectMemberHolder.h"
+#include "UIDGenerator.h"
 
 #include "SDL3/SDL.h"
 
@@ -16,6 +17,7 @@ public:
 	bool isHidden() { return m_isHidden; }
 	void setIsHidden(bool isHidden) { m_isHidden = isHidden; }
 
+	const std::string getUID() { return m_uid; }
 	virtual std::string getTypeName() const = 0;
 	virtual ObjectMemberHolder serialize() const;
 
@@ -119,6 +121,8 @@ public:
 	bool operator==(Object* other) { return (m_z == other->m_z); }
 
 protected:
+	std::string m_uid{ UIDGenerator::generateUID() };
+
 	ObjectMemberHolder m_members;
 	point2D m_pos{ 0, 0 };
 	float m_z{ 0 };
@@ -131,3 +135,6 @@ protected:
 	bool m_isHoovered{ false };
 	bool m_isLeftClicked{ false };
 };
+
+
+using ObjectPtr = std::shared_ptr<Object>;

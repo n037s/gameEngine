@@ -7,6 +7,8 @@
 
 const size2D clickingPrecisionArea = size2D(5, 5);
 
+std::map<std::string, ObjectPtr> World::m_UIDToObjects = std::map<std::string, ObjectPtr>();
+
 void World::createCamera(point2D pos, size2D windowSize)
 {
 	m_camera = Camera::getInstance();
@@ -32,20 +34,16 @@ float World::getCameraRenderingScale()
 {
 	return m_camera->getRenderingScale();
 }
-#include <list>
 
-bool World::addobject(std::shared_ptr<Object> object, std::list<std::shared_ptr<Object>>& object_list)
+bool World::addobject(ObjectPtr object, std::list<ObjectPtr>& object_list)
 {
 	bool success = true;
 	object_list.push_back(object);
-	object_list.sort([](const std::shared_ptr<Object>& a, const std::shared_ptr<Object>& b) {
-			return *a > b.get();
-		});
-	object_list.sort(std::greater<std::shared_ptr<Object>>());
+	m_UIDToObjects[object->getUID()] = object;
 	return success;
 }
 
-bool World::removeobject(std::shared_ptr<Object> object, std::list<std::shared_ptr<Object>>& object_list)
+bool World::removeobject(ObjectPtr object, std::list<ObjectPtr>& object_list)
 {
 	bool success = false;
 
@@ -57,25 +55,36 @@ bool World::removeobject(std::shared_ptr<Object> object, std::list<std::shared_p
 	}
 	else
 		std::cout << "Object is not found to deletion" << std::endl;
-
+	
+	m_UIDToObjects.erase(object->getUID());
 	return success;
 }
 
-bool World::addObject(std::shared_ptr<Object> object)
+bool World::addObject(ObjectPtr object)
 {
 	return addobject(object, m_objects);
 }
-bool World::removeObject(std::shared_ptr<Object> object)
+bool World::removeObject(ObjectPtr object)
 {
 	return removeobject(object, m_objects);
 }
-bool World::addOverlayObject(std::shared_ptr<Object> object)
+bool World::addOverlayObject(ObjectPtr object)
 {
 	return addobject(object, m_overlayObjects);
 }
-bool World::removeOverlayObject(std::shared_ptr<Object> object)
+bool World::removeOverlayObject(ObjectPtr object)
 {
 	return removeobject(object, m_overlayObjects);
+}
+
+ObjectPtr World::getObjectByUID(std::string uid)
+{
+	ObjectPtr result = nullptr;
+	if (m_UIDToObjects.find(uid) != m_UIDToObjects.end())
+	{
+		result = m_UIDToObjects[uid];
+	}
+	return result;
 }
 
 void World::render(SDL_Renderer* renderer)
@@ -83,35 +92,49 @@ void World::render(SDL_Renderer* renderer)
 	// retrieve objects to displays and with camera render them at good position
 
 	rect2D renderingRect = m_camera->getRenderingRect();
+	std::list<ObjectPtr> toRender = std::list<ObjectPtr>();
+
 	// let's check all of items that are inside the rect. 
-	for (std::shared_ptr<Object> obj : m_objects)
+	for (ObjectPtr obj : m_objects)
 	{
 		if (!obj->isHidden() && renderingRect.isCollide(obj->getShape()))
 		{
 			rect2D renderingShape = m_camera->WorldToWindow(obj->getShape());
 
 			obj->setRenderingRect(renderingShape);
-			bool success = obj->render();
+			toRender.push_back(obj);
 		}
 	}
-	for (std::shared_ptr<Object> obj : m_overlayObjects)
+	// Sort to render list by Z value in order to display higher object on top of lower ones.
+	toRender.sort([](const ObjectPtr& a, const ObjectPtr& b) {
+		return *a < b.get();
+		});
+
+	// Overlay objects are on top of all objects.
+	for (ObjectPtr obj : m_overlayObjects)
 	{
 		if (!obj->isHidden())
 		{
 			rect2D renderingShape = obj->getShape();
 
 			obj->setRenderingRect(renderingShape);
-			bool success = obj->render();
+			toRender.push_back(obj);
 		}
+	}
+
+	// Call rendering for all objects.
+	for (ObjectPtr obj : toRender)
+	{
+		bool success = obj->render();
 	}
 }
 void World::update()
 {
-	for (std::shared_ptr<Object> obj : m_objects)
+	for (ObjectPtr obj : m_objects)
 	{
 		obj->update();
 	}
-	for (std::shared_ptr<Object> obj : m_overlayObjects)
+	for (ObjectPtr obj : m_overlayObjects)
 	{
 		obj->update();
 	}
@@ -138,7 +161,7 @@ void World::Hoovering(point2D pos)
 	rect2D mouseRect = rect2D(pos, clickingPrecisionArea); // in window 
 	rect2D mouseRectWorld = m_camera->WindowToWorld(mouseRect); // in world
 
-	for (std::shared_ptr<Object> obj : m_objects)
+	for (ObjectPtr obj : m_objects)
 	{
 		bool wasHoovered = obj->isHovered();
 		bool isHoovered = mouseRectWorld.isCollide(obj->getShape());
@@ -161,7 +184,7 @@ void World::leftClick(point2D pos)
 
 	bool isAnObjectClickedOn = false;
 	// Check if an object is on the click
-	for (std::shared_ptr<Object> obj : m_objects)
+	for (ObjectPtr obj : m_objects)
 	{
 		bool wasLeftClick = obj->isLeftClicked();
 		bool isLeftClick = mouseRectWorld.isCollide(obj->getShape());
@@ -192,7 +215,7 @@ void World::releaseLeftClick(point2D pos)
 
 	bool isAnObjectClickedOn = false;
 	// Releasing click for all items
-	for (std::shared_ptr<Object> obj : m_objects)
+	for (ObjectPtr obj : m_objects)
 	{
 		bool isOnItem = mouseRectWorld.isCollide(obj->getShape());
 
@@ -251,7 +274,7 @@ void World::parseFile(std::string filePath)
 		for (size_t i = 0; i < overlay_size; ++i)
 		{
 			std::string objectType = Value::readNextValue(inFile).getValue<std::string>();
-			std::cout << "object type detected : " << objectType << std::endl;
+			std::cout << "[" << objectType << "]" << std::endl;
 
 			// deseriailze members
 			ObjectMemberHolder members;
@@ -264,12 +287,12 @@ void World::parseFile(std::string filePath)
 
 void World::createRenderers(SDL_Renderer* renderer)
 {
-	for (std::shared_ptr<Object> item : m_objects)
+	for (ObjectPtr item : m_objects)
 	{
 		item->createRenderer(renderer);
 	}
 
-	for (std::shared_ptr<Object> item : m_overlayObjects)
+	for (ObjectPtr item : m_overlayObjects)
 	{
 		item->createRenderer(renderer);
 	}
@@ -287,7 +310,7 @@ void World::saveFile(std::string filePath)
 		// Write the world  
 		Value object_size = Value(m_objects.size());
 		object_size.serialize(outFile);
-		for (std::shared_ptr<Object> item : m_objects)
+		for (ObjectPtr item : m_objects)
 		{
 			Value item_type = Value(item->getTypeName());
 			item_type.serialize(outFile);
@@ -298,7 +321,7 @@ void World::saveFile(std::string filePath)
 		// Then write all overlays objects
 		Value overlay_size = Value(m_overlayObjects.size());
 		overlay_size.serialize(outFile);
-		for (std::shared_ptr<Object> item : m_overlayObjects)
+		for (ObjectPtr item : m_overlayObjects)
 		{
 			Value item_type = Value(item->getTypeName());
 			item_type.serialize(outFile);

@@ -17,10 +17,11 @@ public:
 	void moveCameraPos(float dx, float dy);
 	float getCameraRenderingScale();
 
-	bool addObject(std::shared_ptr<Object> object);
-	bool removeObject(std::shared_ptr<Object> object);
-	bool addOverlayObject(std::shared_ptr<Object> object);
-	bool removeOverlayObject(std::shared_ptr<Object> object);
+	bool addObject(ObjectPtr object);
+	bool removeObject(ObjectPtr object);
+	bool addOverlayObject(ObjectPtr object);
+	bool removeOverlayObject(ObjectPtr object);
+	static ObjectPtr getObjectByUID(std::string uid);
 
 	void render(SDL_Renderer* renderer);
 	void update();
@@ -40,12 +41,13 @@ public:
 	void saveFile(std::string filePath);
 
 private:
-	bool addobject(std::shared_ptr<Object> object, std::list<std::shared_ptr<Object>>& object_list);
-	bool removeobject(std::shared_ptr<Object> object, std::list<std::shared_ptr<Object>>& object_list);
+	bool addobject(ObjectPtr object, std::list<ObjectPtr>& object_list);
+	bool removeobject(ObjectPtr object, std::list<ObjectPtr>& object_list);
 
 	Camera* m_camera{ nullptr };
-	std::list<std::shared_ptr<Object>> m_objects{ std::list<std::shared_ptr<Object>>() };
-	std::list<std::shared_ptr<Object>> m_overlayObjects{ std::list<std::shared_ptr<Object>>() };
+	std::list<ObjectPtr> m_objects{ std::list<ObjectPtr>() };
+	std::list<ObjectPtr> m_overlayObjects{ std::list<ObjectPtr>() };
+	static std::map<std::string, ObjectPtr> m_UIDToObjects;
 	std::list<Object*> m_hooveredObjects{ std::list<Object*>() };
 
 	bool m_isLeftClicked{ false };

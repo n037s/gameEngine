@@ -2,6 +2,7 @@
 
 Object::Object(ObjectMemberHolder members)
 {
+	m_uid = members.getMember<std::string>("UID");
 	m_pos = members.getMember<point2D>("objectPosition");
 	m_z = members.getMember<float>("objectHeight");
 	m_size = members.getMember<size2D>("objectSize");
@@ -12,6 +13,7 @@ Object::Object(ObjectMemberHolder members)
 ObjectMemberHolder Object::serialize() const
 {
 	ObjectMemberHolder memberHolder;
+	memberHolder.addMember("UID", m_uid);
 	memberHolder.addMember("objectPosition", m_pos);
 	memberHolder.addMember("objectHeight", m_z);
 	memberHolder.addMember("objectSize", m_size);
@@ -22,8 +24,11 @@ ObjectMemberHolder Object::serialize() const
 
 bool Object::render()
 {
+	bool res = false;
 	SDL_FRect renderingRect = m_renderingRect.toSDL();
-	return m_renderer->render(renderingRect);
+	if (m_renderer)
+		res = m_renderer->render(renderingRect);
+	return res;
 }
 
 void Object::update()
