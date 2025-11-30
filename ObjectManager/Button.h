@@ -21,12 +21,12 @@ public:
 	std::string getTypeName() const override { return "Button"; }
 	ObjectMemberHolder serialize() const override;
 
-	void hoover() override;
-	void leftFocus() override;
+	void onHover(point2D pos) override;
+	void offHover(point2D pos) override;
 	bool leftClick(point2D pos) override;
 	bool releaseLeftClick(point2D pos) override;
 
-	const rect2D getShape() const override { return rect2D(m_pos - m_size / 2, m_size); };
+	const rect2D getShape() const override { return rect2D(m_pos, m_size); };
 
 	// It have a renderer to render a button style with a text on it.
 	// It size can be defined but also auto sizing to the text size. 

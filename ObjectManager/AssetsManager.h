@@ -27,6 +27,8 @@ public:
 
 	void setParserFunction(std::string extension, parsingFunction);
 
+	std::list<std::string> getAssetsIDs();
+
 private:
 	AssetsManager();
 	~AssetsManager() {};

@@ -12,6 +12,7 @@ public:
 	size2D operator*(float mul) const;
 	size2D operator/(float div) const; 
 	size2D operator-(size2D other) const;
+	size2D operator*(size2D other) const;
 	std::string toString() const;
 
 	float w{ 0 };

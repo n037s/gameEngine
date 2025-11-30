@@ -4,24 +4,14 @@
 #include "CommandProxy.h"
 #include "Controls.h"
 
-#include "Geometry.h"
-#include "Color.h"
-
 #include "World.h"
-#include "Sprite.h"
-#include "Text.h"
-#include "Button.h"
-#include "Font.h"
-#include "FrameRateText.h"
-#include "AnimatedSprite.h"
-
-#include "UIDGenerator.h"
-
+#include "ObjectManager.h"
 #include "ButtonCallbackRegistery.h"
-
 #include "ObjectMemberHolder.h"
+#include "AssetsManager.h"
 
 #include <iostream>
+#include <sstream>
 
 bool Osef(point2D pos, Object* caller)
 {
@@ -64,7 +54,6 @@ void CreateMyObjects(SDL_Renderer* renderer, World& world)
     for (int i = 5; i < 10; i++)
     {
         r_pos = point2D((i - 1) % 3, (i - 1) / 3);
-        std::cout << "rpos " << r_pos.toString() << " id : " << "craftpix/Tile/Top-Down Simple Summer_Ground 0" + std::to_string(i) << std::endl;
         std::shared_ptr<Sprite> img5 = std::make_shared<Sprite>(r_pos * objSize, "craftpix/Tile/Top-Down Simple Summer_Ground 0" + std::to_string(i));
         img5->createRenderer(renderer);
         world.addObject(img5);
@@ -97,10 +86,33 @@ void CreateMyObjects(SDL_Renderer* renderer, World& world)
     world.addObject(personnage);
 }
 
+ObjectPtr createAssetList()
+{
+    std::cout << "Creating the asset list" << std::endl;
+
+    rect2D shape(point2D(0, 0), size2D(200, 1000));
+    size2D itemSize(200, 30);
+    Color btnColor = Color(60, 60, 60, 255);
+    Font* font = new Font("arial", 20, { Alignement::LOW, Alignement::CENTER });
+
+    DropDownMenuPtr dropDown = std::make_shared<DropDownMenu>(shape, itemSize, btnColor, font);
+
+    std::list<std::string> assetsList = AssetsManager::getInstance()->getAssetsIDs();
+    assetsList.sort();
+
+    for (auto assetID : assetsList)
+    {
+        dropDown->addItem(assetID);
+    }
+
+    std::cout << "AFTER CREATION : " << std::endl;
+    dropDown->printMenu(nullptr);
+
+    return dropDown;
+}
+
 int main(int argc, char* argv[]) 
 {
-    std::cout << UIDGenerator::generateUID() << std::endl;
-    std::cout << UIDGenerator::generateUID() << std::endl;
     std::string worldFilePath = "C:\\Users\\leoqu\\Desktop\\Code\\Project\\Configs\\world";
 
     // Define a viewer
@@ -121,6 +133,10 @@ int main(int argc, char* argv[])
     viewer->setWorld(&world);
 
     world.parseFile(worldFilePath);
+
+    ObjectPtr dropdownlist = createAssetList();
+    world.addOverlayObject(dropdownlist);
+
     world.createRenderers(renderer);
 
     // Define its objects
@@ -128,7 +144,7 @@ int main(int argc, char* argv[])
     world.setCameraZLimits(0.2f, 5);
 
     // Create world
-    // CreateMyObjects(renderer, world);
+    // CreateMyObjects(renderer, world); // Disabled if we want to read the world instead to avoid duplicity.
 
     // Define controller manager and its callbacks
     CommandProxy cmdProxy;
@@ -146,7 +162,7 @@ int main(int argc, char* argv[])
     viewer->startLoop();
 
     // After the loop
-    world.saveFile(worldFilePath);
+    // world.saveFile(worldFilePath);
 
     return 0;
 }
@@ -154,5 +170,7 @@ int main(int argc, char* argv[])
 
 // Then What to do : 
 // - Start a project world editor. It needs to add the right click option to add a menu interfacing AssetsManager to create item
+// + Drop down items. A holder of buttons. 
+// + Bounding Box items. Parasite to an object and controls its size and position.
 // + items can be grabbed and moved and resized.
 // - issue on dependencies. WorldEditor should not be dependent of SDL3 ... caused by import on .h

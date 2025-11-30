@@ -111,6 +111,12 @@
     <ClInclude Include="UIDGenerator.h">
       <Filter>Fichiers d%27en-tête\Basics</Filter>
     </ClInclude>
+    <ClInclude Include="DropDownMenu.h">
+      <Filter>Fichiers d%27en-tête\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="DropDownMenuRenderer.h">
+      <Filter>Fichiers d%27en-tête\Renderers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="World.cpp">
@@ -178,6 +184,12 @@
     </ClCompile>
     <ClCompile Include="UIDGenerator.cpp">
       <Filter>Fichiers sources\Basics</Filter>
+    </ClCompile>
+    <ClCompile Include="DropDownMenu.cpp">
+      <Filter>Fichiers sources\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="DropDownMenuRenderer.cpp">
+      <Filter>Fichiers sources\Renderers</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

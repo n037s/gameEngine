@@ -11,6 +11,7 @@
 #include "FrameRateText.h"
 #include "Sprite.h"
 #include "Text.h"
+#include "DropDownMenu.h"
 
 using objectDeserializer = std::function<std::shared_ptr<Object>(ObjectMemberHolder members)>;
 

@@ -125,3 +125,14 @@ Asset* parserImage(fs::path assetPath)
     }
     return result;
 }
+
+
+std::list<std::string> AssetsManager::getAssetsIDs()
+{
+    std::list<std::string> res = std::list<std::string>();
+    for (auto it : m_nameToPath)
+    {
+        res.push_back(it.first);
+    }
+    return res;
+}

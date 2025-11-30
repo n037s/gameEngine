@@ -162,6 +162,8 @@
     <ClInclude Include="ButtonRenderer.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Color.h" />
+    <ClInclude Include="DropDownMenu.h" />
+    <ClInclude Include="DropDownMenuRenderer.h" />
     <ClInclude Include="Font.h" />
     <ClInclude Include="FrameRateText.h" />
     <ClInclude Include="Image.h" />
@@ -186,6 +188,8 @@
     <ClCompile Include="ButtonRenderer.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Color.cpp" />
+    <ClCompile Include="DropDownMenu.cpp" />
+    <ClCompile Include="DropDownMenuRenderer.cpp" />
     <ClCompile Include="Font.cpp" />
     <ClCompile Include="FrameRateText.cpp" />
     <ClCompile Include="Image.cpp" />

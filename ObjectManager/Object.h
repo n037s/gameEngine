@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <vector>
 
 #include "Geometry.h"
 #include "BaseRenderer.h"
@@ -41,24 +42,24 @@ public:
 	 */
 	virtual void update();
 
-	bool isHovered() { return m_isHoovered; }
+	bool isHovered() { return m_isHovered; }
 	/*
-	 * @brief the item begins to be hoovered
+	 * @brief the item begins to be hovered
 	 */
-	void onHoover();
+	virtual void onHover(point2D pos);
 	/*
-	 * @brief the button is no more hoovered
+	 * @brief the button is no more hovered
 	 */
-	void offHoover();
+	virtual void offHover(point2D pos);
 
 	/*
-	 * @brief Hoovering item callback
+	 * @brief the item is hovered
 	 */
-	virtual void hoover();
+	virtual void hover(point2D pos);
 	/*
-	 * @brief No more hoovering item callback
+	 * @brief the item is no more hovered
 	 */
-	virtual void leftFocus();
+	virtual void leftFocus(point2D pos);
 
 	void setLeftClicked(bool isLeftClicked) { m_isLeftClicked = isLeftClicked; }
 	bool isLeftClicked() { return m_isLeftClicked; }
@@ -114,6 +115,8 @@ public:
 	void setZ(float z) { m_z = z; }
 	float getZ() { return m_z; }
 
+	BaseRenderer* getRenderer() { return m_renderer; }
+
 	bool operator>(Object* other) { return (m_z > other->m_z); }
 	bool operator<(Object* other) { return (m_z < other->m_z); }
 	bool operator<=(Object* other) { return (m_z <= other->m_z); }
@@ -132,7 +135,7 @@ protected:
 
 	bool m_isHidden{ false };
 
-	bool m_isHoovered{ false };
+	bool m_isHovered{ false };
 	bool m_isLeftClicked{ false };
 };
 

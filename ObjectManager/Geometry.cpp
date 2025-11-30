@@ -66,6 +66,11 @@ size2D size2D::operator-(size2D other) const
 	return size2D(w - other.w, h - other.h);
 }
 
+size2D size2D::operator* (size2D other) const
+{
+	return size2D(w * other.w, h * other.h);
+}
+
 std::string size2D::toString() const
 {
 	return "(" + std::to_string(w) + "x" + std::to_string(h) + ")";

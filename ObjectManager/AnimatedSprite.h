@@ -17,7 +17,7 @@ public:
 	ObjectMemberHolder serialize() const override;
 
 	const point2D getPos() const override { return m_pos + m_size / 2; }
-	const rect2D getShape() const override { return rect2D(m_pos - m_size / 2, m_size); };
+	const rect2D getShape() const override { return rect2D(m_pos, m_size); };
 
 	void update() override;
 

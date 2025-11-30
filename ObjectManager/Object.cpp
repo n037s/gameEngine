@@ -3,9 +3,9 @@
 Object::Object(ObjectMemberHolder members)
 {
 	m_uid = members.getMember<std::string>("UID");
+	m_size = members.getMember<size2D>("objectSize");
 	m_pos = members.getMember<point2D>("objectPosition");
 	m_z = members.getMember<float>("objectHeight");
-	m_size = members.getMember<size2D>("objectSize");
 	m_isHidden = members.getMember<bool>("isObjectHidden");
 }
 
@@ -26,8 +26,7 @@ bool Object::render()
 {
 	bool res = false;
 	SDL_FRect renderingRect = m_renderingRect.toSDL();
-	if (m_renderer)
-		res = m_renderer->render(renderingRect);
+	res = m_renderer->render(renderingRect);
 	return res;
 }
 
@@ -36,25 +35,32 @@ void Object::update()
 	// do nothing
 }
 
-void Object::onHoover()
+void Object::onHover(point2D pos)
 {
-	m_isHoovered = true;
-	hoover();
+	// do nothing
 }
 
-void Object::offHoover()
+void Object::offHover(point2D pos)
 {
-	m_isHoovered = false;
-	leftFocus();
+	// do nothing
 }
 
-void Object::hoover() 
+void Object::hover(point2D pos) 
 { 
-	// do nothing
+	if (!m_isHovered)
+	{
+		std::cout << "somthing is hoovered" << std::endl;
+		m_isHovered = true;
+		onHover(pos);
+	}
 }
-void Object::leftFocus()
+void Object::leftFocus(point2D pos)
 {
-	// do nothing
+	if (m_isHovered)
+	{
+		m_isHovered = false;
+		offHover(pos);
+	}
 }
 
 bool Object::onLeftClick(point2D pos)

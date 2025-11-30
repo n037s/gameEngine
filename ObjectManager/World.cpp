@@ -156,6 +156,21 @@ void World::mouseMove(point2D pos)
 	}
 }
 
+void World::checkHover(ObjectPtr obj, rect2D mouse)
+{
+	bool wasHoovered = obj->isHovered();
+	bool isHoovered = mouse.isCollide(obj->getShape());
+
+	if (isHoovered)
+	{
+		obj->hover(mouse.position);
+	}
+	else if (!isHoovered)
+	{
+		obj->leftFocus(mouse.position);
+	}
+}
+
 void World::Hoovering(point2D pos)
 {
 	rect2D mouseRect = rect2D(pos, clickingPrecisionArea); // in window 
@@ -163,18 +178,29 @@ void World::Hoovering(point2D pos)
 
 	for (ObjectPtr obj : m_objects)
 	{
-		bool wasHoovered = obj->isHovered();
-		bool isHoovered = mouseRectWorld.isCollide(obj->getShape());
-
-		if (!wasHoovered && isHoovered)
-		{
-			obj->onHoover();
-		}
-		else if (wasHoovered && !isHoovered)
-		{
-			obj->offHoover();
-		}
+		checkHover(obj, mouseRectWorld);
 	}
+	for (ObjectPtr obj : m_overlayObjects)
+	{
+		checkHover(obj, mouseRect);
+	}
+}
+
+bool World::checkLeftClick(ObjectPtr obj, rect2D mouse)
+{
+	bool result = false;
+	bool wasLeftClick = obj->isLeftClicked();
+	bool isLeftClick = mouse.isCollide(obj->getShape());
+
+	if (!wasLeftClick && isLeftClick)
+	{
+		result |= obj->onLeftClick(mouse.position);
+	}
+	else if (wasLeftClick && !isLeftClick)
+	{
+		obj->offLeftClick(mouse.position);
+	}
+	return result;
 }
 
 void World::leftClick(point2D pos)
@@ -186,17 +212,11 @@ void World::leftClick(point2D pos)
 	// Check if an object is on the click
 	for (ObjectPtr obj : m_objects)
 	{
-		bool wasLeftClick = obj->isLeftClicked();
-		bool isLeftClick = mouseRectWorld.isCollide(obj->getShape());
-
-		if (!wasLeftClick && isLeftClick)
-		{
-			isAnObjectClickedOn |= obj->onLeftClick(mouseRectWorld.position);
-		}
-		else if (wasLeftClick && !isLeftClick)
-		{
-			obj->offLeftClick(mouseRectWorld.position);
-		}
+		isAnObjectClickedOn |= checkLeftClick(obj, mouseRectWorld);
+	}
+	for (ObjectPtr obj : m_overlayObjects)
+	{
+		isAnObjectClickedOn |= checkLeftClick(obj, mouseRect);
 	}
 
 	if (!isAnObjectClickedOn && !m_isLeftClicked)
@@ -208,6 +228,20 @@ void World::leftClick(point2D pos)
 	}
 }
 
+bool World::checkLeftClickReleased(ObjectPtr object, rect2D mouse)
+{
+	bool result = false;
+	bool isOnItem = mouse.isCollide(object->getShape());
+
+	if (isOnItem && object->isLeftClicked())
+	{
+		result = object->offLeftClick(mouse.position);
+	}
+	object->setLeftClicked(false);
+
+	return result;
+}
+
 void World::releaseLeftClick(point2D pos)
 {
 	rect2D mouseRect = rect2D(pos, clickingPrecisionArea); // in window 
@@ -217,13 +251,11 @@ void World::releaseLeftClick(point2D pos)
 	// Releasing click for all items
 	for (ObjectPtr obj : m_objects)
 	{
-		bool isOnItem = mouseRectWorld.isCollide(obj->getShape());
-
-		if (isOnItem && obj->isLeftClicked())
-		{
-			isAnObjectClickedOn |= obj->offLeftClick(mouseRectWorld.position);
-		}
-		obj->setLeftClicked(false);
+		isAnObjectClickedOn |= checkLeftClickReleased(obj, mouseRectWorld);
+	}
+	for (ObjectPtr obj : m_overlayObjects)
+	{
+		isAnObjectClickedOn |= checkLeftClickReleased(obj, mouseRect);
 	}
 
 	if (m_isLeftClicked)

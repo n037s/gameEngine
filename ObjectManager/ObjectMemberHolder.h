@@ -20,7 +20,7 @@ enum Type
 	POINT2D, 
 	SIZE2D, 
 	COLOR, 
-	FONT
+	FONT,
 };
 
 class Value
