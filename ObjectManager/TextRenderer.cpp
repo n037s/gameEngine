@@ -30,7 +30,7 @@ void TextRenderer::generateTexture()
 	{
 		m_surface = SDL_CreateSurface(static_cast<int>(m_size.w), static_cast<int>(m_size.h), SDL_PIXELFORMAT_RGBA8888);
 		SDL_Surface* textSurface = TTF_RenderText_Blended(m_font->toSDL(), m_text.c_str(), 0, m_color);
-		if (!m_surface && !textSurface)
+		if (!m_surface || !textSurface)
 		{
 			std::cout << "Error generating text surface" << SDL_GetError() << std::endl;
 		}

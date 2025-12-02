@@ -54,7 +54,7 @@ void Object::hover(point2D pos)
 { 
 	if (!m_isHovered)
 	{
-		std::cout << "somthing is hoovered" << std::endl;
+		std::cout << "somthing is hovered" << std::endl;
 		m_isHovered = true;
 		onHover(pos);
 	}

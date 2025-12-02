@@ -24,13 +24,14 @@ public:
 	bool removeObject(const ObjectPtr object);
 	bool addOverlayObject(const ObjectPtr object);
 	bool removeOverlayObject(const ObjectPtr object);
-	static ObjectPtr getObjectByUID(const std::string& uid);
+	ObjectPtr getObjectByUID(const std::string& uid);
+	void sortObjectsByZ();
 
 	void render(SDL_Renderer* renderer);
 	void update();
 
 	void mouseMove(const point2D pos);
-	void Hoovering(const point2D pos);
+	void Hovering(const point2D pos);
 
 	void setLeftClickCallback(worldClickCallback& callback) { m_leftClickCallback = callback; }
 	void setRightClickCallback(worldClickCallback& callback) { m_rightClickCallback = callback; }
@@ -46,8 +47,10 @@ public:
 	void saveFile(const std::string& filePath);
 
 private:
-	bool addobject(const ObjectPtr object, std::list<ObjectPtr>& object_list);
-	bool removeobject(const ObjectPtr object, std::list<ObjectPtr>& object_list);
+	bool addObject(const ObjectPtr object, std::list<ObjectPtr>& object_list);
+	bool removeObject(const ObjectPtr object, std::list<ObjectPtr>& object_list);
+
+	void sortObjectListByZ(std::list<ObjectPtr>& object_list);
 
 	void checkHover(const ObjectPtr obj, const rect2D mouse);
 	bool checkLeftClick(const ObjectPtr obj, const rect2D mouse);
@@ -56,7 +59,7 @@ private:
 	Camera* m_camera{ nullptr };
 	std::list<ObjectPtr> m_objects{ std::list<ObjectPtr>() };
 	std::list<ObjectPtr> m_overlayObjects{ std::list<ObjectPtr>() };
-	static std::map<std::string, ObjectPtr> m_UIDToObjects;
+	std::map<std::string, ObjectPtr> m_UIDToObjects{ std::map<std::string, ObjectPtr>() };
 
 	bool m_isLeftClicked{ false };
 	point2D m_lastClickedPos{ 0,0 };

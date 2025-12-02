@@ -71,8 +71,11 @@ public:
 
 	template<typename U>
 	U getMember(std::string member_name) const { 
+		U result;
 		auto it = m_list.find(member_name);
-		return it->second->getValue<U>();
+		if (it != m_list.end())
+			result = it->second->getValue<U>();
+		return result;
 	}
 
 	void serialize(std::ostream& out);

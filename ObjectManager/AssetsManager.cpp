@@ -83,12 +83,15 @@ Asset* AssetsManager::loadAsset(const fs::path& filePath)
 
 std::string AssetsManager::getPath(const std::string& assetID) const
 {
-    return m_nameToPath.at(assetID).string();
+    std::string result = assetID;
+    if (m_nameToPath.find(assetID) != m_nameToPath.end())
+		result = m_nameToPath.at(assetID).string();
+    return result;
 }
 
 Asset* AssetsManager::getAsset(const std::string& assetID) const
 {
-    Asset* result = nullptr;
+    Asset* result = m_defaultAsset;
     if (m_nameToAsset.find(assetID) != m_nameToAsset.end())
         result = m_nameToAsset.at(assetID);
     return result;

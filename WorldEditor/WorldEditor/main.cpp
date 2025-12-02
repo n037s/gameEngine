@@ -21,7 +21,8 @@ bool Osef(point2D pos, Object* caller)
 bool Osef2(point2D pos, Object* caller)
 {
     std::cout << "osef2 called" << std::endl;
-    auto object = World::getObjectByUID("fef27a59-0719-4a77-bd1d-d6473ba048ef");
+    World* world = Viewer::getInstance()->getWorld();
+    auto object = world->getObjectByUID("fef27a59-0719-4a77-bd1d-d6473ba048ef");
     object->setIsHidden(!object->isHidden());
     return true;
 }

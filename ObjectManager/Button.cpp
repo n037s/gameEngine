@@ -48,7 +48,9 @@ void Button::onHover(point2D pos)
 	m_color.g += 30;
 	m_color.b += 30;
 	std::cout << " -> " << m_color.toString() << std::endl;
-	static_cast<ButtonRenderer*>(m_renderer)->setColor(m_color.toSDL());
+	ButtonRenderer* renderer = dynamic_cast<ButtonRenderer*>(m_renderer);
+	if (renderer)
+		renderer->setColor(m_color.toSDL());
 }
 
 void Button::offHover(point2D pos)
@@ -58,7 +60,9 @@ void Button::offHover(point2D pos)
 	m_color.g -= 30;
 	m_color.b -= 30;
 	std::cout << " -> " << m_color.toString() << std::endl;
-	static_cast<ButtonRenderer*>(m_renderer)->setColor(m_color.toSDL());
+	ButtonRenderer* renderer = dynamic_cast<ButtonRenderer*>(m_renderer);
+	if (renderer)
+		renderer->setColor(m_color.toSDL());
 }
 
 bool Button::leftClick(point2D pos)

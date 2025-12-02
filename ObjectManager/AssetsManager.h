@@ -46,6 +46,8 @@ private:
 	std::map<std::string, fs::path> m_nameToPath;
 	std::map<std::string, Asset*> m_nameToAsset;
 	std::map<std::string, parsingFunction> m_extensionToParsing;
+
+	Asset* m_defaultAsset{nullptr};
 };
 
 Asset* parserImage(const fs::path& assetPath);

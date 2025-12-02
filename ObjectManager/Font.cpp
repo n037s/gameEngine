@@ -35,7 +35,8 @@ void Font::setPolicySize(float policySize)
 
 void Font::loadFont()
 {
-    TTF_CloseFont(m_font);
+    if (m_font)
+        TTF_CloseFont(m_font);
     m_font = TTF_OpenFont(AssetsManager::getInstance()->getPath(m_fontID).c_str(), m_policySize);
     if (!m_font)
     {

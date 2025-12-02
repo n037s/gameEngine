@@ -7,7 +7,9 @@
 
 Sprite::Sprite(point2D pos, const std::string& assetName) : Object(pos)
 {
-	m_asset = static_cast<Image*>(AssetsManager::getInstance()->getAsset(assetName));
+	auto asset = AssetsManager::getInstance()->getAsset(assetName);
+	if (asset) 
+		m_asset = static_cast<Image*>(asset);
 }
 
 bool Sprite::createRenderer(SDL_Renderer* renderer)
@@ -21,7 +23,9 @@ bool Sprite::createRenderer(SDL_Renderer* renderer)
 
 Sprite::Sprite(const ObjectMemberHolder& members) : Object(members)
 {
-	m_asset = static_cast<Image*>(AssetsManager::getInstance()->getAsset(members.getMember<std::string>("assetID")));
+	auto asset = AssetsManager::getInstance()->getAsset(members.getMember<std::string>("assetID"));
+	if (asset)
+		m_asset = static_cast<Image*>(asset);
 }
 
 ObjectMemberHolder Sprite::serialize() const

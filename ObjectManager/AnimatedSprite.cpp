@@ -12,7 +12,9 @@ AnimatedSprite::AnimatedSprite(point2D pos, const std::vector<std::string>& asse
 
 	for (const auto& assetName : assetNames)
 	{
-		m_assets.push_back(static_cast<Image*>(AssetsManager::getInstance()->getAsset(assetName)));
+		auto asset = AssetsManager::getInstance()->getAsset(assetName);
+		if (asset)
+			m_assets.push_back(static_cast<Image*>(asset));
 	}
 	m_currentAsset = m_assets.at(0);
 }
@@ -32,7 +34,9 @@ AnimatedSprite::AnimatedSprite(const ObjectMemberHolder& members) : Object(membe
 	for (int i = 0; i < members.getMember<size_t>("AssetsCount"); ++i)
 	{
 		std::string assetName = members.getMember<std::string>("AssetID" + std::to_string(i+1));
-		m_assets.push_back(static_cast<Image*>(AssetsManager::getInstance()->getAsset(assetName)));
+		auto asset = AssetsManager::getInstance()->getAsset(assetName);
+		if (asset)
+			m_assets.push_back(static_cast<Image*>(asset));
 	}
 	m_currentAsset = m_assets.at(0);
 	m_animationSpeed = members.getMember<int>("AnimationSpeed");
@@ -64,7 +68,10 @@ void AnimatedSprite::update()
 
 		rotation_count = (rotation_count < m_assets.size()-1 ) ? rotation_count + 1 : 0;
 
-		m_currentAsset = m_assets.at(rotation_count);
-		static_cast<ImageRenderer*>(m_renderer)->setAsset(m_currentAsset);
+		if (!m_assets.empty())
+		{
+			m_currentAsset = m_assets.at(rotation_count);
+			static_cast<ImageRenderer*>(m_renderer)->setAsset(m_currentAsset);
+		}
 	}
 }

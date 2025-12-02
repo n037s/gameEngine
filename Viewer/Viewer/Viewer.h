@@ -27,6 +27,7 @@ public:
 
 	void setWhellCallback(callbackMouseWheel callback) { m_wheelCallback = callback; }
 
+	World* getWorld() const { return m_world; }
 
 private:
 	Viewer();

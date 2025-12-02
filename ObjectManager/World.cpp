@@ -7,8 +7,6 @@
 
 const size2D clickingPrecisionArea = size2D(5, 5);
 
-std::map<std::string, ObjectPtr> World::m_UIDToObjects = std::map<std::string, ObjectPtr>();
-
 void World::createCamera(const point2D pos, const size2D windowSize)
 {
 	m_camera = Camera::getInstance();
@@ -26,24 +24,31 @@ void World::setCameraZLimits(const float zMin, const float zMax)
 
 void World::moveCameraPos(const float dx, const float dy)
 {
-	const point2D dxy = point2D(dx, dy) / m_camera->getRenderingScale();
-	m_camera->setPos(m_camera->getPos() + dxy);
+	if (m_camera)
+	{
+		const point2D dxy = point2D(dx, dy) / m_camera->getRenderingScale();
+		m_camera->setPos(m_camera->getPos() + dxy);
+	}
 }
 
 float World::getCameraRenderingScale() const
 {
-	return m_camera->getRenderingScale();
+	float result = 1;
+	if (m_camera)
+		result = m_camera->getRenderingScale();
+	return result;
 }
 
-bool World::addobject(const ObjectPtr object, std::list<ObjectPtr>& object_list)
+bool World::addObject(const ObjectPtr object, std::list<ObjectPtr>& object_list)
 {
 	bool success = true;
 	object_list.push_back(object);
 	m_UIDToObjects[object->getUID()] = object;
+	sortObjectListByZ(object_list);
 	return success;
 }
 
-bool World::removeobject(const ObjectPtr object, std::list<ObjectPtr>& object_list)
+bool World::removeObject(const ObjectPtr object, std::list<ObjectPtr>& object_list)
 {
 	bool success = false;
 
@@ -57,24 +62,25 @@ bool World::removeobject(const ObjectPtr object, std::list<ObjectPtr>& object_li
 		std::cout << "Object is not found to deletion" << std::endl;
 	
 	m_UIDToObjects.erase(object->getUID());
+	sortObjectListByZ(object_list);
 	return success;
 }
 
 bool World::addObject(const ObjectPtr object)
 {
-	return addobject(object, m_objects);
+	return addObject(object, m_objects);
 }
 bool World::removeObject(const ObjectPtr object)
 {
-	return removeobject(object, m_objects);
+	return removeObject(object, m_objects);
 }
 bool World::addOverlayObject(const ObjectPtr object)
 {
-	return addobject(object, m_overlayObjects);
+	return addObject(object, m_overlayObjects);
 }
 bool World::removeOverlayObject(const ObjectPtr object)
 {
-	return removeobject(object, m_overlayObjects);
+	return removeObject(object, m_overlayObjects);
 }
 
 ObjectPtr World::getObjectByUID(const std::string& uid)
@@ -87,8 +93,25 @@ ObjectPtr World::getObjectByUID(const std::string& uid)
 	return result;
 }
 
+void World::sortObjectsByZ()
+{
+	sortObjectListByZ(m_objects);
+	sortObjectListByZ(m_overlayObjects);
+}
+
+void World::sortObjectListByZ(std::list<ObjectPtr>& object_list)
+{
+	object_list.sort([](const ObjectPtr& a, const ObjectPtr& b) {
+		return *a < b.get();
+	});
+}
+
 void World::render(SDL_Renderer* renderer)
 {
+	// preconditions
+	if (!m_camera)
+		return;
+	
 	// retrieve objects to displays and with camera render them at good position
 	const rect2D renderingRect = m_camera->getRenderingRect();
 	std::list<ObjectPtr> toRender;
@@ -103,10 +126,6 @@ void World::render(SDL_Renderer* renderer)
 			toRender.push_back(obj);
 		}
 	}
-	// Sort to render list by Z value in order to display higher object on top of lower ones.
-	toRender.sort([](const ObjectPtr& a, const ObjectPtr& b) {
-		return *a < b.get();
-	});
 	
 	// Overlay objects are on top of all objects.
 	for (const ObjectPtr& obj : m_overlayObjects)
@@ -148,27 +167,26 @@ void World::mouseMove(const point2D pos)
 	}
 	else
 	{
-		// Else, check if we are hoovering something
-		Hoovering(pos);
+		// Else, check if we are hovering something
+		Hovering(pos);
 	}
 }
 
 void World::checkHover(const ObjectPtr obj, const rect2D mouse)
 {
-	const bool wasHoovered = obj->isHovered();
-	const bool isHoovered = mouse.isCollide(obj->getShape());
+	const bool isHovered = mouse.isCollide(obj->getShape());
 
-	if (isHoovered)
+	if (isHovered)
 	{
 		obj->hover(mouse.position);
 	}
-	else if (!isHoovered)
+	else if (!isHovered)
 	{
 		obj->leftFocus(mouse.position);
 	}
 }
 
-void World::Hoovering(const point2D pos)
+void World::Hovering(const point2D pos)
 {
 	const rect2D mouseRect = rect2D(pos, clickingPrecisionArea);
 	const rect2D mouseRectWorld = m_camera->WindowToWorld(mouseRect);
@@ -291,8 +309,8 @@ void World::parseFile(const std::string& filePath)
 
 			ObjectMemberHolder members;
 			members.deserialize(inFile);
-
-			addObject(ObjectManager::createObject(objectType, members));
+			if (auto object = ObjectManager::createObject(objectType, members))
+				addObject(object);
 		}
 	}
 }

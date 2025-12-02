@@ -12,6 +12,7 @@ class BaseRenderer
 public:
 	BaseRenderer() : m_renderer(nullptr), m_isGenerated(true) {};
 	BaseRenderer(SDL_Renderer* renderer) : m_renderer(renderer), m_isGenerated(true) {};
+	virtual ~BaseRenderer() = default;
 
 	void cleanSurfaceAndRenderer();
 	void cleanRenderer();

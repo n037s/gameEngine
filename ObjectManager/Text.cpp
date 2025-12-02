@@ -42,7 +42,7 @@ ObjectMemberHolder Text::serialize() const
 bool Text::setText(const std::string& text)
 {
 	bool success = false;
-	TextRenderer* textRend = static_cast<TextRenderer*>(m_renderer);
+	TextRenderer* textRend = dynamic_cast<TextRenderer*>(m_renderer);
 	if (textRend)
 	{
 		textRend->setText(text);
@@ -54,7 +54,7 @@ bool Text::setText(const std::string& text)
 bool Text::setColor(Color color)
 {
 	bool success = false;
-	TextRenderer* textRend = static_cast<TextRenderer*>(m_renderer);
+	TextRenderer* textRend = dynamic_cast<TextRenderer*>(m_renderer);
 	if (textRend)
 	{
 		textRend->setColor(color.toSDL());
@@ -66,7 +66,7 @@ bool Text::setColor(Color color)
 bool Text::setFont(const std::string& font)
 {
 	bool success = false;
-	TextRenderer* textRend = static_cast<TextRenderer*>(m_renderer);
+	TextRenderer* textRend = dynamic_cast<TextRenderer*>(m_renderer);
 	if (textRend)
 	{
 		std::string fontPath = m_font + font;
@@ -78,7 +78,7 @@ bool Text::setFont(const std::string& font)
 
 void Text::setPoliceSize(float size)
 {
-	TextRenderer* textRend = static_cast<TextRenderer*>(m_renderer);
+	TextRenderer* textRend = dynamic_cast<TextRenderer*>(m_renderer);
 	if (textRend)
 	{
 		textRend->setPoliceSize(size);

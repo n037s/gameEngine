@@ -115,12 +115,17 @@ void DropDownMenu::addSubMenuButton(std::string label, ItemPtr item)
 
 void DropDownMenu::updateRendererMenu()
 {
-	auto renderer = static_cast<DropDownMenuRenderer*>(m_renderer);
-	renderer->clearItems();
-	for (auto item : m_objectList)
+	auto renderer = dynamic_cast<DropDownMenuRenderer*>(m_renderer);
+	if (renderer)
 	{
-		item->createRenderer(sdl_renderer);
-		renderer->addItem(static_cast<ButtonRenderer*>(item->getRenderer()));
+		renderer->clearItems();
+		for (auto item : m_objectList)
+		{
+			item->createRenderer(sdl_renderer);
+			auto item_renderer = dynamic_cast<ButtonRenderer*>(item->getRenderer());
+			if (item_renderer)
+				renderer->addItem(item_renderer);
+		}
 	}
 }
 
@@ -142,14 +147,12 @@ void DropDownMenu::addItem(const std::string& ID, const std::string& callbackID)
 	ItemPtr node = m_items;
 
 	while (std::getline(ss, word, '/')) {
-		std::cout << "word : " << word << " is number " << current_word_iterator << "/" << ID_words_count << std::endl;
 		if (current_word_iterator++ < ID_words_count)
 		{
 			// let's see if the subMenu exists
 			ItemPtr child_node = getChildItem(word, node);
 			if (!child_node)
 			{
-				std::cout << "add subMenu : " << word << std::endl;
 				ItemPtr new_node = std::make_shared<Item>(word, true);
 				node->items.push_back(new_node);
 				node = new_node;
@@ -163,7 +166,6 @@ void DropDownMenu::addItem(const std::string& ID, const std::string& callbackID)
 		else
 		{
 			// let's add an item
-			std::cout << "add item : " << word << std::endl;
 			ItemPtr new_item = std::make_shared<Item>(word, false, callbackID);
 			node->items.push_back(new_item);
 		}
@@ -229,11 +231,9 @@ void DropDownMenu::printMenu(ItemPtr menu, int level)
 		menu = m_items;
 	// let's create the buttons of a menu. It is iterative.
 	// Level will help us to know which subLevel the menu is. 
-	std::string padding = "";
-	for (int i = 0; i < level; i++)
-		padding += " ";
+	std::string padding = std::string(level, ' ');
 
-	for (auto item : menu->items)
+	for (const auto& item : menu->items)
 	{
 		if (item->isSubMenu)
 		{
@@ -267,15 +267,15 @@ void DropDownMenu::hover(point2D pos)
 	// And all other button have left focus
 	rect2D mouseRect = rect2D(pos, size2D(5, 5));
 	int i = 0;
-	for (auto item : m_objectList)
+	for (const auto& item : m_objectList)
 	{
-		bool isHoovered = mouseRect.isCollide(item->getShape());
+		bool isHovered = mouseRect.isCollide(item->getShape());
 
-		if (isHoovered)
+		if (isHovered)
 		{
 			item->hover(pos);
 		}
-		else if (!isHoovered)
+		else if (!isHovered)
 		{
 			item->leftFocus(pos);
 		}
