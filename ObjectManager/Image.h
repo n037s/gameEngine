@@ -15,17 +15,17 @@ public:
     Image(SDL_Surface* surface);
     ~Image() 
     {
-            if (m_surface)
-            {
-                SDL_DestroySurface(m_surface);
-            }
+        if (m_surface)
+        {
+            SDL_DestroySurface(m_surface);
+        }
     }
 
     void setSurface(SDL_Surface* surface) { m_surface = surface; }
-    SDL_Surface* getSurface() { return m_surface; }
+    SDL_Surface* getSurface() const { return m_surface; }
 
-    void setpath(std::string p) { filePath = p; }
-    std::string getpath() { return filePath; }
+    void setpath(const std::string& p) { filePath = p; }
+    std::string getpath() const { return filePath; }
 
 private:
     std::string filePath;

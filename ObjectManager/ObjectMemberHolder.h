@@ -34,7 +34,7 @@ public:
 	Value(point2D pt) : data(pt) {}
 	Value(size2D size) : data(size)	{}
 	Value(Color color) : data(color) {}
-	Value(Font* font) : data(font) {}
+	Value(FontPtr font) : data(font) {}
 
 	template<typename T>
 	T getValue() const;
@@ -47,7 +47,7 @@ public:
 
 private:
 	std::variant<bool, int, float, size_t, std::string, 
-		point2D, size2D, Color, Font*> data;
+		point2D, size2D, Color, FontPtr> data;
 
 	template<typename T>
 	void writeData(std::ostream& out, T typed_data);
@@ -64,12 +64,16 @@ class ObjectMemberHolder
 {
 public:
 	ObjectMemberHolder();
+	~ObjectMemberHolder();
 
 	template<typename T>
 	void addMember(std::string member_name, T value) { m_list[member_name] = new Value(value); }
 
 	template<typename U>
-	U getMember(std::string member_name) { return m_list[member_name]->getValue<U>(); }
+	U getMember(std::string member_name) const { 
+		auto it = m_list.find(member_name);
+		return it->second->getValue<U>();
+	}
 
 	void serialize(std::ostream& out);
 	void deserialize(std::istream& in);

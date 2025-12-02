@@ -5,7 +5,7 @@
 #include "ImageRenderer.h"
 #include "AssetsManager.h"
 
-Sprite::Sprite(point2D pos, std::string assetName) : Object(pos)
+Sprite::Sprite(point2D pos, const std::string& assetName) : Object(pos)
 {
 	m_asset = static_cast<Image*>(AssetsManager::getInstance()->getAsset(assetName));
 }
@@ -19,7 +19,7 @@ bool Sprite::createRenderer(SDL_Renderer* renderer)
 	return m_renderer->isGenerated();
 }
 
-Sprite::Sprite(ObjectMemberHolder members) : Object(members)
+Sprite::Sprite(const ObjectMemberHolder& members) : Object(members)
 {
 	m_asset = static_cast<Image*>(AssetsManager::getInstance()->getAsset(members.getMember<std::string>("assetID")));
 }

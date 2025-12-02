@@ -8,8 +8,8 @@ class AnimatedSprite :
     public Object
 {
 public:
-	AnimatedSprite(ObjectMemberHolder members);
-	AnimatedSprite(point2D pos, std::vector<std::string> assetNames, int animationSpeedMS);
+	AnimatedSprite(const ObjectMemberHolder& members);
+	AnimatedSprite(point2D pos, const std::vector<std::string>& assetNames, int animationSpeedMS);
 
 	bool createRenderer(SDL_Renderer* renderer) override;
 

@@ -7,14 +7,14 @@ class ImageRenderer :
     public BaseRenderer
 {
 public:
-    ImageRenderer(SDL_Renderer* renderer, Image* imageAsset);
+    ImageRenderer(SDL_Renderer* renderer, const Image* imageAsset);
     ~ImageRenderer();
 
-    void setAsset(Image* imageAsset);
+    void setAsset(const Image* imageAsset);
 
 private:
     void createTexture();
 
-    Image* m_image{ nullptr };
+    const Image* m_image{ nullptr };
 };
 

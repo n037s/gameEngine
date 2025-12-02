@@ -42,9 +42,9 @@ Color Value::getValue() const
 	return std::get<Color>(data);
 }
 template<>
-Font* Value::getValue() const
+FontPtr Value::getValue() const
 {
-	return std::get<Font*>(data);
+	return std::get<FontPtr>(data);
 }
 
 void Value::serialize(std::ostream& out)
@@ -92,7 +92,7 @@ void Value::serialize(std::ostream& out)
 	}
 	case FONT:
 	{
-		Font* font = getValue<Font*>();
+		FontPtr font = getValue<FontPtr>();
 		writeData(out, font->getTextAlignement().verticalAlignement);
 		writeData(out, font->getTextAlignement().horizontalAlignement);
 		writeData(out, font->getPolicySize());
@@ -134,7 +134,7 @@ void Value::deserialize(std::istream& in)
 		break;
 	case FONT:
 		TextAlignement txtAlignement = { readData<Alignement>(in), readData<Alignement>(in) };
-		data = new Font(readData<std::string>(in), readData<float>(in), txtAlignement);
+		data = std::make_shared<Font>(readData<std::string>(in), readData<float>(in), txtAlignement);
 		break;
 	}
 }
@@ -186,6 +186,15 @@ std::ostream& operator<<(std::ostream& out, const Value& value)
 ObjectMemberHolder::ObjectMemberHolder()
 {
 	m_list = std::map<std::string, Value*>();
+}
+
+ObjectMemberHolder::~ObjectMemberHolder()
+{
+	for (auto& pair : m_list) {
+		if (pair.second)
+			delete pair.second;
+	}
+	m_list.clear();
 }
 
 void ObjectMemberHolder::serialize(std::ostream& out)

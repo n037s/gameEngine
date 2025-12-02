@@ -6,7 +6,7 @@ CommandProxy::CommandProxy()
 	m_runningCallbacks = std::list<SDL_Keycode>();
 }
 
-const bool CommandProxy::bindCallback(const SDL_Keycode keycode, callbackFunction callback)
+const bool CommandProxy::bindCallback(const SDL_Keycode keycode, const callbackFunction& callback)
 {
 	bool success = false;
 

@@ -10,14 +10,14 @@ class TextRenderer :
     public BaseRenderer
 {
 public:
-    TextRenderer(SDL_Renderer* renderer, const std::string& text, size2D size, Font* font, SDL_Color color);
+    TextRenderer(SDL_Renderer* renderer, const std::string& text, size2D size, FontPtr font, SDL_Color color);
     ~TextRenderer();
 
     void generateTexture();
 
-    void setText(std::string& text);
+    void setText(const std::string& text);
     void setColor(SDL_Color color);
-    void setFont(std::string& font);
+    void setFont(const std::string& font);
     void setPoliceSize(float size);
 
 private:
@@ -26,6 +26,6 @@ private:
     std::string m_text;
     size2D m_size;
     SDL_Color m_color;
-    Font* m_font;
+    FontPtr m_font;
 };
 

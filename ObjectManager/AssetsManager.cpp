@@ -27,7 +27,7 @@ void AssetsManager::Init()
     setParserFunction(".xcf", parserImage);
     setParserFunction(".xpm", parserImage);
     
-	// let's parse folder Assets
+    // let's parse folder Assets
     if (fs::exists(m_assetsFolderPath)) {
         if (fs::is_directory(m_assetsFolderPath)) {
             parseFiles();
@@ -49,8 +49,8 @@ void AssetsManager::parseFiles()
     {
         if (fs::is_regular_file(entry.status()))
         {
-            fs::path filePath = entry.path();
-            fs::path relative = fs::relative(filePath, m_assetsFolderPath).replace_extension();
+            const fs::path filePath = entry.path();
+            const fs::path relative = fs::relative(filePath, m_assetsFolderPath).replace_extension();
 
             std::string assetID = relative.string();
             std::replace(assetID.begin(), assetID.end(), '\\', '/');
@@ -65,41 +65,36 @@ void AssetsManager::parseFiles()
             }
         }
     }
-
 }
 
-Asset* AssetsManager::loadAsset(fs::path filePath)
+Asset* AssetsManager::loadAsset(const fs::path& filePath)
 {
     Asset* result = nullptr;
 
-    std::string extension = filePath.extension().string();
+    const std::string extension = filePath.extension().string();
 
     if (m_extensionToParsing.find(extension) != m_extensionToParsing.end())
     {
         result = m_extensionToParsing[extension](filePath);
     }
-    else
-    {
-        //std::cout << "No implementation for asset type " << extension << std::endl;
-    }
 
     return result;
 }
 
-std::string AssetsManager::getPath(std::string assetID)
+std::string AssetsManager::getPath(const std::string& assetID) const
 {
-    return m_nameToPath[assetID].string();
+    return m_nameToPath.at(assetID).string();
 }
 
-Asset* AssetsManager::getAsset(std::string assetID)
+Asset* AssetsManager::getAsset(const std::string& assetID) const
 {
     Asset* result = nullptr;
     if (m_nameToAsset.find(assetID) != m_nameToAsset.end())
-        result = m_nameToAsset[assetID];
+        result = m_nameToAsset.at(assetID);
     return result;
 }
 
-void AssetsManager::setParserFunction(std::string extension, parsingFunction parsingFunc)
+void AssetsManager::setParserFunction(const std::string& extension, parsingFunction parsingFunc)
 {
     m_extensionToParsing[extension] = parsingFunc;
 }
@@ -108,7 +103,7 @@ void AssetsManager::setParserFunction(std::string extension, parsingFunction par
 
 // Basic parser function definition
 
-Asset* parserImage(fs::path assetPath)
+Asset* parserImage(const fs::path& assetPath)
 {
     Asset* result = nullptr;
 
@@ -127,10 +122,10 @@ Asset* parserImage(fs::path assetPath)
 }
 
 
-std::list<std::string> AssetsManager::getAssetsIDs()
+std::list<std::string> AssetsManager::getAssetsIDs() const
 {
     std::list<std::string> res = std::list<std::string>();
-    for (auto it : m_nameToPath)
+    for (const auto& it : m_nameToPath)
     {
         res.push_back(it.first);
     }

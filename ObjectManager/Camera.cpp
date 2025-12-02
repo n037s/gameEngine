@@ -5,41 +5,41 @@
 
 Camera* Camera::m_instance = nullptr;
 
-rect2D Camera::getRenderingRect()
+rect2D Camera::getRenderingRect() const
 {
-	size2D renderingSize = windowSize * m_height;
-	return rect2D(m_pos - renderingSize / 2, renderingSize);
+    const size2D renderingSize = windowSize * m_height;
+    return rect2D(m_pos - renderingSize / 2, renderingSize);
 }
 
-rect2D Camera::WorldToWindow(const rect2D& objShape)
+rect2D Camera::WorldToWindow(const rect2D& objShape) const
 {
-	point2D posInCamera = (objShape.position - m_pos) / m_height;
-	point2D posInWindow = posInCamera + windowSize/2;
+    const point2D posInCamera = (objShape.position - m_pos) / m_height;
+    const point2D posInWindow = posInCamera + windowSize/2;
 
-	size2D size = objShape.size / m_height;
-	return rect2D(posInWindow, size);
+    const size2D size = objShape.size / m_height;
+    return rect2D(posInWindow, size);
 }
 
-rect2D Camera::WindowToWorld(const rect2D& windowCoords)
+rect2D Camera::WindowToWorld(const rect2D& windowCoords) const
 {
-	point2D posInCamera = windowCoords.position - windowSize / 2;
-	point2D posInWorld = posInCamera * m_height + m_pos;
+    const point2D posInCamera = windowCoords.position - windowSize / 2;
+    const point2D posInWorld = posInCamera * m_height + m_pos;
 
-	size2D size = windowCoords.size * m_height;
-	return rect2D(posInWorld, size);
+    const size2D size = windowCoords.size * m_height;
+    return rect2D(posInWorld, size);
 }
 
-void Camera::movePos(point2D dpos)
+void Camera::movePos(const point2D& dpos)
 {
     m_pos = m_pos + dpos;
 }
 
 void Camera::moveZ(float dz)
 {
-	m_height = std::clamp(m_height + dz, m_minCameraZ, m_maxCameraZ);
+    m_height = std::clamp(m_height + dz, m_minCameraZ, m_maxCameraZ);
 }
 
-float Camera::getRenderingScale()
+float Camera::getRenderingScale() const
 {
-	return 1 / m_height;
+    return 1 / m_height;
 }

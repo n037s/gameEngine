@@ -27,7 +27,7 @@ public:
 	 * 
 	 * @returns boolean if the bind is successfull
 	 */
-	const bool bindCallback(const SDL_Keycode keycode, callbackFunction callback);
+	const bool bindCallback(const SDL_Keycode keycode, const callbackFunction& callback);
 
 	/*
 	 * @brief Delete a callback to a SDL keycode

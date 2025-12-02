@@ -1,4 +1,4 @@
-#include "World.h"
+	#include "World.h"
 #include <iostream>
 #include <fstream>
 
@@ -9,14 +9,14 @@ const size2D clickingPrecisionArea = size2D(5, 5);
 
 std::map<std::string, ObjectPtr> World::m_UIDToObjects = std::map<std::string, ObjectPtr>();
 
-void World::createCamera(point2D pos, size2D windowSize)
+void World::createCamera(const point2D pos, const size2D windowSize)
 {
 	m_camera = Camera::getInstance();
 	m_camera->setPos(pos);
 	m_camera->setWindowSize(windowSize);
 }
 
-void World::setCameraZLimits(float zMin, float zMax)
+void World::setCameraZLimits(const float zMin, const float zMax)
 {
 	if (m_camera)
 	{
@@ -24,18 +24,18 @@ void World::setCameraZLimits(float zMin, float zMax)
 	}
 }
 
-void World::moveCameraPos(float dx, float dy)
+void World::moveCameraPos(const float dx, const float dy)
 {
-	point2D dxy = point2D(dx, dy) / m_camera->getRenderingScale();
+	const point2D dxy = point2D(dx, dy) / m_camera->getRenderingScale();
 	m_camera->setPos(m_camera->getPos() + dxy);
 }
 
-float World::getCameraRenderingScale()
+float World::getCameraRenderingScale() const
 {
 	return m_camera->getRenderingScale();
 }
 
-bool World::addobject(ObjectPtr object, std::list<ObjectPtr>& object_list)
+bool World::addobject(const ObjectPtr object, std::list<ObjectPtr>& object_list)
 {
 	bool success = true;
 	object_list.push_back(object);
@@ -43,7 +43,7 @@ bool World::addobject(ObjectPtr object, std::list<ObjectPtr>& object_list)
 	return success;
 }
 
-bool World::removeobject(ObjectPtr object, std::list<ObjectPtr>& object_list)
+bool World::removeobject(const ObjectPtr object, std::list<ObjectPtr>& object_list)
 {
 	bool success = false;
 
@@ -60,24 +60,24 @@ bool World::removeobject(ObjectPtr object, std::list<ObjectPtr>& object_list)
 	return success;
 }
 
-bool World::addObject(ObjectPtr object)
+bool World::addObject(const ObjectPtr object)
 {
 	return addobject(object, m_objects);
 }
-bool World::removeObject(ObjectPtr object)
+bool World::removeObject(const ObjectPtr object)
 {
 	return removeobject(object, m_objects);
 }
-bool World::addOverlayObject(ObjectPtr object)
+bool World::addOverlayObject(const ObjectPtr object)
 {
 	return addobject(object, m_overlayObjects);
 }
-bool World::removeOverlayObject(ObjectPtr object)
+bool World::removeOverlayObject(const ObjectPtr object)
 {
 	return removeobject(object, m_overlayObjects);
 }
 
-ObjectPtr World::getObjectByUID(std::string uid)
+ObjectPtr World::getObjectByUID(const std::string& uid)
 {
 	ObjectPtr result = nullptr;
 	if (m_UIDToObjects.find(uid) != m_UIDToObjects.end())
@@ -90,17 +90,15 @@ ObjectPtr World::getObjectByUID(std::string uid)
 void World::render(SDL_Renderer* renderer)
 {
 	// retrieve objects to displays and with camera render them at good position
-
-	rect2D renderingRect = m_camera->getRenderingRect();
-	std::list<ObjectPtr> toRender = std::list<ObjectPtr>();
+	const rect2D renderingRect = m_camera->getRenderingRect();
+	std::list<ObjectPtr> toRender;
 
 	// let's check all of items that are inside the rect. 
-	for (ObjectPtr obj : m_objects)
+	for (const ObjectPtr& obj : m_objects)
 	{
 		if (!obj->isHidden() && renderingRect.isCollide(obj->getShape()))
 		{
-			rect2D renderingShape = m_camera->WorldToWindow(obj->getShape());
-
+			const rect2D renderingShape = m_camera->WorldToWindow(obj->getShape());
 			obj->setRenderingRect(renderingShape);
 			toRender.push_back(obj);
 		}
@@ -108,44 +106,43 @@ void World::render(SDL_Renderer* renderer)
 	// Sort to render list by Z value in order to display higher object on top of lower ones.
 	toRender.sort([](const ObjectPtr& a, const ObjectPtr& b) {
 		return *a < b.get();
-		});
-
+	});
+	
 	// Overlay objects are on top of all objects.
-	for (ObjectPtr obj : m_overlayObjects)
+	for (const ObjectPtr& obj : m_overlayObjects)
 	{
 		if (!obj->isHidden())
 		{
-			rect2D renderingShape = obj->getShape();
-
+			const rect2D renderingShape = obj->getShape();
 			obj->setRenderingRect(renderingShape);
 			toRender.push_back(obj);
 		}
 	}
 
 	// Call rendering for all objects.
-	for (ObjectPtr obj : toRender)
+	for (const ObjectPtr& obj : toRender)
 	{
 		bool success = obj->render();
 	}
 }
 void World::update()
 {
-	for (ObjectPtr obj : m_objects)
+	for (const ObjectPtr& obj : m_objects)
 	{
 		obj->update();
 	}
-	for (ObjectPtr obj : m_overlayObjects)
+	for (const ObjectPtr& obj : m_overlayObjects)
 	{
 		obj->update();
 	}
 }
 
-void World::mouseMove(point2D pos)
+void World::mouseMove(const point2D pos)
 {
 	if (m_isLeftClicked)
 	{
 		// World grabbing
-		point2D d_pos = m_lastClickedPos - pos;
+		const point2D d_pos = m_lastClickedPos - pos;
 		m_lastClickedPos = pos;
 		moveCameraPos(d_pos.x, d_pos.y);
 	}
@@ -156,10 +153,10 @@ void World::mouseMove(point2D pos)
 	}
 }
 
-void World::checkHover(ObjectPtr obj, rect2D mouse)
+void World::checkHover(const ObjectPtr obj, const rect2D mouse)
 {
-	bool wasHoovered = obj->isHovered();
-	bool isHoovered = mouse.isCollide(obj->getShape());
+	const bool wasHoovered = obj->isHovered();
+	const bool isHoovered = mouse.isCollide(obj->getShape());
 
 	if (isHoovered)
 	{
@@ -171,26 +168,26 @@ void World::checkHover(ObjectPtr obj, rect2D mouse)
 	}
 }
 
-void World::Hoovering(point2D pos)
+void World::Hoovering(const point2D pos)
 {
-	rect2D mouseRect = rect2D(pos, clickingPrecisionArea); // in window 
-	rect2D mouseRectWorld = m_camera->WindowToWorld(mouseRect); // in world
+	const rect2D mouseRect = rect2D(pos, clickingPrecisionArea);
+	const rect2D mouseRectWorld = m_camera->WindowToWorld(mouseRect);
 
-	for (ObjectPtr obj : m_objects)
+	for (const ObjectPtr& obj : m_objects)
 	{
 		checkHover(obj, mouseRectWorld);
 	}
-	for (ObjectPtr obj : m_overlayObjects)
+	for (const ObjectPtr& obj : m_overlayObjects)
 	{
 		checkHover(obj, mouseRect);
 	}
 }
 
-bool World::checkLeftClick(ObjectPtr obj, rect2D mouse)
+bool World::checkLeftClick(const ObjectPtr obj, const rect2D mouse)
 {
 	bool result = false;
-	bool wasLeftClick = obj->isLeftClicked();
-	bool isLeftClick = mouse.isCollide(obj->getShape());
+	const bool wasLeftClick = obj->isLeftClicked();
+	const bool isLeftClick = mouse.isCollide(obj->getShape());
 
 	if (!wasLeftClick && isLeftClick)
 	{
@@ -203,18 +200,18 @@ bool World::checkLeftClick(ObjectPtr obj, rect2D mouse)
 	return result;
 }
 
-void World::leftClick(point2D pos)
+void World::leftClick(const point2D pos)
 {
-	rect2D mouseRect = rect2D(pos, clickingPrecisionArea); // in window 
-	rect2D mouseRectWorld = m_camera->WindowToWorld(mouseRect); // in world
+	const rect2D mouseRect = rect2D(pos, clickingPrecisionArea);
+	const rect2D mouseRectWorld = m_camera->WindowToWorld(mouseRect);
 
 	bool isAnObjectClickedOn = false;
 	// Check if an object is on the click
-	for (ObjectPtr obj : m_objects)
+	for (const ObjectPtr& obj : m_objects)
 	{
 		isAnObjectClickedOn |= checkLeftClick(obj, mouseRectWorld);
 	}
-	for (ObjectPtr obj : m_overlayObjects)
+	for (const ObjectPtr& obj : m_overlayObjects)
 	{
 		isAnObjectClickedOn |= checkLeftClick(obj, mouseRect);
 	}
@@ -228,10 +225,10 @@ void World::leftClick(point2D pos)
 	}
 }
 
-bool World::checkLeftClickReleased(ObjectPtr object, rect2D mouse)
+bool World::checkLeftClickReleased(const ObjectPtr object, const rect2D mouse)
 {
 	bool result = false;
-	bool isOnItem = mouse.isCollide(object->getShape());
+	const bool isOnItem = mouse.isCollide(object->getShape());
 
 	if (isOnItem && object->isLeftClicked())
 	{
@@ -242,18 +239,18 @@ bool World::checkLeftClickReleased(ObjectPtr object, rect2D mouse)
 	return result;
 }
 
-void World::releaseLeftClick(point2D pos)
+void World::releaseLeftClick(const point2D pos)
 {
-	rect2D mouseRect = rect2D(pos, clickingPrecisionArea); // in window 
-	rect2D mouseRectWorld = m_camera->WindowToWorld(mouseRect); // in world
+	const rect2D mouseRect = rect2D(pos, clickingPrecisionArea);
+	const rect2D mouseRectWorld = m_camera->WindowToWorld(mouseRect);
 
 	bool isAnObjectClickedOn = false;
 	// Releasing click for all items
-	for (ObjectPtr obj : m_objects)
+	for (const ObjectPtr& obj : m_objects)
 	{
 		isAnObjectClickedOn |= checkLeftClickReleased(obj, mouseRectWorld);
 	}
-	for (ObjectPtr obj : m_overlayObjects)
+	for (const ObjectPtr& obj : m_overlayObjects)
 	{
 		isAnObjectClickedOn |= checkLeftClickReleased(obj, mouseRect);
 	}
@@ -266,17 +263,16 @@ void World::releaseLeftClick(point2D pos)
 	}
 }
 
-void World::onLeftClick(point2D pos)
+void World::onLeftClick(const point2D pos)
 {
 	std::cout << "World have been click on at this position : " << pos.toString() << std::endl;
 }
-void World::offLeftClick(point2D pos)
+void World::offLeftClick(const point2D pos)
 {
 	std::cout << "World is no more left clicked : " << pos.toString() << std::endl;
 }
 
-
-void World::parseFile(std::string filePath)
+void World::parseFile(const std::string& filePath)
 {
 	std::ifstream inFile(filePath, std::ios::binary);
 	if (!inFile)
@@ -285,52 +281,36 @@ void World::parseFile(std::string filePath)
 	}
 	else
 	{
-		size_t object_size = Value::readNextValue(inFile).getValue<size_t>();
+		const size_t object_size = Value::readNextValue(inFile).getValue<size_t>();
 
 		std::cout << "---- detected " << object_size << " objects ----" << std::endl;
 		for (size_t i = 0; i < object_size; ++i)
 		{
-			std::string objectType = Value::readNextValue(inFile).getValue<std::string>();
+			const std::string objectType = Value::readNextValue(inFile).getValue<std::string>();
 			std::cout << "[" << objectType << "]" << std::endl;
 
-			// deseriailze members
 			ObjectMemberHolder members;
 			members.deserialize(inFile);
 
 			addObject(ObjectManager::createObject(objectType, members));
-		}
-		
-		size_t overlay_size = Value::readNextValue(inFile).getValue<size_t>();
-
-		std::cout << "---- detected " << overlay_size << " overlay objects ----" << std::endl;
-		for (size_t i = 0; i < overlay_size; ++i)
-		{
-			std::string objectType = Value::readNextValue(inFile).getValue<std::string>();
-			std::cout << "[" << objectType << "]" << std::endl;
-
-			// deseriailze members
-			ObjectMemberHolder members;
-			members.deserialize(inFile);
-
-			addOverlayObject(ObjectManager::createObject(objectType, members));
 		}
 	}
 }
 
 void World::createRenderers(SDL_Renderer* renderer)
 {
-	for (ObjectPtr item : m_objects)
+	for (const ObjectPtr& item : m_objects)
 	{
 		item->createRenderer(renderer);
 	}
 
-	for (ObjectPtr item : m_overlayObjects)
+	for (const ObjectPtr& item : m_overlayObjects)
 	{
 		item->createRenderer(renderer);
 	}
 }
 
-void World::saveFile(std::string filePath)
+void World::saveFile(const std::string& filePath)
 {
 	std::ofstream outFile(filePath, std::ios::binary);
 	if (!outFile)
@@ -339,28 +319,14 @@ void World::saveFile(std::string filePath)
 	}
 	else
 	{
-		// Write the world  
 		Value object_size = Value(m_objects.size());
 		object_size.serialize(outFile);
-		for (ObjectPtr item : m_objects)
+		for (const ObjectPtr& item : m_objects)
 		{
 			Value item_type = Value(item->getTypeName());
 			item_type.serialize(outFile);
 			ObjectMemberHolder members = item->serialize();
 			members.serialize(outFile);
 		}
-
-		// Then write all overlays objects
-		Value overlay_size = Value(m_overlayObjects.size());
-		overlay_size.serialize(outFile);
-		for (ObjectPtr item : m_overlayObjects)
-		{
-			Value item_type = Value(item->getTypeName());
-			item_type.serialize(outFile);
-			ObjectMemberHolder members = item->serialize();
-			members.serialize(outFile);
-		}
-
-		// Maybe write the camera
 	}
 }

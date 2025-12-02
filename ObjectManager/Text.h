@@ -9,17 +9,17 @@ class Text :
     public Object
 {
 public:
-    Text(ObjectMemberHolder members);
-    Text(rect2D shape, std::string text, std::string font, float fontSize, Color color = Color(0, 0, 0, 255));
+    Text(const ObjectMemberHolder& members);
+    Text(rect2D shape, const std::string& text, const std::string& font, float fontSize, Color color = Color(0, 0, 0, 255));
 
     bool createRenderer(SDL_Renderer* renderer) override;
 
     std::string getTypeName() const override { return "Text"; }
     ObjectMemberHolder serialize() const override;
 
-    bool setText(std::string text);
+    bool setText(const std::string& text);
     bool setColor(Color color);
-    bool setFont(std::string font);
+    bool setFont(const std::string& font);
     void setPoliceSize(float size);
 
 protected:

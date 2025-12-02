@@ -1,7 +1,7 @@
 #include "ImageRenderer.h"
 #include <iostream>
 
-ImageRenderer::ImageRenderer(SDL_Renderer* renderer, Image* imageAsset)
+ImageRenderer::ImageRenderer(SDL_Renderer* renderer, const Image* imageAsset)
 {
     m_renderer = renderer;
     m_image = imageAsset;
@@ -12,7 +12,7 @@ ImageRenderer::~ImageRenderer() {
     cleanRenderer();
 }
 
-void ImageRenderer::setAsset(Image* imageAsset)
+void ImageRenderer::setAsset(const Image* imageAsset)
 {
     m_image = imageAsset;
     cleanRenderer();

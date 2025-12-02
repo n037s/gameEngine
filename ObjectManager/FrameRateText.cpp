@@ -4,14 +4,14 @@
 
 #include <iostream>
 
-FrameRateText::FrameRateText(rect2D shape, std::string font, float fontSize, Color color) :
+FrameRateText::FrameRateText(rect2D shape, const std::string& font, float fontSize, Color color) :
 	Text(shape, "fps", font, fontSize, color)
 {
 }
 
 bool FrameRateText::createRenderer(SDL_Renderer* renderer)
 {
-	m_renderer = new TextRenderer(renderer, m_text, m_size, new Font(m_font, m_fontSize), m_color.toSDL());
+	m_renderer = new TextRenderer(renderer, m_text, m_size, std::make_shared<Font>(m_font, m_fontSize), m_color.toSDL());
 	m_size = m_renderer->getSize();
 
 	return m_renderer->isGenerated();
@@ -35,7 +35,7 @@ void FrameRateText::update()
 	}
 }
 
-FrameRateText::FrameRateText(ObjectMemberHolder members) : Text(members)
+FrameRateText::FrameRateText(const ObjectMemberHolder& members) : Text(members)
 {
 
 }
@@ -57,7 +57,7 @@ bool FrameRateText::setColor(SDL_Color color)
 	return success;
 }
 
-bool FrameRateText::setFont(std::string font)
+bool FrameRateText::setFont(const std::string& font)
 {
 	bool success = false;
 	TextRenderer* textRend = static_cast<TextRenderer*>(m_renderer);

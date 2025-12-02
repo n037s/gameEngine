@@ -4,8 +4,8 @@
 
 #include <iostream>
 
-Button::Button(rect2D shape, std::string text, Color& color, Font* font, Color& fontColor,
-	std::string callbackID, std::string releaseCallbackID) : Object(shape.position, shape.size)
+Button::Button(rect2D shape, const std::string& text, const Color& color, FontPtr font, const Color& fontColor,
+	const std::string& callbackID, const std::string& releaseCallbackID) : Object(shape.position, shape.size)
 {
 	m_label = text;
 	m_color = color;
@@ -17,11 +17,11 @@ Button::Button(rect2D shape, std::string text, Color& color, Font* font, Color& 
 	m_releaseCallback = ButtonCallbackRegistery::instance()->getCallback(m_callbackReleaseID);
 }
 
-Button::Button(ObjectMemberHolder members) : Object(members)
+Button::Button(const ObjectMemberHolder& members) : Object(members)
 {
 	m_label = members.getMember<std::string>("buttonLabel");
 	m_color = members.getMember<Color>("buttonColor");
-	m_font = members.getMember<Font*>("buttonLabelFont");
+	m_font = members.getMember<FontPtr>("buttonLabelFont");
 	m_fontColor = members.getMember<Color>("buttonLabelFontColor");
 	m_callbackID = members.getMember<std::string>("butonCallbackOnClick");
 	m_callback = ButtonCallbackRegistery::instance()->getCallback(m_callbackID);

@@ -6,7 +6,7 @@
 #include <sstream>
 
 
-DropDownMenu::DropDownMenu(ObjectMemberHolder members) : Object(members)
+DropDownMenu::DropDownMenu(const ObjectMemberHolder& members) : Object(members)
 {
 	// Retrieve the number of items
 	// For the number of items : 
@@ -14,7 +14,7 @@ DropDownMenu::DropDownMenu(ObjectMemberHolder members) : Object(members)
 	// create the item through the factory and add it to the list.
 }
 
-DropDownMenu::DropDownMenu(rect2D shape, size2D itemSize, Color buttonColor, Font* font) : Object(shape.position, shape.size)
+DropDownMenu::DropDownMenu(rect2D shape, size2D itemSize, Color buttonColor, FontPtr font) : Object(shape.position, shape.size)
 {
 	m_itemSize = itemSize;
 	m_buttonColor = buttonColor;
@@ -80,7 +80,6 @@ void DropDownMenu::addItemButton(std::string label, std::string callbackID)
 
 void DropDownMenu::addSubMenuButton(std::string label, ItemPtr item)
 {
-	Font* font = new Font("arial", 25, { Alignement::LOW, Alignement::CENTER });
 	int itemCount = m_objectList.size();
 	size2D dy = m_itemSize * size2D(0, itemCount);
 	point2D position = m_pos + dy;
@@ -125,7 +124,7 @@ void DropDownMenu::updateRendererMenu()
 	}
 }
 
-void DropDownMenu::addItem(std::string ID, std::string callbackID)
+void DropDownMenu::addItem(const std::string& ID, const std::string& callbackID)
 {
 	// ID is as subMenu1/subMenu2/item
 	// First if the structure is not created, let's create it.
@@ -138,7 +137,7 @@ void DropDownMenu::addItem(std::string ID, std::string callbackID)
 	std::stringstream ss(ID);
 	std::string word;
 
-	size_t ID_words_count = std::count(ID.begin(), ID.end(), '/');
+	const size_t ID_words_count = std::count(ID.begin(), ID.end(), '/');
 	int current_word_iterator = 0;
 	ItemPtr node = m_items;
 
@@ -174,7 +173,7 @@ void DropDownMenu::addItem(std::string ID, std::string callbackID)
 		display(nullptr);
 }
 
-ItemPtr DropDownMenu::getChildItem(std::string label, ItemPtr parent)
+ItemPtr DropDownMenu::getChildItem(const std::string& label, ItemPtr parent) const
 {
 	ItemPtr result = nullptr;
 	if (parent->isSubMenu)

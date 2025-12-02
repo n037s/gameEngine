@@ -5,12 +5,12 @@
 
 #include <iostream>
 
-AnimatedSprite::AnimatedSprite(point2D pos, std::vector<std::string> assetNames, int animationSpeedMS) : Object(pos)
+AnimatedSprite::AnimatedSprite(point2D pos, const std::vector<std::string>& assetNames, int animationSpeedMS) : Object(pos)
 {
 	m_assets = std::vector<Image*>();
 	m_animationSpeed = animationSpeedMS;
 
-	for (auto assetName : assetNames)
+	for (const auto& assetName : assetNames)
 	{
 		m_assets.push_back(static_cast<Image*>(AssetsManager::getInstance()->getAsset(assetName)));
 	}
@@ -26,7 +26,7 @@ bool AnimatedSprite::createRenderer(SDL_Renderer* renderer)
 	return m_renderer->isGenerated();
 }
 
-AnimatedSprite::AnimatedSprite(ObjectMemberHolder members) : Object(members)
+AnimatedSprite::AnimatedSprite(const ObjectMemberHolder& members) : Object(members)
 {
 	m_assets = std::vector<Image*>();
 	for (int i = 0; i < members.getMember<size_t>("AssetsCount"); ++i)

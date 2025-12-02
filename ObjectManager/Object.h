@@ -12,13 +12,14 @@
 class Object
 {
 public:
-	Object(ObjectMemberHolder members);
+	Object(const ObjectMemberHolder& members);
 	Object(point2D pos = point2D(0, 0), size2D size = size2D(1, 1), float z = 0) : m_pos(pos), m_size(size), m_z(z) {}
+	~Object();
 
-	bool isHidden() { return m_isHidden; }
+	bool isHidden() const { return m_isHidden; }
 	void setIsHidden(bool isHidden) { m_isHidden = isHidden; }
 
-	const std::string getUID() { return m_uid; }
+	const std::string& getUID() const { return m_uid; }
 	virtual std::string getTypeName() const = 0;
 	virtual ObjectMemberHolder serialize() const;
 
@@ -42,7 +43,7 @@ public:
 	 */
 	virtual void update();
 
-	bool isHovered() { return m_isHovered; }
+	bool isHovered() const { return m_isHovered; }
 	/*
 	 * @brief the item begins to be hovered
 	 */
@@ -62,7 +63,7 @@ public:
 	virtual void leftFocus(point2D pos);
 
 	void setLeftClicked(bool isLeftClicked) { m_isLeftClicked = isLeftClicked; }
-	bool isLeftClicked() { return m_isLeftClicked; }
+	bool isLeftClicked() const { return m_isLeftClicked; }
 	/*
 	 * @brief callback of the item when it is left clicked on
 	 * 
@@ -113,15 +114,15 @@ public:
 	void setRenderingRect(rect2D renderingRect) { m_renderingRect = renderingRect; }
 
 	void setZ(float z) { m_z = z; }
-	float getZ() { return m_z; }
+	float getZ() const { return m_z; }
 
-	BaseRenderer* getRenderer() { return m_renderer; }
+	BaseRenderer* getRenderer() const { return m_renderer; }
 
-	bool operator>(Object* other) { return (m_z > other->m_z); }
-	bool operator<(Object* other) { return (m_z < other->m_z); }
-	bool operator<=(Object* other) { return (m_z <= other->m_z); }
-	bool operator>=(Object* other) { return (m_z >= other->m_z); }
-	bool operator==(Object* other) { return (m_z == other->m_z); }
+	bool operator>(const Object* other) const { return (m_z > other->m_z); }
+	bool operator<(const Object* other) const { return (m_z < other->m_z); }
+	bool operator<=(const Object* other) const { return (m_z <= other->m_z); }
+	bool operator>=(const Object* other) const { return (m_z >= other->m_z); }
+	bool operator==(const Object* other) const { return (m_z == other->m_z); }
 
 protected:
 	std::string m_uid{ UIDGenerator::generateUID() };

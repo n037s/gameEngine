@@ -9,8 +9,8 @@
 class Sprite : public Object
 {
 public:
-	Sprite(ObjectMemberHolder members);
-	Sprite(point2D pos, std::string assetName);
+	Sprite(const ObjectMemberHolder& members);
+	Sprite(point2D pos, const std::string& assetName);
 
 	std::string getTypeName() const override { return "Sprite"; }
 	ObjectMemberHolder serialize() const override;

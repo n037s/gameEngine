@@ -1,6 +1,6 @@
 #include "Object.h"
 
-Object::Object(ObjectMemberHolder members)
+Object::Object(const ObjectMemberHolder& members)
 {
 	m_uid = members.getMember<std::string>("UID");
 	m_size = members.getMember<size2D>("objectSize");
@@ -22,10 +22,15 @@ ObjectMemberHolder Object::serialize() const
 	return memberHolder;
 }
 
+Object::~Object()
+{
+    delete m_renderer;
+}
+
 bool Object::render()
 {
 	bool res = false;
-	SDL_FRect renderingRect = m_renderingRect.toSDL();
+	const SDL_FRect renderingRect = m_renderingRect.toSDL();
 	res = m_renderer->render(renderingRect);
 	return res;
 }

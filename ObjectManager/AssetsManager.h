@@ -9,7 +9,7 @@
 
 namespace fs = std::filesystem;
 
-using parsingFunction = std::function<Asset* (fs::path assetPath)>;
+using parsingFunction = std::function<Asset* (const fs::path& assetPath)>;
 
 class AssetsManager
 {
@@ -21,20 +21,24 @@ public:
 	}
 	void Init();
 
-	std::string getAssetsPath() { return m_assetsFolderPath; }
-	std::string getPath(std::string assetID);
-	Asset* getAsset(std::string assetID);
+	std::string getAssetsPath() const { return m_assetsFolderPath; }
+	std::string getPath(const std::string& assetID) const;
+	Asset* getAsset(const std::string& assetID) const;
 
-	void setParserFunction(std::string extension, parsingFunction);
+	void setParserFunction(const std::string& extension, parsingFunction parsingFunc);
 
-	std::list<std::string> getAssetsIDs();
+	std::list<std::string> getAssetsIDs() const;
 
 private:
 	AssetsManager();
-	~AssetsManager() {};
+	~AssetsManager() {
+		for (auto& pair : m_nameToAsset) {
+			delete pair.second;
+		}
+	};
 
 	void parseFiles();
-	Asset* loadAsset(fs::path filePath);
+	Asset* loadAsset(const fs::path& filePath);
 
 	static AssetsManager* m_instance;
 	const std::string m_assetsFolderPath = "C:\\Users\\leoqu\\Desktop\\Code\\Project\\Assets\\";
@@ -44,5 +48,4 @@ private:
 	std::map<std::string, parsingFunction> m_extensionToParsing;
 };
 
-
-Asset* parserImage(fs::path assetPath);
+Asset* parserImage(const fs::path& assetPath);

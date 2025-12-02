@@ -3,6 +3,7 @@
 #include <SDL3/SDL.h>
 #include <SDL_ttf.h>
 #include <string>
+#include <memory>
 
 #include "Asset.h"
 
@@ -23,18 +24,18 @@ class Font
 {
 public:
 	Font();
-	Font(std::string m_fontID, float policySize, TextAlignement textAlignement = {Alignement::CENTER, Alignement::CENTER});
+	Font(const std::string& fontID, float policySize, TextAlignement textAlignement = {Alignement::CENTER, Alignement::CENTER});
 	~Font();
 
-	void setFontID(std::string fontID);
+	void setFontID(const std::string& fontID);
 	void setPolicySize(float policySize);
-	void setTextAlignement(TextAlignement textAlignement) { m_textAlignement = textAlignement; }
-	const std::string getFontID() { return m_fontID; }
-	const float getPolicySize() { return m_policySize; }
-	const TextAlignement getTextAlignement() { return m_textAlignement; }
+	void setTextAlignement(const TextAlignement& textAlignement) { m_textAlignement = textAlignement; }
+	const std::string& getFontID() const { return m_fontID; }
+	float getPolicySize() const { return m_policySize; }
+	const TextAlignement& getTextAlignement() const { return m_textAlignement; }
 
-	bool isGenerated() { return m_isGenerated; }
-	TTF_Font* toSDL() { return m_font; }
+	bool isGenerated() const { return m_isGenerated; }
+	TTF_Font* toSDL() const { return m_font; }
 
 private:
 	void loadFont();
@@ -46,3 +47,4 @@ private:
 	TextAlignement m_textAlignement;
 };
 
+using FontPtr = std::shared_ptr<Font>;

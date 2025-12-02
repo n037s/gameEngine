@@ -5,10 +5,12 @@
 class Asset
 {
 public:
-	void setAssetID(std::string assetID) { m_assetID = assetID; }
-	std::string getAssetID() { return m_assetID; }
+	void setAssetID(const std::string& assetID) { m_assetID = assetID; }
+	std::string getAssetID() const { return m_assetID; }
 
 private:
 	std::string m_assetID{ "" };
 };
+
+
 

@@ -105,7 +105,7 @@ void Viewer::manageUserInput(SDL_Event event)
         break;
     case SDL_EVENT_KEY_DOWN:
     {
-        SDL_Keycode keycode = event.key.key;
+        const SDL_Keycode keycode = event.key.key;
 
         std::cout << "key pressed : " << SDL_GetKeyName(keycode) << " returns : " <<
             (m_commandProxy->addRunningCallback(keycode) ? "true" : "false") << std::endl;
@@ -114,14 +114,14 @@ void Viewer::manageUserInput(SDL_Event event)
     }
     case SDL_EVENT_KEY_UP:
     {
-        SDL_Keycode keycode = event.key.key;
+        const SDL_Keycode keycode = event.key.key;
         std::cout << "key released : " << SDL_GetKeyName(keycode) << std::endl;
         m_commandProxy->removeRunningCallback(keycode);
         break;
     }
     case SDL_EVENT_MOUSE_BUTTON_DOWN:
     {
-        point2D clickpos = point2D(event.button.x, event.button.y);
+        const point2D clickpos = point2D(event.button.x, event.button.y);
         if (event.button.button == SDL_BUTTON_LEFT)
         {
             m_world->leftClick(clickpos);
@@ -136,7 +136,7 @@ void Viewer::manageUserInput(SDL_Event event)
     }
     case SDL_EVENT_MOUSE_BUTTON_UP:
     {
-        point2D clickpos = point2D(event.button.x, event.button.y);
+        const point2D clickpos = point2D(event.button.x, event.button.y);
         if (event.button.button == SDL_BUTTON_LEFT)
         {
             m_world->releaseLeftClick(clickpos);
@@ -151,13 +151,13 @@ void Viewer::manageUserInput(SDL_Event event)
     }
     case SDL_EVENT_MOUSE_MOTION:
     {
-        point2D clickpos = point2D(event.button.x, event.button.y);
+        const point2D clickpos = point2D(event.button.x, event.button.y);
         m_world->mouseMove(clickpos);
         break;
     }
     case SDL_EVENT_MOUSE_WHEEL:
     {
-        float dy = event.wheel.y;
+        const float dy = event.wheel.y;
         std::cout << "scrooled : " << dy << std::endl;
         if (m_wheelCallback)
         {

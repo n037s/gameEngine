@@ -3,7 +3,7 @@
 #include <iostream>
 
 
-TextRenderer::TextRenderer(SDL_Renderer* renderer, const std::string& text, size2D size, Font* font, SDL_Color color)
+TextRenderer::TextRenderer(SDL_Renderer* renderer, const std::string& text, size2D size, FontPtr font, SDL_Color color)
 {
 	m_renderer = renderer;
 	m_size = size;
@@ -49,10 +49,11 @@ void TextRenderer::generateTexture()
 				}
 			}
 		}
+		SDL_DestroySurface(textSurface);
 	}
 }
 
-void TextRenderer::setText(std::string& text)
+void TextRenderer::setText(const std::string& text)
 {
 	m_text = text;
 	generateTexture();
@@ -64,7 +65,7 @@ void TextRenderer::setColor(SDL_Color color)
 	generateTexture();
 }
 
-void TextRenderer::setFont(std::string& font)
+void TextRenderer::setFont(const std::string& font)
 {
 	m_font->setFontID(font);
 	generateTexture();
@@ -79,23 +80,23 @@ void TextRenderer::setPoliceSize(float size)
 bool TextRenderer::setupTextInSurface(SDL_Surface* textSurface)
 {
 	// Compute the position and mix the text surface to the main surface
-	size2D textSurfaceSize = size2D(static_cast<float>(textSurface->w), static_cast<float>(textSurface->h));
-	size2D surfaceSize = size2D(static_cast<float>(m_surface->w), static_cast<float>(m_surface->h));
+	const size2D textSurfaceSize = size2D(static_cast<float>(textSurface->w), static_cast<float>(textSurface->h));
+	const size2D surfaceSize = size2D(static_cast<float>(m_surface->w), static_cast<float>(m_surface->h));
 
-	size2D oversize = surfaceSize - textSurfaceSize;
+	const size2D oversize = surfaceSize - textSurfaceSize;
 	point2D offset = point2D(0, 0);
 	
-	TextAlignement textAlignement = m_font->getTextAlignement();
+	const TextAlignement textAlignement = m_font->getTextAlignement();
 	// we have an offset to compute according to font alignement
 	offset.x = oversize.w * ( textAlignement.horizontalAlignement / 2.0f);
 	offset.y = oversize.h * ( textAlignement.verticalAlignement / 2.0f);
 
-	SDL_Rect textRect = rect2D(point2D(0, 0), textSurfaceSize).tointSDL();
-	SDL_Rect surfaceRect = rect2D(offset, surfaceSize).tointSDL();
+	const SDL_Rect textRect = rect2D(point2D(0, 0), textSurfaceSize).tointSDL();
+	const SDL_Rect surfaceRect = rect2D(offset, surfaceSize).tointSDL();
 
 	bool success = SDL_BlitSurface(textSurface, &textRect, m_surface, &surfaceRect);
 	if (!success)
 		std::cout << "[ERROR] Generating text, blit is unsuccessfull" << std::endl;
-
+	
 	return success;
 }

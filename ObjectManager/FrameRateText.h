@@ -7,8 +7,8 @@
 class FrameRateText : public Text
 {
 public:
-    FrameRateText(ObjectMemberHolder members);
-	FrameRateText(rect2D shape, std::string font, float fontSize, Color color = Color(0, 0, 0, 255));
+    FrameRateText(const ObjectMemberHolder& members);
+	FrameRateText(rect2D shape, const std::string& font, float fontSize, Color color = Color(0, 0, 0, 255));
 
     bool createRenderer(SDL_Renderer* renderer) override;
     void update() override;
@@ -17,7 +17,7 @@ public:
     ObjectMemberHolder serialize() const override;
 
     bool setColor(SDL_Color color);
-    bool setFont(std::string font);
+    bool setFont(const std::string& font);
     void setPoliceSize(float size);
 protected:
     std::chrono::steady_clock::time_point m_lastTime;

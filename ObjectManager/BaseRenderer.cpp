@@ -22,7 +22,7 @@ void BaseRenderer::cleanRenderer()
     }
 }
 
-size2D BaseRenderer::getSize()
+size2D BaseRenderer::getSize() const
 {
     size2D result = size2D(0, 0);
     if (m_surface)
@@ -32,7 +32,7 @@ size2D BaseRenderer::getSize()
     return result;
 }
 
-bool BaseRenderer::render(SDL_FRect& renderingRect)
+bool BaseRenderer::render(const SDL_FRect& renderingRect)
 {
     bool success = false;
     if (m_isGenerated)

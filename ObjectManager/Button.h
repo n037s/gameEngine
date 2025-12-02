@@ -12,9 +12,9 @@
 class Button : public Object
 {
 public:
-	Button(ObjectMemberHolder members);
-	Button(rect2D shape, std::string text, Color& color, Font* font, Color& fontColor,
-		std::string callbackID = "", std::string releaseCallbackID = "");
+	Button(const ObjectMemberHolder& members);
+	Button(rect2D shape, const std::string& text, const Color& color, FontPtr font, const Color& fontColor,
+		const std::string& callbackID = "", const std::string& releaseCallbackID = "");
 
 	bool createRenderer(SDL_Renderer* renderer) override;
 
@@ -27,18 +27,11 @@ public:
 	bool releaseLeftClick(point2D pos) override;
 
 	const rect2D getShape() const override { return rect2D(m_pos, m_size); };
-
-	// It have a renderer to render a button style with a text on it.
-	// It size can be defined but also auto sizing to the text size. 
-	// It have a callback on it. It should be a callback that can be reached by world. 
-	// So when I click on my window, I send to world the position, world will seek if there is an item on the click pos
-	// If there is an item it will call its onclick function
-	// If world have no callback, then a normal click will be performed. Can be linked to a callback also.
-
+	
 private:
 	std::string m_label;
 	Color m_color;
-	Font* m_font;
+	FontPtr m_font;
 	Color m_fontColor;
 	std::string m_callbackID;
 	std::string m_callbackReleaseID;

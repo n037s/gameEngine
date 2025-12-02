@@ -13,7 +13,7 @@
 #include "Text.h"
 #include "DropDownMenu.h"
 
-using objectDeserializer = std::function<std::shared_ptr<Object>(ObjectMemberHolder members)>;
+using objectDeserializer = std::function<ObjectPtr(const ObjectMemberHolder& members)>;
 
 class ObjectManager
 {
@@ -22,7 +22,7 @@ public:
         getRegistry()[name] = std::move(objectDeserializer);
     }
 
-    static std::shared_ptr<Object> createObject(const std::string& name, ObjectMemberHolder members) {
+    static ObjectPtr createObject(const std::string& name, const ObjectMemberHolder& members) {
         auto& registry = getRegistry();
         auto it = registry.find(name);
         if (it != registry.end()) {
@@ -45,8 +45,8 @@ struct ObjectRegister {
 };
 
 // ===== Objects Registration =====
-static ObjectRegister AnimatedSpriteReg("AnimatedSprite", [](ObjectMemberHolder members) { return std::make_shared<AnimatedSprite>(members); });
-static ObjectRegister ButtonReg("Button", [](ObjectMemberHolder members) { return std::make_shared<Button>(members); });
-static ObjectRegister FrameRateTextReg("FrameRateText", [](ObjectMemberHolder members) { return std::make_shared<FrameRateText>(members); });
-static ObjectRegister SpriteReg("Sprite", [](ObjectMemberHolder members) { return std::make_shared<Sprite>(members); });
-static ObjectRegister TextReg("Text", [](ObjectMemberHolder members) { return std::make_shared<Text>(members); });
+static ObjectRegister AnimatedSpriteReg("AnimatedSprite", [](const ObjectMemberHolder& members) { return std::make_shared<AnimatedSprite>(members); });
+static ObjectRegister ButtonReg("Button", [](const ObjectMemberHolder& members) { return std::make_shared<Button>(members); });
+static ObjectRegister FrameRateTextReg("FrameRateText", [](const ObjectMemberHolder& members) { return std::make_shared<FrameRateText>(members); });
+static ObjectRegister SpriteReg("Sprite", [](const ObjectMemberHolder& members) { return std::make_shared<Sprite>(members); });
+static ObjectRegister TextReg("Text", [](const ObjectMemberHolder& members) { return std::make_shared<Text>(members); });

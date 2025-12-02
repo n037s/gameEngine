@@ -30,16 +30,16 @@ using ItemPtr = std::shared_ptr<Item>;
 class DropDownMenu : public Object
 {
 public:
-	DropDownMenu(ObjectMemberHolder members);
-	DropDownMenu(rect2D shape, size2D itemSize, Color buttonColor, Font* font);
+	DropDownMenu(const ObjectMemberHolder& members);
+	DropDownMenu(rect2D shape, size2D itemSize, Color buttonColor, FontPtr font);
 
 	bool createRenderer(SDL_Renderer* renderer) override;
 
 	std::string getTypeName() const override { return "DropDownMenu"; }
 	ObjectMemberHolder serialize() const override;
 
-	void addItem(std::string ID, std::string callbackID = "Nothing");
-	ItemPtr getChildItem(std::string label, ItemPtr parent);
+	void addItem(const std::string& ID, const std::string& callbackID = "Nothing");
+	ItemPtr getChildItem(const std::string& label, ItemPtr parent) const;
 
 	void display(ItemPtr menu, int level = 0, bool isMenuChanged = false);
 
@@ -62,7 +62,7 @@ private:
 	std::list<ObjectPtr> m_objectList;
 	size2D m_itemSize;
 	Color m_buttonColor;
-	Font* m_font;
+	FontPtr m_font;
 
 	SDL_Renderer* sdl_renderer;
 };

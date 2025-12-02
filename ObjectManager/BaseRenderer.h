@@ -16,13 +16,13 @@ public:
 	void cleanSurfaceAndRenderer();
 	void cleanRenderer();
 
-	bool isGenerated() { return m_isGenerated; };
-	virtual bool render(SDL_FRect& renderingRect);
+	bool isGenerated() const { return m_isGenerated; }
+	virtual bool render(const SDL_FRect& renderingRect);
 
-	virtual size2D getSize();
+	virtual size2D getSize() const;
 
-	SDL_Texture* getTexture() { return m_texture; }
-	SDL_Surface* getSurface() { return m_surface; }
+	SDL_Texture* getTexture() const { return m_texture; }
+	SDL_Surface* getSurface() const { return m_surface; }
 
 protected:
 	SDL_Renderer* m_renderer;
