@@ -172,18 +172,23 @@ void World::mouseMove(const point2D pos)
 	}
 }
 
-void World::checkHover(const ObjectPtr obj, const rect2D mouse)
+bool World::checkHover(const ObjectPtr obj, const rect2D mouse)
 {
+	bool result = false;
 	const bool isHovered = mouse.isCollide(obj->getShape());
+	const bool wasHovered = obj->isHovered();
 
 	if (isHovered)
 	{
 		obj->hover(mouse.position);
+		m_hoveredObject = obj;
+		result = true;
 	}
-	else if (!isHovered)
+	else if (wasHovered)
 	{
 		obj->leftFocus(mouse.position);
 	}
+	return result;
 }
 
 void World::Hovering(const point2D pos)
@@ -288,6 +293,26 @@ void World::onLeftClick(const point2D pos)
 void World::offLeftClick(const point2D pos)
 {
 	std::cout << "World is no more left clicked : " << pos.toString() << std::endl;
+}
+
+bool World::scroll(float dz) const
+{
+	bool result = false;
+	if (m_hoveredObject)
+	{
+		// let's try to scroll on the item 
+		std::cout << "trying to scroll on the hovered item" << m_hoveredObject->getTypeName() << std::endl;
+		result = m_hoveredObject->scroll(dz);
+	}
+
+	if (!result)
+	{
+		// let's scroll on the world
+		std::cout << "scrolling on the world" << std::endl;
+		result = m_wheelCallback(dz);
+	}
+
+	return result;
 }
 
 void World::parseFile(const std::string& filePath)

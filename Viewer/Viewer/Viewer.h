@@ -23,6 +23,7 @@ public:
 	SDL_Renderer* getRenderer() const { return m_renderer; }
 
 	void setWorld(World* world) { m_world = world; }
+	World* getWorld() { return m_world; }
 	void setCommandProxy(CommandProxy* cmdProxy) { m_commandProxy = cmdProxy; }
 
 	void setWhellCallback(callbackMouseWheel callback) { m_wheelCallback = callback; }

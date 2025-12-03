@@ -90,3 +90,7 @@ bool Object::releaseLeftClick(point2D pos)
 	return false;
 }
 
+bool Object::scroll(float dz)
+{
+	return false;
+}

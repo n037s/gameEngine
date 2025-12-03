@@ -13,11 +13,6 @@
 #include <iostream>
 #include <sstream>
 
-bool Osef(point2D pos, Object* caller)
-{
-    return true;
-}
-
 bool Osef2(point2D pos, Object* caller)
 {
     std::cout << "osef2 called" << std::endl;
@@ -65,6 +60,7 @@ void CreateMyObjects(SDL_Renderer* renderer, World& world)
     const Color color = Color(100, 100, 100, 255);
     const Color fontColor = Color(255, 255, 255, 255);
     const std::shared_ptr<Button> button = std::make_shared<Button>(buttonPosition, "blip", color, font, fontColor, "osef", "osef2");
+
     button->setZ(3);
     button->createRenderer(renderer);
     world.addObject(button);
@@ -107,6 +103,25 @@ ObjectPtr createAssetList()
     return dropDown;
 }
 
+bool ManageWheel(float dz)
+{
+    bool result = false;
+    Viewer* viewer = Viewer::getInstance();
+    World* world = viewer->getWorld();
+
+    ObjectPtr obj = world->getHoveredObject();
+    if (obj)
+    {
+        // an item is hovered, let's try to scroll on it.
+    }
+
+
+    // else 
+    result = CameraControl::moveZ(dz);
+
+    return result;
+}
+
 int main(int argc, char* argv[]) 
 {
     const std::string worldFilePath = "C:\\Leo\\Perso\\gameEngine\\Configs\\world";
@@ -121,7 +136,6 @@ int main(int argc, char* argv[])
 
     // Register all callbacks
     ButtonCallbackRegistery* btnRegister = ButtonCallbackRegistery::instance();
-    btnRegister->registerCallback("osef", Osef);
     btnRegister->registerCallback("osef2", Osef2);
 
     // Define a world
@@ -137,7 +151,7 @@ int main(int argc, char* argv[])
 
     // Define its objects
     world.createCamera({ 0,0 }, windowSize);
-    world.setCameraZLimits(0.2f, 5);
+    world.setCameraZLimits(0.1f, 5);
 
     // Create world
     // CreateMyObjects(renderer, world); // Disabled if we want to read the world instead to avoid duplicity.
@@ -158,7 +172,8 @@ int main(int argc, char* argv[])
     cmdProxy.bindCallback(SDLK_LEFT, CameraControl::moveLeft);
     cmdProxy.bindCallback(SDLK_ESCAPE, Viewer::stopLoop);
 
-    viewer->setWhellCallback(CameraControl::moveZ);
+    world.setWheelCallback(CameraControl::moveZ);
+    viewer->setWhellCallback([viewer] (float dz) { return viewer->getWorld()->scroll(dz); });
 
     // Run application loop
     viewer->startLoop();
@@ -172,7 +187,7 @@ int main(int argc, char* argv[])
 
 // Then What to do : 
 // - Start a project world editor. It needs to add the right click option to add a menu interfacing AssetsManager to create item
-// + Drop down items. A holder of buttons. 
+// + Drop down items : still needs to have scrollability + Fix the non writing in the world of this item.
 // + Bounding Box items. Parasite to an object and controls its size and position.
 // + items can be grabbed and moved and resized.
 // - issue on dependencies. WorldEditor should not be dependent of SDL3 ... caused by import on .h

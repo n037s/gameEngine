@@ -95,7 +95,16 @@ public:
 	 * 
 	 * @return bool if a callback have been performed
 	 */
-	virtual bool releaseLeftClick (point2D pos);
+	virtual bool releaseLeftClick(point2D pos);
+
+	/*
+	 * @brief scroll on the item
+	 *
+	 * @param dz - scrolling dz
+	 *
+	 * @return bool if a callback have been performed
+	 */
+	virtual bool scroll(float dz);
 
 	/*
 	 * @brief get the position of the item

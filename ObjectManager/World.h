@@ -9,6 +9,7 @@
 #include "SDL3/SDL.h"
 
 using worldClickCallback = std::function<void(point2D position)>;
+using worldWheelCallback = std::function<bool(float dz)>;
 
 class World
 {
@@ -32,6 +33,7 @@ public:
 
 	void mouseMove(const point2D pos);
 	void Hovering(const point2D pos);
+	ObjectPtr getHoveredObject() { return m_hoveredObject; }
 
 	void setLeftClickCallback(worldClickCallback& callback) { m_leftClickCallback = callback; }
 	void setRightClickCallback(worldClickCallback& callback) { m_rightClickCallback = callback; }
@@ -41,6 +43,9 @@ public:
 	virtual void offLeftClick(const point2D pos);
 	void leftClick(const point2D pos);
 	void releaseLeftClick(const point2D pos);
+
+	void setWheelCallback(worldWheelCallback callback) { m_wheelCallback = callback; }
+	bool scroll(float dz) const;
 
 	void parseFile(const std::string& filePath);;
 	void createRenderers(SDL_Renderer* renderer);
@@ -52,7 +57,7 @@ private:
 
 	void sortObjectListByZ(std::list<ObjectPtr>& object_list);
 
-	void checkHover(const ObjectPtr obj, const rect2D mouse);
+	bool checkHover(const ObjectPtr obj, const rect2D mouse);
 	bool checkLeftClick(const ObjectPtr obj, const rect2D mouse);
 	bool checkLeftClickReleased(const ObjectPtr object, const rect2D mouse);
 
@@ -60,11 +65,13 @@ private:
 	std::list<ObjectPtr> m_objects{ std::list<ObjectPtr>() };
 	std::list<ObjectPtr> m_overlayObjects{ std::list<ObjectPtr>() };
 	std::map<std::string, ObjectPtr> m_UIDToObjects{ std::map<std::string, ObjectPtr>() };
+	ObjectPtr m_hoveredObject = nullptr;
 
 	bool m_isLeftClicked{ false };
 	point2D m_lastClickedPos{ 0,0 };
 
 	worldClickCallback m_leftClickCallback;
 	worldClickCallback m_rightClickCallback;
+	worldWheelCallback m_wheelCallback;
 };
 

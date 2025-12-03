@@ -49,6 +49,8 @@ public:
 	bool leftClick(point2D pos) override;
 	bool releaseLeftClick(point2D pos) override;
 
+	bool scroll(float dz) override;
+
 	void printMenu(ItemPtr menu, int level = 0);
 
 private:

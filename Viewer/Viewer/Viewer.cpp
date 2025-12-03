@@ -158,7 +158,6 @@ void Viewer::manageUserInput(SDL_Event event)
     case SDL_EVENT_MOUSE_WHEEL:
     {
         const float dy = event.wheel.y;
-        std::cout << "scrooled : " << dy << std::endl;
         if (m_wheelCallback)
         {
             m_wheelCallback(dy);

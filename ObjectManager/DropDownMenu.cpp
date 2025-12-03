@@ -327,3 +327,9 @@ bool DropDownMenu::releaseLeftClick(point2D pos)
 	}
 	return true;
 }
+
+bool DropDownMenu::scroll(float dz)
+{
+	std::cout << "scrolling on drop down menu with " << dz << std::endl;
+	return true;
+}
