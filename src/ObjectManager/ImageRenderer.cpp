@@ -9,25 +9,35 @@ ImageRenderer::ImageRenderer(SDL_Renderer* renderer, const Image* imageAsset)
 }
 
 ImageRenderer::~ImageRenderer() {
-    cleanRenderer();
 }
 
 void ImageRenderer::setAsset(const Image* imageAsset)
 {
     m_image = imageAsset;
-    cleanRenderer();
     createTexture();
 }
 
 
 void ImageRenderer::createTexture()
 {
+    m_isGenerated = false;
+    m_texture = nullptr;
+    m_surface = nullptr;
     if (m_image)
     {
         m_surface = m_image->getSurface();
         if (m_surface != nullptr)
         {
-            m_texture = SDL_CreateTextureFromSurface(m_renderer, m_surface);
+            const auto cached = m_textures.find(m_image);
+            if (cached != m_textures.end())
+                m_texture = cached->second.get();
+            else
+            {
+                std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)> texture(
+                    SDL_CreateTextureFromSurface(m_renderer, m_surface), SDL_DestroyTexture);
+                if (texture)
+                    m_texture = m_textures.emplace(m_image, std::move(texture)).first->second.get();
+            }
             if (!m_texture) {
                 std::cerr << "SDL_CreateTextureFromSurface Error: " << SDL_GetError() << std::endl;
             }

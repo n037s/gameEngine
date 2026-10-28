@@ -114,7 +114,6 @@ void World::render(SDL_Renderer* renderer)
 	
 	// retrieve objects to displays and with camera render them at good position
 	const rect2D renderingRect = m_camera->getRenderingRect();
-	std::list<ObjectPtr> toRender;
 
 	// let's check all of items that are inside the rect. 
 	for (const ObjectPtr& obj : m_objects)
@@ -125,7 +124,7 @@ void World::render(SDL_Renderer* renderer)
 				obj->setRenderingQuad(m_camera->getRenderingCorners(obj->getShape()));
 			else
 				obj->setRenderingRect(m_camera->WorldToWindow(obj->getShape()));
-			toRender.push_back(obj);
+			obj->render();
 		}
 	}
 	
@@ -136,14 +135,8 @@ void World::render(SDL_Renderer* renderer)
 		{
 			const rect2D renderingShape = obj->getShape();
 			obj->setRenderingRect(renderingShape);
-			toRender.push_back(obj);
+			obj->render();
 		}
-	}
-
-	// Call rendering for all objects.
-	for (const ObjectPtr& obj : toRender)
-	{
-		bool success = obj->render();
 	}
 }
 void World::update()

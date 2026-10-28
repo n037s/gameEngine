@@ -13,6 +13,8 @@ bool FrameRateText::createRenderer(SDL_Renderer* renderer)
 {
 	m_renderer = new TextRenderer(renderer, m_text, m_size, std::make_shared<Font>(m_font, m_fontSize), m_color.toSDL());
 	m_size = m_renderer->getSize();
+	m_lastTime = std::chrono::steady_clock::now();
+	m_frameUpdated = 0;
 
 	return m_renderer->isGenerated();
 }
@@ -21,12 +23,12 @@ void FrameRateText::update()
 {
 	// we compute the fps rate
 	m_frameUpdated++;
-	auto currentTime = std::chrono::high_resolution_clock::now();
+	auto currentTime = std::chrono::steady_clock::now();
 	auto duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - m_lastTime);
 
 	if (duration_ms.count() > m_displayRateTime_ms)
 	{
-		float displayUpdatingRatio = 1000.0f / m_displayRateTime_ms;
+		float displayUpdatingRatio = 1000.0f / static_cast<float>(duration_ms.count());
 		std::string fps = std::to_string((int)(displayUpdatingRatio * m_frameUpdated)) + "fps";
 		static_cast<TextRenderer*>(m_renderer)->setText(fps);
 

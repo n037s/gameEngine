@@ -55,6 +55,8 @@ void TextRenderer::generateTexture()
 
 void TextRenderer::setText(const std::string& text)
 {
+	if (m_text == text)
+		return;
 	m_text = text;
 	generateTexture();
 }

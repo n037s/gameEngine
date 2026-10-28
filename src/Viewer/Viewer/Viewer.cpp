@@ -62,10 +62,10 @@ Viewer::~Viewer()
 
 void Viewer::startLoop()
 {
-    int iii = 1;
+    const Uint64 frameBudget = SDL_NS_PER_SECOND / fps;
     m_running = true;
     while (m_running) {
-        std::cout << "[Application loop iteration]" << std::endl;
+        const Uint64 frameStart = SDL_GetTicksNS();
 
         // Handle events
         SDL_Event event;
@@ -86,7 +86,9 @@ void Viewer::startLoop()
         SDL_RenderPresent(m_renderer);
 
         // Cap the frame rate
-        SDL_Delay(1000 / fps);
+        const Uint64 frameDuration = SDL_GetTicksNS() - frameStart;
+        if (frameDuration < frameBudget)
+            SDL_DelayNS(frameBudget - frameDuration);
     }
 }
 
