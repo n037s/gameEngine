@@ -199,7 +199,7 @@ bool World::checkHover(const ObjectPtr obj, const rect2D mouse, bool projected)
 		m_hoveredObject = obj;
 		result = true;
 	}
-	else if (wasHovered)
+	else if (wasHovered || obj->isLeftClicked())
 	{
 		obj->leftFocus(position);
 	}
@@ -432,7 +432,8 @@ void World::onRightClick(const point2D pos)
 void World::offRightClick(const point2D pos)
 {
 	std::cout << "World is no more right clicked : " << pos.toString() << std::endl;
-	m_rightClickCallback(pos);
+	if (m_rightClickCallback)
+		m_rightClickCallback(pos);
 }
 
 bool World::scroll(float dz) const

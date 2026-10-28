@@ -172,7 +172,7 @@ void rightClickForwarding(UnitTest::Scenario& scenario, MenuFixture& fixture)
         && target->lastRightClickPos.x == 20 && target->lastRightClickPos.y == 25);
 }
 
-void selectionDragging(UnitTest::Scenario& scenario, MenuFixture&,
+void selectionDragging(UnitTest::Scenario& scenario, MenuFixture& fixture,
     Camera::ViewMode mode, bool steady, float zoom)
 {
     auto camera = Camera::getInstance();
@@ -182,17 +182,17 @@ void selectionDragging(UnitTest::Scenario& scenario, MenuFixture&,
     auto dragTarget = std::make_shared<MenuTarget>();
     dragTarget->setSteady(steady);
     dragTarget->setPos(point2D(80, 60));
-    SelectionBoundsObject selection(dragTarget);
-    const point2D grabPosition(420, 300);
+    auto selection = std::make_shared<SelectionBoundsObject>(dragTarget);
+    fixture.world.addOverlayObject(selection);
     const point2D initialPosition = dragTarget->getPos();
-    selection.onLeftClick(grabPosition);
-    for (const bool outside : {false, true})
+    const point2D grabPosition = camera->worldToWindowPoint(initialPosition);
+    fixture.world.mouseMove(grabPosition);
+    fixture.world.leftClick(grabPosition);
+    UT_EXPECT(scenario, selection->isLeftClicked());
+    for (const point2D mousePosition : {grabPosition + point2D(30, 20),
+        point2D(900, 700), point2D(1800, 1400), point2D(2700, 2100)})
     {
-        const point2D mousePosition = outside ? point2D(900, 700) : point2D(450, 320);
-        if (outside)
-            selection.leftFocus(mousePosition);
-        else
-            selection.hover(mousePosition);
+        fixture.world.mouseMove(mousePosition);
         const point2D actualDelta = camera->worldToWindowPoint(dragTarget->getPos())
             - camera->worldToWindowPoint(initialPosition);
         const point2D expectedDelta = mousePosition - grabPosition;
@@ -201,15 +201,17 @@ void selectionDragging(UnitTest::Scenario& scenario, MenuFixture&,
         if (!followsMouse)
             std::cerr << "Selection drag drift: steady=" << steady << ", zoom=" << zoom
                 << ", isometric=" << (mode == Camera::ViewMode::Isometric)
-                << ", outside=" << outside << std::endl;
+                << ", mouse=" << mousePosition.toString() << std::endl;
         UT_EXPECT(scenario, followsMouse);
     }
-    selection.offLeftClick(point2D(900, 700));
+    fixture.world.releaseLeftClick(point2D(3500, 2800));
+    UT_EXPECT(scenario, !selection->isLeftClicked());
     const point2D releasedPosition = dragTarget->getPos();
-    selection.hover(grabPosition);
+    fixture.world.mouseMove(point2D(4000, 3200));
+    fixture.world.mouseMove(grabPosition);
     UT_EXPECT(scenario, dragTarget->getPos().x == releasedPosition.x
         && dragTarget->getPos().y == releasedPosition.y);
-    selection.setTarget(nullptr);
+    selection->setTarget(nullptr);
 }
 
 void toggleSteady(UnitTest::Scenario& scenario, MenuFixture& fixture, bool initialSteady)

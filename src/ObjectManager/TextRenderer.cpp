@@ -96,6 +96,7 @@ bool TextRenderer::setupTextInSurface(SDL_Surface* textSurface)
 	const SDL_Rect textRect = rect2D(point2D(0, 0), textSurfaceSize).tointSDL();
 	const SDL_Rect surfaceRect = rect2D(offset, surfaceSize).tointSDL();
 
+	SDL_SetSurfaceBlendMode(textSurface, SDL_BLENDMODE_NONE);
 	bool success = SDL_BlitSurface(textSurface, &textRect, m_surface, &surfaceRect);
 	if (!success)
 		std::cout << "[ERROR] Generating text, blit is unsuccessfull" << std::endl;

@@ -48,7 +48,7 @@ ObjectPtr createObjectList()
 
     const rect2D shape(point2D(0, 0), size2D(200, 1000));
     const size2D itemSize(200, 30);
-    const Color btnColor = Color(60, 60, 60, 255);
+    const Color btnColor = Color(60, 60, 60, 120);
     FontPtr font = std::make_shared<Font>("arial", 20, TextAlignement{ Alignement::LOW, Alignement::CENTER });
 
     DropDownMenuPtr dropDown = std::make_shared<DropDownMenu>(shape, itemSize, btnColor, font);

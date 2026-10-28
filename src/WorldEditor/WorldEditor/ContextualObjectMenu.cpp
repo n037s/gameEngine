@@ -9,7 +9,7 @@
 
 ContextualObjectMenu::ContextualObjectMenu(ObjectPtr target, point2D position, World& world)
 	: DropDownMenu(rect2D(position, size2D(180, 30)), size2D(180, 30),
-		Color(180, 180, 180, 255), std::make_shared<Font>("arial", 20.0f)),
+		Color(180, 180, 180, 150), std::make_shared<Font>("arial", 20.0f)),
 	  m_world(world), m_callbackID("ContextualObjectMenu_" + getUID())
 {
     std::cout << "Creating ContextualObjectMenu" << std::endl;

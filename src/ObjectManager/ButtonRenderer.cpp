@@ -33,9 +33,27 @@ void ButtonRenderer::generateTexture()
 
 	auto textSurface = textRend.getSurface();
 
-	bool success = SDL_BlitSurface(textSurface, &brect, m_surface, &brect);
-	if (!success)
-		std::cout << "[ERROR] Button renderer - blit is not successfull" << std::endl;
+	if (textSurface)
+	{
+		for (int row = 0; row < m_surface->h; ++row)
+		{
+			for (int column = 0; column < m_surface->w; ++column)
+			{
+				Uint8 red, green, blue, alpha;
+				if (!SDL_ReadSurfacePixel(textSurface, column, row, &red, &green, &blue, &alpha) || alpha == 0)
+					continue;
+				const float textAlpha = alpha / 255.0f;
+				const float backgroundAlpha = m_color.a / 255.0f * (1.0f - textAlpha);
+				const float combinedAlpha = textAlpha + backgroundAlpha;
+				auto blendChannel = [textAlpha, backgroundAlpha, combinedAlpha](Uint8 text, Uint8 background) {
+					return static_cast<Uint8>((text * textAlpha + background * backgroundAlpha) / combinedAlpha + 0.5f);
+				};
+				SDL_WriteSurfacePixel(m_surface, column, row,
+					blendChannel(red, m_color.r), blendChannel(green, m_color.g), blendChannel(blue, m_color.b),
+					static_cast<Uint8>(combinedAlpha * 255.0f + 0.5f));
+			}
+		}
+	}
 
 	m_texture = SDL_CreateTextureFromSurface(m_renderer, m_surface);
 }
