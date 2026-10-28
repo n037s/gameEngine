@@ -25,4 +25,7 @@ public:
 	bool moveDown();
 	bool moveLeft();
 	bool moveRight();
+	bool stopMoving();
+
+	int m_lastMoveId{-1};
 };

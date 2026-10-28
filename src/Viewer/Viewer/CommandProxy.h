@@ -27,14 +27,19 @@ public:
 	 * 
 	 * @returns boolean if the bind is successfull
 	 */
-	const bool bindCallback(const SDL_Keycode keycode, const callbackFunction& callback);
+	const bool bindCallback(const SDL_Keycode keycode, const callbackFunction& callback, const callbackFunction& onRelease = callbackFunction());
 
 	template <typename Controller>
-	const bool bindCallback(const SDL_Keycode keycode, bool (Controller::*callback)())
+	const bool bindCallback(const SDL_Keycode keycode, bool (Controller::*callback)(), bool (Controller::*onRelease)() = nullptr)
 	{
-		return bindCallback(keycode, [callback] {
-			return (Controller::getInstance().*callback)();
-		});
+		return bindCallback(keycode, 
+			[callback] {
+				return (Controller::getInstance().*callback)();
+			},
+			[onRelease] {
+				return (Controller::getInstance().*onRelease)();
+			}
+		);
 	}
 
 	/*
@@ -85,6 +90,7 @@ public:
 
 private:
 	std::map<SDL_Keycode, callbackFunction> m_callbacks;
+	std::map<SDL_Keycode, callbackFunction> m_onReleaseCallbacks;
 	std::list<SDL_Keycode> m_runningCallbacks;
 };
 

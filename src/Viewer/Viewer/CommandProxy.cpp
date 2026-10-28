@@ -6,13 +6,17 @@ CommandProxy::CommandProxy()
 	m_runningCallbacks = std::list<SDL_Keycode>();
 }
 
-const bool CommandProxy::bindCallback(const SDL_Keycode keycode, const callbackFunction& callback)
+const bool CommandProxy::bindCallback(const SDL_Keycode keycode, const callbackFunction& callback, const callbackFunction& onRelease)
 {
 	bool success = false;
 
 	if (m_callbacks.find(keycode) == m_callbacks.end()) // no callback already exists
 	{
 		m_callbacks[keycode] = callback;
+		if (onRelease != nullptr)
+		{
+			m_onReleaseCallbacks[keycode] = onRelease;
+		}
 		success = true;
 	}
 
@@ -28,6 +32,10 @@ const bool CommandProxy::unbindCallback(const SDL_Keycode keycode)
 		m_callbacks.erase(keycode);
 		success = true;
 	}
+	if (m_onReleaseCallbacks.find(keycode) != m_onReleaseCallbacks.end()) // the callback exists
+	{
+		m_onReleaseCallbacks.erase(keycode);
+	}
 	
 	return success;
 }
@@ -37,6 +45,7 @@ const bool CommandProxy::clearCallbacks()
 	bool success = true;
 
 	m_callbacks = std::map<SDL_Keycode, callbackFunction>();
+	m_onReleaseCallbacks = std::map<SDL_Keycode, callbackFunction>();
 
 	return success;
 }
@@ -80,5 +89,10 @@ void CommandProxy::removeRunningCallback(const SDL_Keycode keycode)
 	if (keycodeIterator != m_runningCallbacks.end())
 	{
 		m_runningCallbacks.erase(keycodeIterator);
+		auto onReleaseCallback = m_onReleaseCallbacks.find(keycode);
+		if (onReleaseCallback != m_onReleaseCallbacks.end()) // callback is found
+		{
+			(onReleaseCallback->second)();
+		}
 	}
 }
