@@ -1,11 +1,24 @@
 #include "AssetsManager.h"
 
 #include <iostream>
+#include <algorithm>
+#include <cctype>
 
 #include "SDL3/SDL.h"
 #include <SDL3_image/SDL_image.h>
 
 #include "Image.h"
+
+namespace
+{
+    std::string assetExtension(const fs::path& path)
+    {
+        std::string extension = path.extension().string();
+        std::transform(extension.begin(), extension.end(), extension.begin(),
+            [](unsigned char character) { return static_cast<char>(std::tolower(character)); });
+        return extension;
+    }
+}
 
 AssetsManager* AssetsManager::m_instance = nullptr;
 
@@ -21,6 +34,7 @@ void AssetsManager::Init()
     setParserFunction(".bmp", parserImage);
     setParserFunction(".gif", parserImage);
     setParserFunction(".jpeg", parserImage);
+    setParserFunction(".jpg", parserImage);
     setParserFunction(".png", parserImage);
     setParserFunction(".lbm", parserImage);
     setParserFunction(".pcx", parserImage);
@@ -31,6 +45,8 @@ void AssetsManager::Init()
     if (fs::exists(m_assetsFolderPath)) {
         if (fs::is_directory(m_assetsFolderPath)) {
             parseFiles();
+
+            m_defaultAsset = getAsset("craftpix/Objects/Top-Down Simple Summer_Prop - Blue Banner");
         }
         else
         {
@@ -65,13 +81,35 @@ void AssetsManager::parseFiles()
             }
         }
     }
+
+    m_imageIDs.clear();
+    m_animationIDs.clear();
+    m_fontIDs.clear();
+    for (const auto& entry : m_nameToPath)
+    {
+        const auto extension = assetExtension(entry.second);
+        if (extension == ".ttf" || extension == ".otf" || extension == ".ttc" || extension == ".otc")
+            m_fontIDs.push_back(entry.first);
+        else
+        {
+            const auto asset = m_nameToAsset.find(entry.first);
+            const auto image = asset != m_nameToAsset.end() ? dynamic_cast<Image*>(asset->second) : nullptr;
+            if (image && image->getSurface())
+            {
+                if (extension == ".gif")
+                    m_animationIDs.push_back(entry.first);
+                else
+                    m_imageIDs.push_back(entry.first);
+            }
+        }
+    }
 }
 
 Asset* AssetsManager::loadAsset(const fs::path& filePath)
 {
     Asset* result = nullptr;
 
-    const std::string extension = filePath.extension().string();
+    const std::string extension = assetExtension(filePath);
 
     if (m_extensionToParsing.find(extension) != m_extensionToParsing.end())
     {

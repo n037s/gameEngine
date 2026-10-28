@@ -4,6 +4,7 @@
 #include <map>
 #include <functional>
 #include <filesystem>
+#include <list>
 
 #include "Asset.h"
 
@@ -28,6 +29,9 @@ public:
 	void setParserFunction(const std::string& extension, parsingFunction parsingFunc);
 
 	std::list<std::string> getAssetsIDs() const;
+	std::list<std::string> getAssets() const { return m_imageIDs; }
+	std::list<std::string> getAnimatedAssets() const { return m_animationIDs; }
+	std::list<std::string> getFont() const { return m_fontIDs; }
 
 private:
 	AssetsManager();
@@ -46,6 +50,9 @@ private:
 	std::map<std::string, fs::path> m_nameToPath;
 	std::map<std::string, Asset*> m_nameToAsset;
 	std::map<std::string, parsingFunction> m_extensionToParsing;
+	std::list<std::string> m_imageIDs;
+	std::list<std::string> m_animationIDs;
+	std::list<std::string> m_fontIDs;
 
 	Asset* m_defaultAsset{nullptr};
 };

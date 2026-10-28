@@ -25,6 +25,7 @@ public:
 	void setWorld(World* world) { m_world = world; }
 	World* getWorld() { return m_world; }
 	void setCommandProxy(CommandProxy* cmdProxy) { m_commandProxy = cmdProxy; }
+	CommandProxy* getCommandProxy() const { return m_commandProxy; }
 
 	void setWhellCallback(callbackMouseWheel callback) { m_wheelCallback = callback; }
 

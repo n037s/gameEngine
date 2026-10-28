@@ -27,6 +27,11 @@ public:
 		m_callbacks[id] = callback;
 	}
 
+	void unregisterCallback(const std::string& id)
+	{
+		m_callbacks.erase(id);
+	}
+
 	buttonCallback getCallback(const std::string& id) const
 	{
 		auto it = m_callbacks.find(id);

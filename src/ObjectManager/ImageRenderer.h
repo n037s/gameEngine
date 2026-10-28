@@ -13,6 +13,7 @@ public:
     ~ImageRenderer();
 
     void setAsset(const Image* imageAsset);
+    void resetAsset(const Image* imageAsset);
 
 private:
     void createTexture();

@@ -130,9 +130,7 @@ void Viewer::manageUserInput(SDL_Event event)
         }
         else if (event.button.button == SDL_BUTTON_RIGHT)
         {
-            std::cout << "right click done " << clickpos.toString() << std::endl;
-            // Right click will for now make appear a contextual menu. So before let's handle left click
-            // Then it will create a sort of list of button at the position of the right click.
+            m_world->rightClick(clickpos);
         }
         break;
     }
@@ -145,9 +143,7 @@ void Viewer::manageUserInput(SDL_Event event)
         }
         else if (event.button.button == SDL_BUTTON_RIGHT)
         {
-            std::cout << "right click released " << clickpos.toString() << std::endl;
-            // Right click will for now make appear a contextual menu. So before let's handle left click
-            // Then it will create a sort of list of button at the position of the right click.
+            m_world->releaseRightClick(clickpos);
         }
         break;
     }

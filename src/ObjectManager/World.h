@@ -25,7 +25,9 @@ public:
 	bool removeObject(const ObjectPtr object);
 	bool addOverlayObject(const ObjectPtr object);
 	bool removeOverlayObject(const ObjectPtr object);
+	bool isObjectInWorld();
 	ObjectPtr getObjectByUID(const std::string& uid);
+	ObjectPtr getObjectAtPosition(const point2D& position) const;
 	void sortObjectsByZ();
 
 	void render(SDL_Renderer* renderer);
@@ -35,14 +37,22 @@ public:
 	void Hovering(const point2D pos);
 	ObjectPtr getHoveredObject() { return m_hoveredObject; }
 
-	void setLeftClickCallback(worldClickCallback& callback) { m_leftClickCallback = callback; }
-	void setRightClickCallback(worldClickCallback& callback) { m_rightClickCallback = callback; }
+	void setLeftClickCallback(worldClickCallback callback) { m_leftClickCallback = callback; }
+	void setRightClickCallback(worldClickCallback callback) { m_rightClickCallback = callback; }
 
 	bool isLeftClicked() const { return m_isLeftClicked; }
 	virtual void onLeftClick(const point2D pos);
 	virtual void offLeftClick(const point2D pos);
 	void leftClick(const point2D pos);
 	void releaseLeftClick(const point2D pos);
+	void setRedirectClickToObject(bool redirect) { redirectClickToObject = redirect; }
+
+	bool isRightClicked() const { return m_isRightClicked; }
+	virtual void onRightClick(const point2D pos);
+	virtual void offRightClick(const point2D pos);
+	void rightClick(const point2D pos);
+	void releaseRightClick(const point2D pos);
+
 
 	void setWheelCallback(worldWheelCallback callback) { m_wheelCallback = callback; }
 	bool scroll(float dz) const;
@@ -60,6 +70,8 @@ private:
 	bool checkHover(const ObjectPtr obj, const rect2D mouse, bool projected = false);
 	bool checkLeftClick(const ObjectPtr obj, const rect2D mouse, bool projected = false);
 	bool checkLeftClickReleased(const ObjectPtr object, const rect2D mouse, bool projected = false);
+	bool checkRightClick(const ObjectPtr obj, const rect2D mouse, bool projected = false);
+	bool checkRightClickReleased(const ObjectPtr object, const rect2D mouse, bool projected = false);
 
 	Camera* m_camera{ nullptr };
 	std::list<ObjectPtr> m_objects{ std::list<ObjectPtr>() };
@@ -68,8 +80,10 @@ private:
 	ObjectPtr m_hoveredObject = nullptr;
 
 	bool m_isLeftClicked{ false };
+	bool m_isRightClicked{ false };
 	point2D m_lastClickedPos{ 0,0 };
 
+	bool redirectClickToObject{true};
 	worldClickCallback m_leftClickCallback;
 	worldClickCallback m_rightClickCallback;
 	worldWheelCallback m_wheelCallback;

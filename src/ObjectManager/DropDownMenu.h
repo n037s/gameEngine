@@ -20,6 +20,7 @@ struct Item
 	// if isSubMenu :
 	bool isOpen;
 	std::vector<std::shared_ptr<Item>> items;
+	size_t firstVisibleItem{ 0 };
 
 	// if not SubMenu :
 	std::string callbackID;
@@ -40,6 +41,8 @@ public:
 
 	void addItem(const std::string& ID, const std::string& callbackID = "Nothing");
 	ItemPtr getChildItem(const std::string& label, ItemPtr parent) const;
+	void setCascading(bool cascading) { m_cascading = cascading; m_cascadeOrigin = m_pos; }
+	void sortItems();
 
 	void display(ItemPtr menu, int level = 0, bool isMenuChanged = false);
 
@@ -55,8 +58,15 @@ public:
 
 private:
 	ItemPtr m_items;
+	bool m_cascading{ false };
+	point2D m_cascadeOrigin;
+	ItemPtr m_hoveredMenu;
+	std::vector<std::pair<ObjectPtr, ItemPtr>> m_visibleItems;
+	void displayColumn(ItemPtr menu, point2D position, float parentWidth = 0);
+	void sortItems(ItemPtr menu);
+	void closeSubMenus(ItemPtr menu);
 
-	void addItemButton(std::string label, std::string callbackID);
+	void addItemButton(std::string label, std::string callbackID, size2D size = size2D());
 	void addSubMenuButton(std::string label, ItemPtr item);
 
 	void updateRendererMenu();
@@ -66,7 +76,7 @@ private:
 	Color m_buttonColor;
 	FontPtr m_font;
 
-	SDL_Renderer* sdl_renderer;
+	SDL_Renderer* sdl_renderer{ nullptr };
 };
 
 using DropDownMenuPtr = std::shared_ptr<DropDownMenu>;

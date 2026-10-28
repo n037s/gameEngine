@@ -80,7 +80,14 @@ bool World::addOverlayObject(const ObjectPtr object)
 }
 bool World::removeOverlayObject(const ObjectPtr object)
 {
+	if (m_hoveredObject == object)
+		m_hoveredObject = nullptr;
 	return removeObject(object, m_overlayObjects);
+}
+
+bool World::isObjectInWorld()
+{
+	return !m_objects.empty();
 }
 
 ObjectPtr World::getObjectByUID(const std::string& uid)
@@ -89,6 +96,17 @@ ObjectPtr World::getObjectByUID(const std::string& uid)
 	if (m_UIDToObjects.find(uid) != m_UIDToObjects.end())
 	{
 		result = m_UIDToObjects[uid];
+	}
+	return result;
+}
+
+ObjectPtr World::getObjectAtPosition(const point2D& position) const
+{
+	ObjectPtr result = nullptr;
+	for (const ObjectPtr& object : m_objects)
+	{
+		if (!object->isHidden() && object->getShape().isInside(position))
+			result = object;
 	}
 	return result;
 }
@@ -199,7 +217,8 @@ void World::Hovering(const point2D pos)
 	{
 		checkHover(obj, mouseRect, true);
 	}
-	for (const ObjectPtr& obj : m_overlayObjects)
+	const auto overlays = m_overlayObjects;
+	for (const ObjectPtr& obj : overlays)
 	{
 		checkHover(obj, mouseRect);
 	}
@@ -231,17 +250,26 @@ void World::leftClick(const point2D pos)
 	const rect2D mouseRect = rect2D(pos, clickingPrecisionArea);
 
 	bool isAnObjectClickedOn = false;
-	// Check if an object is on the click
-	for (const ObjectPtr& obj : m_objects)
+	const auto overlays = m_overlayObjects;
+	for (const auto& overlay : overlays)
+		if (!overlay->isHidden() && !overlay->getShape().isInside(pos))
+			overlay->outsideClick(pos);
+	for (auto overlay = overlays.rbegin(); overlay != overlays.rend(); ++overlay)
 	{
-		isAnObjectClickedOn |= checkLeftClick(obj, mouseRect, true);
-	}
-	for (const ObjectPtr& obj : m_overlayObjects)
-	{
-		isAnObjectClickedOn |= checkLeftClick(obj, mouseRect);
+		if (checkLeftClick(*overlay, mouseRect))
+			return;
 	}
 
-	if (!isAnObjectClickedOn && !m_isLeftClicked)
+	if (redirectClickToObject)
+	{
+		// Check if an object is on the click
+		for (const ObjectPtr& obj : m_objects)
+		{
+			isAnObjectClickedOn |= checkLeftClick(obj, mouseRect, true);
+		}
+	}
+
+	if (!isAnObjectClickedOn && !m_isLeftClicked )
 	{
 		// No object have been clicked on, so it's the world left click management
 		m_isLeftClicked = true;
@@ -278,7 +306,8 @@ void World::releaseLeftClick(const point2D pos)
 	{
 		isAnObjectClickedOn |= checkLeftClickReleased(obj, mouseRect, true);
 	}
-	for (const ObjectPtr& obj : m_overlayObjects)
+	const auto overlays = m_overlayObjects;
+	for (const ObjectPtr& obj : overlays)
 	{
 		isAnObjectClickedOn |= checkLeftClickReleased(obj, mouseRect);
 	}
@@ -298,6 +327,112 @@ void World::onLeftClick(const point2D pos)
 void World::offLeftClick(const point2D pos)
 {
 	std::cout << "World is no more left clicked : " << pos.toString() << std::endl;
+	m_leftClickCallback(pos);
+}
+
+bool World::checkRightClick(const ObjectPtr obj, const rect2D mouse, bool projected)
+{
+	bool result = false;
+	const bool wasRightClick = obj->isRightClicked();
+	const bool isRightClick = !obj->isHidden() && (projected
+		? m_camera->intersectsWindowRect(obj->getShape(), mouse, obj->isSteady()) : mouse.isCollide(obj->getShape()));
+	const point2D position = projected ? m_camera->windowToWorldPoint(mouse.position) : mouse.position;
+
+	if (!wasRightClick && isRightClick)
+	{
+		result |= obj->onRightClick(position);
+	}
+	else if (wasRightClick && !isRightClick)
+	{
+		obj->offRightClick(position);
+	}
+	return result;
+}
+
+void World::rightClick(const point2D pos)
+{
+	if (!m_camera)
+		return;
+	const rect2D mouseRect = rect2D(pos, clickingPrecisionArea);
+
+	bool isAnObjectClickedOn = false;
+	const auto overlays = m_overlayObjects;
+	for (const auto& overlay : overlays)
+		if (!overlay->isHidden() && !overlay->getShape().isInside(pos))
+			overlay->outsideClick(pos);
+	for (const ObjectPtr& obj : overlays)
+	{
+		isAnObjectClickedOn |= checkRightClick(obj, mouseRect);
+	}
+	
+	if (redirectClickToObject)
+	{
+		// Check if an object is on the click
+		for (const ObjectPtr& obj : m_objects)
+		{
+			isAnObjectClickedOn |= checkRightClick(obj, mouseRect, true);
+		}
+	}
+
+	if (!isAnObjectClickedOn && !m_isRightClicked )
+	{
+		// No object have been clicked on, so it's the world right click management
+		m_isRightClicked = true;
+		m_lastClickedPos = pos;
+		onRightClick(m_camera->windowToWorldPoint(pos));
+	}
+}
+
+bool World::checkRightClickReleased(const ObjectPtr object, const rect2D mouse, bool projected)
+{
+	bool result = false;
+	const bool isOnItem = !object->isHidden() && (projected
+		? m_camera->intersectsWindowRect(object->getShape(), mouse, object->isSteady()) : mouse.isCollide(object->getShape()));
+	const point2D position = projected ? m_camera->windowToWorldPoint(mouse.position) : mouse.position;
+
+	if (isOnItem && object->isRightClicked())
+	{
+		result = object->offRightClick(position);
+	}
+	object->setRightClicked(false);
+
+	return result;
+}
+
+void World::releaseRightClick(const point2D pos)
+{
+	if (!m_camera)
+		return;
+	const rect2D mouseRect = rect2D(pos, clickingPrecisionArea);
+
+	bool isAnObjectClickedOn = false;
+	// Releasing click for all items
+	for (const ObjectPtr& obj : m_objects)
+	{
+		isAnObjectClickedOn |= checkRightClickReleased(obj, mouseRect, true);
+	}
+	const auto overlays = m_overlayObjects;
+	for (const ObjectPtr& obj : overlays)
+	{
+		isAnObjectClickedOn |= checkRightClickReleased(obj, mouseRect);
+	}
+
+	if (m_isRightClicked)
+	{
+		// No object have been clicked on, so it's the world right click management
+		m_isRightClicked = false;
+		offRightClick(m_camera->windowToWorldPoint(pos));
+	}
+}
+
+void World::onRightClick(const point2D pos)
+{
+	std::cout << "World have been right clicked on at this position : " << pos.toString() << std::endl;
+}
+void World::offRightClick(const point2D pos)
+{
+	std::cout << "World is no more right clicked : " << pos.toString() << std::endl;
+	m_rightClickCallback(pos);
 }
 
 bool World::scroll(float dz) const

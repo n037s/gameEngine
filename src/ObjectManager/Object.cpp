@@ -96,6 +96,26 @@ bool Object::releaseLeftClick(point2D pos)
 	return false;
 }
 
+bool Object::onRightClick(point2D pos)
+{
+	m_isRightClicked = true;
+	return rightClick(pos);
+}
+bool Object::offRightClick(point2D pos)
+{
+	m_isRightClicked = false;
+	return releaseRightClick(pos);
+}
+
+bool Object::rightClick(point2D pos)
+{
+	return false;
+}
+bool Object::releaseRightClick(point2D pos)
+{
+	return false;
+}
+
 bool Object::scroll(float dz)
 {
 	return false;

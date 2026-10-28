@@ -14,7 +14,7 @@ class Object
 public:
 	Object(const ObjectMemberHolder& members);
 	Object(point2D pos = point2D(0, 0), size2D size = size2D(1, 1), float z = 0) : m_pos(pos), m_size(size), m_z(z) {}
-	~Object();
+	virtual ~Object();
 
 	bool isHidden() const { return m_isHidden; }
 	void setIsHidden(bool isHidden) { m_isHidden = isHidden; }
@@ -63,6 +63,7 @@ public:
 	 * @brief the item is no more hovered
 	 */
 	virtual void leftFocus(point2D pos);
+	virtual void outsideClick(point2D) {}
 
 	void setLeftClicked(bool isLeftClicked) { m_isLeftClicked = isLeftClicked; }
 	bool isLeftClicked() const { return m_isLeftClicked; }
@@ -99,6 +100,41 @@ public:
 	 */
 	virtual bool releaseLeftClick(point2D pos);
 
+	void setRightClicked(bool isRightClicked) { m_isRightClicked = isRightClicked; }
+	bool isRightClicked() const { return m_isRightClicked; }
+	/*
+	 * @brief callback of the item when it is right clicked on
+	 * 
+	 * @param pos - position of the click
+	 * 
+	 * @return bool if a callback have been performed
+	 */
+	bool onRightClick(point2D pos);
+	/*
+	 * @brief the button is no more right clicked on
+	 * 
+	 * @param pos - position of the click
+	 * 
+	 * @return bool if a callback have been performed
+	 */
+	bool offRightClick(point2D pos);
+	/*
+	 * @brief rightClick item callback
+	 * 
+	 * @param pos - position of the click
+	 * 
+	 * @return bool if a callback have been performed
+	 */
+	virtual bool rightClick(point2D pos);
+	/*
+	 * @brief rightClick have been released
+	 * 	
+	 * @param pos - position of the click
+	 * 
+	 * @return bool if a callback have been performed
+	 */
+	virtual bool releaseRightClick(point2D pos);
+
 	/*
 	 * @brief scroll on the item
 	 *
@@ -114,6 +150,13 @@ public:
 	 * @return point2D position of the item
 	 */
 	virtual const point2D getPos() const { return m_pos; }
+
+	/*
+	 * @brief set the position of the item
+	 *
+	 * @param pos - new position of the item
+	 */
+	virtual void setPos(const point2D& pos) { m_pos = pos; }
 
 	/*
 	 * @brief get the shape and the position of the item
@@ -153,6 +196,7 @@ protected:
 
 	bool m_isHovered{ false };
 	bool m_isLeftClicked{ false };
+	bool m_isRightClicked{ false };
 };
 
 

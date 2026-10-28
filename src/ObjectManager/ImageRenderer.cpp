@@ -17,6 +17,11 @@ void ImageRenderer::setAsset(const Image* imageAsset)
     createTexture();
 }
 
+void ImageRenderer::resetAsset(const Image* imageAsset)
+{
+    m_textures.clear();
+    setAsset(imageAsset);
+}
 
 void ImageRenderer::createTexture()
 {

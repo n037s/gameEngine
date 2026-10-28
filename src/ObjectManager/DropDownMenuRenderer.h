@@ -13,13 +13,14 @@ public:
     ~DropDownMenuRenderer();
 
     void clearItems();
-    void addItem(ButtonRenderer* object);
+    void setSize(size2D size) { m_size = size; }
+    void addItem(ButtonRenderer* object, point2D position);
     void update();
 
 private:
     size2D m_size;
     size2D m_itemSize;
     SDL_Color m_backgroundColor;
-    std::list<ButtonRenderer*> m_objects;
+    std::list<std::pair<ButtonRenderer*, point2D>> m_objects;
 };
 

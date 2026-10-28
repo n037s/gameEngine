@@ -35,3 +35,19 @@ ObjectMemberHolder Sprite::serialize() const
 	objectMemberHolder.addMember("assetID", assetID);
 	return objectMemberHolder;
 }
+
+bool Sprite::setAsset(const std::string& assetID)
+{
+	auto manager = AssetsManager::getInstance();
+	auto image = dynamic_cast<Image*>(manager->getAsset(assetID));
+	if (!image || image->getAssetID() != assetID || !image->getSurface())
+		return false;
+
+	const auto center = getPos();
+	m_asset = image;
+	if (auto renderer = dynamic_cast<ImageRenderer*>(m_renderer))
+		renderer->setAsset(image);
+	m_size = size2D(image->getSurface()->w, image->getSurface()->h);
+	setPos(center);
+	return true;
+}

@@ -10,14 +10,29 @@
 #include "ObjectMemberHolder.h"
 #include "AssetsManager.h"
 
+#include "ObjectDropDown.h"
+#include "ObjectEditor.h"
+
 #include <iostream>
 #include <sstream>
 
 bool Osef2(point2D pos, Object* caller)
 {
+    const std::string objectUID = "e9337627-78e6-4df5-809c-544d88884ac3";
+
     std::cout << "osef2 called" << std::endl;
     World* world = Viewer::getInstance()->getWorld();
-    auto object = world->getObjectByUID("fef27a59-0719-4a77-bd1d-d6473ba048ef");
+    if (!world)
+    {
+        std::cerr << "Cannot toggle object visibility: no world is loaded." << std::endl;
+        return false;
+    }
+    auto object = world->getObjectByUID(objectUID);
+    if (!object)
+    {
+        std::cerr << "Cannot toggle object visibility: target object " << objectUID << " was not found." << std::endl;
+        return false;
+    }
     object->setIsHidden(!object->isHidden());
     return true;
 }
@@ -78,31 +93,6 @@ void CreateMyObjects(SDL_Renderer* renderer, World& world)
     world.addObject(personnage);
 }
 
-ObjectPtr createAssetList()
-{
-    std::cout << "Creating the asset list" << std::endl;
-
-    const rect2D shape(point2D(0, 0), size2D(200, 1000));
-    const size2D itemSize(200, 30);
-    const Color btnColor = Color(60, 60, 60, 255);
-    FontPtr font = std::make_shared<Font>("arial", 20, TextAlignement{ Alignement::LOW, Alignement::CENTER });
-
-    DropDownMenuPtr dropDown = std::make_shared<DropDownMenu>(shape, itemSize, btnColor, font);
-
-    std::list<std::string> assetsList = AssetsManager::getInstance()->getAssetsIDs();
-    assetsList.sort();
-
-    for (const auto& assetID : assetsList)
-    {
-        dropDown->addItem(assetID);
-    }
-
-    std::cout << "AFTER CREATION : " << std::endl;
-    dropDown->printMenu(nullptr);
-
-    return dropDown;
-}
-
 bool ManageWheel(float dz)
 {
     bool result = false;
@@ -144,7 +134,7 @@ int main(int argc, char* argv[])
 
     world.parseFile(worldFilePath);
 
-    ObjectPtr dropdownlist = createAssetList();
+    ObjectPtr dropdownlist = createObjectList();
     world.addOverlayObject(dropdownlist);
 
     world.createRenderers(renderer);
@@ -153,8 +143,12 @@ int main(int argc, char* argv[])
     world.createCamera({ 0,0 }, windowSize);
     world.setCameraZLimits(0.1f, 5);
 
-    // Create world
-    CreateMyObjects(renderer, world); // Disabled if we want to read the world instead to avoid duplicity.
+    // Create world if the world is not already loaded
+    if (! world.isObjectInWorld() )
+    {
+        std::cout << "No world could be found to load, we create objects." << std::endl;
+        CreateMyObjects(renderer, world); 
+    }
 
     const size2D frameRateSize = size2D(100, 30);
     const rect2D textPosition = rect2D(point2D(windowSize.w - frameRateSize.w, 0), frameRateSize);
@@ -174,6 +168,8 @@ int main(int argc, char* argv[])
     cmdProxy.bindCallback(SDLK_ESCAPE, Viewer::stopLoop);
 
     world.setWheelCallback([](float dz) { return CameraControl::getInstance().moveZ(dz); });
+    world.setLeftClickCallback([](const point2D& clickPosition) { ObjectEditor::getInstance().updateSelectedObject(clickPosition); });
+    world.setRedirectClickToObject(false); // deactivate click on objects
     viewer->setWhellCallback([viewer] (float dz) { return viewer->getWorld()->scroll(dz); });
 
     // Run application loop
