@@ -101,6 +101,16 @@ ObjectPtr World::getObjectByUID(const std::string& uid)
 	return result;
 }
 
+ObjectPtr World::getObjectByTypeName(const std::string& typeName) const
+{
+	for (const ObjectPtr& object : m_objects)
+	{
+		if (object->getTypeName() == typeName)
+			return object;
+	}
+	return nullptr;
+}
+
 ObjectPtr World::getObjectAtPosition(const point2D& position) const
 {
 	ObjectPtr result = nullptr;

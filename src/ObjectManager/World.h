@@ -28,6 +28,7 @@ public:
 	bool removeOverlayObject(const ObjectPtr object);
 	bool isObjectInWorld();
 	ObjectPtr getObjectByUID(const std::string& uid);
+	ObjectPtr getObjectByTypeName(const std::string& typeName) const;
 	ObjectPtr getObjectAtPosition(const point2D& position) const;
 	void sortObjectsByZ();
 

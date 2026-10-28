@@ -98,3 +98,6 @@ Objects can be stready or flat.
 TO BE DONE :
 * Should be able to modify object properties ( button callback, text label )
 * Introduce 3D Objects
+* Player should better handle its animation 
+* Camera should follow the player
+* Player move could be nicer, it could be great to give it a speed and not move each timeout. 
