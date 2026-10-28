@@ -7,6 +7,7 @@ Object::Object(const ObjectMemberHolder& members)
 	m_pos = members.getMember<point2D>("objectPosition");
 	m_z = members.getMember<float>("objectHeight");
 	m_isHidden = members.getMember<bool>("isObjectHidden");
+	m_steady = members.getMember<bool>("isObjectSteady", false);
 }
 
 
@@ -18,6 +19,7 @@ ObjectMemberHolder Object::serialize() const
 	memberHolder.addMember("objectHeight", m_z);
 	memberHolder.addMember("objectSize", m_size);
 	memberHolder.addMember("isObjectHidden", m_isHidden);
+	memberHolder.addMember("isObjectSteady", m_steady);
 
 	return memberHolder;
 }

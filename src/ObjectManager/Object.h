@@ -18,6 +18,8 @@ public:
 
 	bool isHidden() const { return m_isHidden; }
 	void setIsHidden(bool isHidden) { m_isHidden = isHidden; }
+	bool isSteady() const { return m_steady; }
+	void setSteady(bool steady) { m_steady = steady; }
 
 	const std::string& getUID() const { return m_uid; }
 	virtual std::string getTypeName() const = 0;
@@ -140,6 +142,7 @@ protected:
 	ObjectMemberHolder m_members;
 	point2D m_pos{ 0, 0 };
 	float m_z{ 0 };
+	bool m_steady{ false };
 	size2D m_size{ 0,0 };
 	rect2D m_renderingRect{ 0,0,0,0 };
 	std::array<point2D, 4> m_renderingCorners{};

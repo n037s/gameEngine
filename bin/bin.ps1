@@ -20,6 +20,11 @@ function LogError {
     Write-Host "[ERROR] $Text" -ForegroundColor Red
 }
 
+function LogWarning {
+    param([string]$Text)
+    Write-Host "[WARNING] $Text" -ForegroundColor Yellow
+}
+
 function LogSuccess {
     param([string]$Text)
     Write-Host $Text -ForegroundColor Green
@@ -106,7 +111,27 @@ function Get-CMakePath {
 
 function Invoke-BuildTool {
     param([string]$Executable, [string[]]$Arguments)
-    & $Executable @Arguments | Out-Host
+    $tool = Get-Command $Executable -CommandType Application -ErrorAction Stop
+    $previousErrorActionPreference = $ErrorActionPreference
+    $PSNativeCommandUseErrorActionPreference = $false
+    try {
+        $ErrorActionPreference = 'Continue'
+        & $tool.Source @Arguments 2>&1 | ForEach-Object {
+            $line = [string]$_
+            if ($line -match '\b(?:fatal\s+)?error(?:\s+[A-Z]+\d+)?\s*:|\b(?:CMake|MSBUILD)\s+Error\b|^\s*(?:\d+>)?\s*(?:fatal\s+)?error\b|^\s*Build FAILED\.') {
+                LogError $line
+            }
+            elseif ($line -match '\bwarning(?:\s+[A-Z]+\d+)?\s*:|\bCMake Warning\b|^\s*(?:\d+>)?\s*warning\b') {
+                LogWarning $line
+            }
+            else {
+                Write-Host $line
+            }
+        }
+    }
+    finally {
+        $ErrorActionPreference = $previousErrorActionPreference
+    }
     if ($LASTEXITCODE -ne 0) {
         throw "'$Executable' failed with exit code $LASTEXITCODE."
     }

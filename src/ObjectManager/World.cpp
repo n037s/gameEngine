@@ -113,15 +113,15 @@ void World::render(SDL_Renderer* renderer)
 		return;
 	
 	// retrieve objects to displays and with camera render them at good position
-	const rect2D renderingRect = m_camera->getRenderingRect();
+	const rect2D renderingRect(point2D(0, 0), m_camera->getWindowSize());
 
 	// let's check all of items that are inside the rect. 
 	for (const ObjectPtr& obj : m_objects)
 	{
-		if (!obj->isHidden() && renderingRect.isCollide(obj->getShape()))
+		if (!obj->isHidden() && m_camera->intersectsWindowRect(obj->getShape(), renderingRect, obj->isSteady()))
 		{
 			if (m_camera->getViewMode() == Camera::ViewMode::Isometric)
-				obj->setRenderingQuad(m_camera->getRenderingCorners(obj->getShape()));
+				obj->setRenderingQuad(m_camera->getRenderingCorners(obj->getShape(), obj->isSteady()));
 			else
 				obj->setRenderingRect(m_camera->WorldToWindow(obj->getShape()));
 			obj->render();
@@ -171,7 +171,7 @@ bool World::checkHover(const ObjectPtr obj, const rect2D mouse, bool projected)
 {
 	bool result = false;
 	const bool isHovered = !obj->isHidden() && (projected
-		? m_camera->intersectsWindowRect(obj->getShape(), mouse) : mouse.isCollide(obj->getShape()));
+		? m_camera->intersectsWindowRect(obj->getShape(), mouse, obj->isSteady()) : mouse.isCollide(obj->getShape()));
 	const point2D position = projected ? m_camera->windowToWorldPoint(mouse.position) : mouse.position;
 	const bool wasHovered = obj->isHovered();
 
@@ -210,7 +210,7 @@ bool World::checkLeftClick(const ObjectPtr obj, const rect2D mouse, bool project
 	bool result = false;
 	const bool wasLeftClick = obj->isLeftClicked();
 	const bool isLeftClick = !obj->isHidden() && (projected
-		? m_camera->intersectsWindowRect(obj->getShape(), mouse) : mouse.isCollide(obj->getShape()));
+		? m_camera->intersectsWindowRect(obj->getShape(), mouse, obj->isSteady()) : mouse.isCollide(obj->getShape()));
 	const point2D position = projected ? m_camera->windowToWorldPoint(mouse.position) : mouse.position;
 
 	if (!wasLeftClick && isLeftClick)
@@ -254,7 +254,7 @@ bool World::checkLeftClickReleased(const ObjectPtr object, const rect2D mouse, b
 {
 	bool result = false;
 	const bool isOnItem = !object->isHidden() && (projected
-		? m_camera->intersectsWindowRect(object->getShape(), mouse) : mouse.isCollide(object->getShape()));
+		? m_camera->intersectsWindowRect(object->getShape(), mouse, object->isSteady()) : mouse.isCollide(object->getShape()));
 	const point2D position = projected ? m_camera->windowToWorldPoint(mouse.position) : mouse.position;
 
 	if (isOnItem && object->isLeftClicked())

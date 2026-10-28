@@ -78,8 +78,16 @@ point2D Camera::windowToWorldPoint(const point2D& position) const
     return m_pos + windowToWorldDelta(position - windowSize / 2);
 }
 
-std::array<point2D, 4> Camera::getRenderingCorners(const rect2D& shape) const
+std::array<point2D, 4> Camera::getRenderingCorners(const rect2D& shape, bool steady) const
 {
+    if (steady && m_viewMode == ViewMode::Isometric)
+    {
+        const point2D anchor = worldToWindowPoint(shape.position + point2D(shape.size.w / 2, shape.size.h));
+        const size2D size = shape.size * getRenderingScale();
+        const point2D topLeft = anchor - point2D(size.w / 2, size.h);
+        return { topLeft, topLeft + point2D(size.w, 0),
+            topLeft + point2D(size.w, size.h), topLeft + point2D(0, size.h) };
+    }
     return { worldToWindowPoint(shape.position),
         worldToWindowPoint(shape.position + point2D(shape.size.w, 0)),
         worldToWindowPoint(shape.position + point2D(shape.size.w, shape.size.h)),
@@ -124,9 +132,9 @@ float Camera::getRenderingScale() const
     return 1 / m_height;
 }
 
-bool Camera::intersectsWindowRect(const rect2D& worldShape, const rect2D& windowRect) const
+bool Camera::intersectsWindowRect(const rect2D& worldShape, const rect2D& windowRect, bool steady) const
 {
-    const auto corners = getRenderingCorners(worldShape);
+    const auto corners = getRenderingCorners(worldShape, steady);
     const std::array<point2D, 4> mouseCorners = { windowRect.position,
         windowRect.position + point2D(windowRect.size.w, 0),
         windowRect.position + point2D(windowRect.size.w, windowRect.size.h),

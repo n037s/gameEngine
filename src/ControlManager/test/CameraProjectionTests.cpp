@@ -1,10 +1,13 @@
 #include "Camera.h"
 #include "CameraControl.h"
 #include "BaseRenderer.h"
+#include "Object.h"
+#include "World.h"
 
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
+#include <sstream>
 
 namespace
 {
@@ -36,6 +39,51 @@ namespace
         }
         ~TestRenderer() override { cleanRenderer(); }
     };
+
+    class TestObject : public Object
+    {
+    public:
+        using Object::Object;
+        bool createRenderer(SDL_Renderer* renderer) override
+        {
+            SDL_Surface* surface = SDL_CreateSurface(8, 8, SDL_PIXELFORMAT_RGBA32);
+            if (!surface)
+                return false;
+            SDL_FillSurfaceRect(surface, nullptr, SDL_MapSurfaceRGBA(surface, 255, 0, 0, 255));
+            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+            SDL_DestroySurface(surface);
+            if (!texture)
+                return false;
+            m_renderer = new TestRenderer(renderer, texture);
+            return true;
+        }
+        std::string getTypeName() const override { return "TestObject"; }
+    };
+
+    void testSteadyState()
+    {
+        TestObject object(point2D(10, 20), size2D(40, 100));
+        require(!object.isSteady(), "Objects must default to ground orientation");
+        for (bool steady : { true, false })
+        {
+            object.setSteady(steady);
+            ObjectMemberHolder saved = object.serialize();
+            std::stringstream stream;
+            saved.serialize(stream);
+            ObjectMemberHolder loaded;
+            loaded.deserialize(stream);
+            TestObject restored(loaded);
+            require(restored.isSteady() == steady, "Steady state must survive serialization");
+        }
+        ObjectMemberHolder legacy;
+        legacy.addMember("UID", std::string("legacy"));
+        legacy.addMember("objectSize", size2D(40, 100));
+        legacy.addMember("objectPosition", point2D(10, 20));
+        legacy.addMember("objectHeight", 0.0f);
+        legacy.addMember("isObjectHidden", false);
+        TestObject restored(legacy);
+        require(!restored.isSteady(), "Legacy objects without a steady flag must stay on the ground");
+    }
 
     void testRendering(Camera* camera)
     {
@@ -76,6 +124,32 @@ namespace
                     "Isometric rendering must leave the empty bounding-box corner unpainted");
             }
         }
+        {
+            World world;
+            world.createCamera(point2D(0, 0), size2D(256, 256));
+            camera->setViewMode(Camera::ViewMode::Isometric);
+            camera->setIsometricAngles(50, 0);
+            auto actor = std::make_shared<TestObject>(point2D(-20, 220), size2D(40, 120));
+            require(actor->createRenderer(renderer), "World test renderer creation failed");
+            world.addObject(actor);
+            const point2D visiblePoint(128, 240);
+            for (bool steady : { false, true })
+            {
+                actor->setSteady(steady);
+                require(SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255) && SDL_RenderClear(renderer),
+                    "World render clear failed");
+                world.render(renderer);
+                require(SDL_RenderPresent(renderer), "World render present failed");
+                Uint8 red, green, blue, alpha;
+                require(SDL_ReadSurfacePixel(target, 128, 240, &red, &green, &blue, &alpha),
+                    "World pixel read failed");
+                require(red == (steady ? 255 : 0),
+                    "Steady sprites must render even when their ground rectangle is off-screen");
+                world.mouseMove(visiblePoint);
+                require((world.getHoveredObject() == actor) == steady,
+                    "World hovering must match the displayed steady orientation");
+            }
+        }
         SDL_DestroyRenderer(renderer);
         SDL_DestroySurface(target);
         SDL_Quit();
@@ -84,6 +158,7 @@ namespace
 
 int main()
 {
+    testSteadyState();
     Camera* camera = Camera::getInstance();
     camera->setWindowSize(size2D(1280, 800));
     camera->setPos(point2D(140, -80));
@@ -99,6 +174,29 @@ int main()
         for (float zoom : { 0.1f, 1.0f, 5.0f })
         {
             camera->moveZ(zoom - camera->getZ());
+            const rect2D actor(point2D(60, -30), size2D(40, 100));
+            const auto steadyCorners = camera->getRenderingCorners(actor, true);
+            if (mode == Camera::ViewMode::Isometric)
+            {
+                requirePoint(steadyCorners[1] - steadyCorners[0], point2D(40 / zoom, 0),
+                    "Steady width must stay horizontal and follow zoom");
+                requirePoint(steadyCorners[3] - steadyCorners[0], point2D(0, 100 / zoom),
+                    "Steady height must stay upright without tilt compression");
+                requirePoint((steadyCorners[2] + steadyCorners[3]) / 2,
+                    camera->worldToWindowPoint(actor.position + point2D(20, 100)),
+                    "Steady bottom center must stay anchored to the ground");
+                const rect2D inside(steadyCorners[0] + point2D(1, 1), size2D(1, 1));
+                require(camera->intersectsWindowRect(actor, inside, true), "Steady visible pixels must be pickable");
+                require(!camera->intersectsWindowRect(actor,
+                    rect2D(steadyCorners[1] + point2D(1, 1), size2D(1, 1)), true),
+                    "Picking must reject points outside the steady rectangle");
+            }
+            else
+            {
+                const auto groundCorners = camera->getRenderingCorners(actor);
+                for (size_t index = 0; index < steadyCorners.size(); ++index)
+                    requirePoint(steadyCorners[index], groundCorners[index], "Steady must not change top-down projection");
+            }
             for (const point2D& position : positions)
                 requirePoint(camera->windowToWorldPoint(camera->worldToWindowPoint(position)), position,
                     "Projection round trip failed");
@@ -121,11 +219,12 @@ int main()
 
     camera->moveZ(1.0f - camera->getZ());
     camera->setViewMode(Camera::ViewMode::Isometric);
+    camera->setIsometricAngles(50, 30);
     const point2D origin = camera->getPos();
     const float radians = 0.017453292519943295f;
     requirePoint(camera->worldToWindowPoint(origin + point2D(100, 0)),
         point2D(640 + 100 * std::cos(30 * radians), 400 + 50 * std::cos(50 * radians)),
-        "Default 50-degree tilt and 30-degree heading changed");
+        "Configured 50-degree tilt and 30-degree heading changed");
     const rect2D tile(origin, size2D(256, 256));
     const point2D center = camera->worldToWindowPoint(origin + point2D(128, 128));
     require(camera->intersectsWindowRect(tile, rect2D(center, size2D(5, 5))), "Projected center must be pickable");

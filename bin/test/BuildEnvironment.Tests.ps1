@@ -18,6 +18,39 @@ function Assert-Throws {
 
 $originalRoot = $env:BUILD_HOME
 $originalXml = $Global:componentXMLPath
+$nativePowerShell = (Get-Process -Id $PID).Path
+$loggingOutput = @(Invoke-BuildTool $nativePowerShell @('-NoProfile', '-Command', @'
+[Console]::Out.WriteLine('Compiling Core.cpp')
+[Console]::Out.WriteLine('Core.cpp(12): warning C4100: unused parameter')
+[Console]::Error.WriteLine('CMake Warning at CMakeLists.txt:10 (message):')
+[Console]::Out.WriteLine('    0 Error(s)')
+[Console]::Out.WriteLine('    2 Warning(s)')
+exit 0
+'@) 6>&1)
+Assert-True ($loggingOutput.Count -eq 5) 'All stdout and stderr lines must be logged exactly once.'
+Assert-True (@($loggingOutput | Where-Object { $_.MessageData.Message -like '[[]WARNING[]]*' }).Count -eq 2) 'Compiler and CMake warnings must use LogWarning.'
+$defaultHostRecord = & { Write-Host 'Default color' } 6>&1
+foreach ($message in @('Compiling Core.cpp', '    0 Error(s)', '    2 Warning(s)')) {
+    $record = $loggingOutput | Where-Object { $_.MessageData.Message -eq $message }
+    Assert-True ($null -ne $record -and $record.MessageData.ForegroundColor -eq $defaultHostRecord.MessageData.ForegroundColor) 'Ordinary output and summaries must use the default color.'
+}
+$script:loggingFailure = $null
+$loggingOutput = @(& {
+    try {
+        Invoke-BuildTool $nativePowerShell @('-NoProfile', '-Command', @'
+[Console]::Error.WriteLine('Core.cpp(15): error C2143: syntax error')
+[Console]::Out.WriteLine('LINK : fatal error LNK1120: unresolved externals')
+[Console]::Error.WriteLine('CMake Error at CMakeLists.txt:20 (message):')
+exit 7
+'@)
+    }
+    catch { $script:loggingFailure = $_.Exception.Message }
+} 6>&1)
+Assert-True ($loggingFailure -like '*failed with exit code 7*') 'Native failures must retain their exit code.'
+Assert-True ($loggingOutput.Count -eq 3) 'All error lines must be logged before throwing.'
+Assert-True (@($loggingOutput | Where-Object { $_.MessageData.Message -like '[[]ERROR[]]*' }).Count -eq 3) 'Compiler, linker and CMake errors must use LogError.'
+Assert-True ($ErrorActionPreference -eq 'Stop') 'Native logging must restore the caller error preference.'
+Assert-Throws { Invoke-BuildTool 'missing-build-tool-fixture.exe' @() } '*missing-build-tool-fixture.exe*'
 if ($Integration) {
     $integrationCMake = Get-CMakePath
     $invokeNative = ${function:Invoke-BuildTool}

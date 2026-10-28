@@ -70,8 +70,8 @@ public:
 	void addMember(std::string member_name, T value) { m_list[member_name] = new Value(value); }
 
 	template<typename U>
-	U getMember(std::string member_name) const { 
-		U result;
+	U getMember(std::string member_name, U defaultValue = U{}) const {
+		U result = defaultValue;
 		auto it = m_list.find(member_name);
 		if (it != m_list.end())
 			result = it->second->getValue<U>();

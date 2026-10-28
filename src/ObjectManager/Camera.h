@@ -33,8 +33,8 @@ public:
     point2D worldToWindowPoint(const point2D& position) const;
     point2D windowToWorldPoint(const point2D& position) const;
     point2D windowToWorldDelta(const point2D& delta) const;
-    std::array<point2D, 4> getRenderingCorners(const rect2D& shape) const;
-    bool intersectsWindowRect(const rect2D& worldShape, const rect2D& windowRect) const;
+    std::array<point2D, 4> getRenderingCorners(const rect2D& shape, bool steady = false) const;
+    bool intersectsWindowRect(const rect2D& worldShape, const rect2D& windowRect, bool steady = false) const;
     rect2D WorldToWindow(const rect2D& objShape) const;
     rect2D WindowToWorld(const rect2D& windowCoords) const;
 

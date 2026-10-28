@@ -72,7 +72,7 @@ void CreateMyObjects(SDL_Renderer* renderer, World& world)
         basename + "Idle_front3",
         basename + "Idle_front4"
     };
-    auto personnage = std::make_shared<AnimatedSprite>(point2D(0, 0), persoAnimation, 250);
+    auto personnage = std::make_shared<AnimatedSprite>(point2D(0, 0), true, persoAnimation, 250);
     personnage->createRenderer(renderer);
     personnage->setZ(1);
     world.addObject(personnage);
@@ -154,7 +154,7 @@ int main(int argc, char* argv[])
     world.setCameraZLimits(0.1f, 5);
 
     // Create world
-    // CreateMyObjects(renderer, world); // Disabled if we want to read the world instead to avoid duplicity.
+    CreateMyObjects(renderer, world); // Disabled if we want to read the world instead to avoid duplicity.
 
     const size2D frameRateSize = size2D(100, 30);
     const rect2D textPosition = rect2D(point2D(windowSize.w - frameRateSize.w, 0), frameRateSize);

@@ -5,8 +5,9 @@
 
 #include <iostream>
 
-AnimatedSprite::AnimatedSprite(point2D pos, const std::vector<std::string>& assetNames, int animationSpeedMS) : Object(pos)
+AnimatedSprite::AnimatedSprite(point2D pos, bool steady, const std::vector<std::string>& assetNames, int animationSpeedMS) : Object(pos)
 {
+	m_steady = steady;
 	m_assets = std::vector<Image*>();
 	m_animationSpeed = animationSpeedMS;
 
