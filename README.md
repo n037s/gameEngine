@@ -1,5 +1,3 @@
-Project on Visual Studio 2022.
-
 ## Build Environment
 
 Install Visual Studio 2022 with **Desktop development with C++**, the Windows SDK,
@@ -41,26 +39,62 @@ build and test failures return a nonzero exit code from the batch launcher.
 The existing ControlManager camera test currently reports an isometric-angle
 expectation mismatch; the runner surfaces that failure rather than hiding it.
 
+### Scenario Environment
 
-For now we are loading a world from a file and displaying it in a window.
-Also the camera is managed and can be controlled by keyboard/mouse inputs.
+`UnitTestEnvironment` is a reusable C++17 test component. CMake links it to test
+executables only; production components do not depend on it. Put test sources in
+`src/<component>/test`, include `UnitTestEnvironment.h`, and register named
+scenarios:
 
+```cpp
+#include "UnitTestEnvironment.h"
 
+struct CounterFixture : UnitTest::Fixture
+{
+	int value{0};
+	void setUp() override { value = 42; }
+	void tearDown() override {}
+};
 
-Starting code is in Viewer/Viewer/main.cpp
+int main()
+{
+	UnitTest::Environment tests("Counter");
+	tests.addScenario<CounterFixture>("Starts at 42",
+		[](UnitTest::Scenario& scenario, CounterFixture& fixture) {
+			UT_REQUIRE(scenario, fixture.value == 42);
+			++fixture.value;
+			UT_EXPECT(scenario, fixture.value == 43);
+		});
+	return tests.run();
+}
+```
 
+Each fixture-backed scenario gets a fresh fixture. `tearDown` runs even when
+`setUp`, the scenario body, or a required assertion throws, provided fixture
+construction completed.
+`UT_EXPECT` records a failure and continues; `UT_REQUIRE` records a failure and
+stops that scenario. Both report the expression, source file, and line.
+Unhandled C++ exceptions fail only the current scenario; native crashes are not
+recoverable. The suite returns a nonzero exit code if any scenario fails or no
+scenarios were registered. Scenario names must be nonempty and unique.
+
+For scenarios without fixtures, use `tests.addScenario("Name", body)` with a
+callable accepting `UnitTest::Scenario&`. Register parameter combinations in a
+loop with distinct names, as in `ContextualObjectMenuTests.cpp`.
+
+Run the runner self-tests and editor scenarios with:
 
 
 WHAT's new :
 
 World serialization and deserialization.
+WorldManager to move objects, delete them, modify them. 
+Left click select the object, right click make appear a contextual menu to modify the object. 
+Added an isotropic view available with key "c". 
+Objects can be stready or flat. 
 
 
 
 TO BE DONE :
-
-* The first new executable project will be the world editor : displaying world, can add items from assets.
-* Add an item drop down button. It will appear with a right click on the window, it will be able to create any item in the asset manager at a position.
-* Add bounding rect Object that can be linked to an object and modify its position and size.
-* Left click will make appear a bounding rect linked to the item clicked on.
-* Far later : should be able to modify object properties ( animated frames, button callback, text label)
+* Should be able to modify object properties ( button callback, text label )
+* Introduce 3D Objects

@@ -1,28 +1,32 @@
 #include "AnimatedSprite.h"
 #include "AssetsManager.h"
+#include "UnitTestEnvironment.h"
 
+#include <chrono>
 #include <filesystem>
 #include <fstream>
-#include <iostream>
 #include <memory>
-#include <stdexcept>
 
 namespace
 {
-    void require(bool condition, const char* message)
+    struct AnimationFixture : UnitTest::Fixture
     {
-        if (!condition)
-            throw std::runtime_error(message);
-    }
-
-    struct AnimationFixture
-    {
-        std::filesystem::path directory = std::filesystem::path("Assets") /
+        inline static const std::filesystem::path directory = std::filesystem::path("Assets") /
             ("AnimatedSpriteTest_" + std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
+        bool ownsDirectory{false};
+        bool initialized{false};
+        SDL_Surface* target{nullptr};
+        SDL_Renderer* renderer{nullptr};
+        std::unique_ptr<AnimatedSprite> sprite;
 
-        AnimationFixture()
+        void setUp() override
         {
-            std::filesystem::create_directories(directory);
+            initialized = SDL_Init(0);
+            if (!initialized)
+                throw std::runtime_error(SDL_GetError());
+            ownsDirectory = std::filesystem::create_directory(directory);
+            if (!ownsDirectory)
+                throw std::runtime_error("Animation fixture directory already exists: " + directory.string());
             const unsigned char gif[] = {
                 'G', 'I', 'F', '8', '9', 'a', 1, 0, 1, 0, 0x80, 0, 0,
                 0, 0, 0, 255, 255, 255,
@@ -34,16 +38,34 @@ namespace
             };
             std::ofstream output(directory / "animation.gif", std::ios::binary);
             output.write(reinterpret_cast<const char*>(gif), sizeof(gif));
-            require(output.good(), "Could not write GIF fixture.");
+            if (!output.good())
+                throw std::runtime_error("Could not write GIF fixture");
+            target = SDL_CreateSurface(16, 16, SDL_PIXELFORMAT_RGBA8888);
+            renderer = target ? SDL_CreateSoftwareRenderer(target) : nullptr;
+            if (!renderer)
+                throw std::runtime_error(SDL_GetError());
         }
 
-        ~AnimationFixture()
+        void tearDown() override
         {
-            std::error_code error;
-            std::filesystem::remove_all(directory, error);
+            sprite.reset();
+            SDL_DestroyRenderer(renderer);
+            SDL_DestroySurface(target);
+            if (initialized)
+                SDL_Quit();
+            if (ownsDirectory)
+                std::filesystem::remove_all(directory);
         }
 
         std::string assetID() const { return directory.filename().generic_string() + "/animation"; }
+
+        void loadAnimation(UnitTest::Scenario& scenario)
+        {
+            sprite = std::make_unique<AnimatedSprite>(point2D(0, 0), false, -1);
+            UT_REQUIRE(scenario, sprite->setAnimation(assetID()));
+            sprite->update();
+            UT_REQUIRE(scenario, sprite->createRenderer(renderer));
+        }
     };
 
     bool hasPixel(const AnimatedSprite& sprite, Uint8 expected)
@@ -55,77 +77,98 @@ namespace
             && red == expected && green == expected && blue == expected && alpha == 255;
     }
 
-    void testAnimation()
+    void playback(UnitTest::Scenario& scenario, AnimationFixture& fixture)
     {
-        AnimationFixture fixture;
-        std::unique_ptr<SDL_Surface, decltype(&SDL_DestroySurface)> target(
-            SDL_CreateSurface(16, 16, SDL_PIXELFORMAT_RGBA8888), SDL_DestroySurface);
-        std::unique_ptr<SDL_Renderer, decltype(&SDL_DestroyRenderer)> renderer(
-            target ? SDL_CreateSoftwareRenderer(target.get()) : nullptr, SDL_DestroyRenderer);
-        require(renderer != nullptr, "Could not create software renderer.");
+        fixture.loadAnimation(scenario);
+        UT_EXPECT(scenario, hasPixel(*fixture.sprite, 0));
+        fixture.sprite->update();
+        UT_EXPECT(scenario, hasPixel(*fixture.sprite, 255));
+        fixture.sprite->update();
+        UT_EXPECT(scenario, hasPixel(*fixture.sprite, 0));
+    }
 
-        AnimatedSprite sprite(point2D(0, 0), false, -1);
-        require(!sprite.setAnimation("missing-animation"), "Unknown IDs must be rejected.");
-        require(sprite.setAnimation(fixture.assetID()), "Could not decode the GIF.");
-        sprite.update();
-        require(sprite.createRenderer(renderer.get()), "Could not render the first frame.");
-        require(hasPixel(sprite, 0), "The animation must start on its black frame.");
-        sprite.update();
-        require(hasPixel(sprite, 255), "The second GIF frame must be white.");
-        sprite.update();
-        require(hasPixel(sprite, 0), "Playback must wrap after the second frame.");
+    void rejectUnknownIDs(UnitTest::Scenario& scenario, AnimationFixture& fixture)
+    {
+        AnimatedSprite empty(point2D(0, 0), false, -1);
+        UT_EXPECT(scenario, !empty.setAnimation("missing-animation"));
+        fixture.loadAnimation(scenario);
+        UT_EXPECT(scenario, !fixture.sprite->setAnimation("missing-animation"));
+        UT_EXPECT(scenario, hasPixel(*fixture.sprite, 0));
+    }
 
-        require(!sprite.setAnimation("missing-animation"), "Unknown IDs must not load a fallback asset.");
-        require(hasPixel(sprite, 0), "A failed switch must preserve the current frame.");
+    void rejectStaticImages(UnitTest::Scenario& scenario, AnimationFixture& fixture)
+    {
+        fixture.loadAnimation(scenario);
         const auto imageIDs = AssetsManager::getInstance()->getAssets();
-        require(!imageIDs.empty(), "Expected a static image in the asset folder.");
-        require(!sprite.setAnimation(imageIDs.front()), "Static images must not be accepted as animations.");
+        UT_REQUIRE(scenario, !imageIDs.empty());
+        UT_EXPECT(scenario, !fixture.sprite->setAnimation(imageIDs.front()));
+    }
 
+    void replaceAnimation(UnitTest::Scenario& scenario, AnimationFixture& fixture)
+    {
+        fixture.loadAnimation(scenario);
         for (int iteration = 0; iteration < 4; ++iteration)
         {
-            require(sprite.setAnimation(fixture.assetID()), "Replacing an animation must succeed.");
-            require(hasPixel(sprite, 0), "Replacing an animation must reset to its first frame.");
-            sprite.update();
-            require(hasPixel(sprite, 255), "Replacement frames must not reuse stale cached textures.");
+            UT_REQUIRE(scenario, fixture.sprite->setAnimation(fixture.assetID()));
+            UT_EXPECT(scenario, hasPixel(*fixture.sprite, 0));
+            fixture.sprite->update();
+            UT_EXPECT(scenario, hasPixel(*fixture.sprite, 255));
         }
+    }
 
-        auto members = sprite.serialize();
-        require(members.getMember<std::string>("AnimationID") == fixture.assetID(), "The source animation ID must be saved.");
+    void serializeAnimation(UnitTest::Scenario& scenario, AnimationFixture& fixture)
+    {
+        fixture.loadAnimation(scenario);
+        fixture.sprite->update();
+        auto members = fixture.sprite->serialize();
+        UT_EXPECT(scenario, members.getMember<std::string>("AnimationID") == fixture.assetID());
         AnimatedSprite restored(members);
-        require(restored.createRenderer(renderer.get()) && hasPixel(restored, 0), "Reloading must restore the first frame.");
+        UT_REQUIRE(scenario, restored.createRenderer(fixture.renderer));
+        UT_EXPECT(scenario, hasPixel(restored, 0));
         restored.update();
-        require(hasPixel(restored, 255), "Reloading must decode all GIF frames.");
+        UT_EXPECT(scenario, hasPixel(restored, 255));
+    }
 
+    void legacyFrameLists(UnitTest::Scenario& scenario, AnimationFixture& fixture)
+    {
+        const auto imageIDs = AssetsManager::getInstance()->getAssets();
+        UT_REQUIRE(scenario, !imageIDs.empty());
         AnimatedSprite legacy(point2D(0, 0), false, std::vector<std::string>{imageIDs.front()}, -1);
         auto legacyMembers = legacy.serialize();
-        require(legacyMembers.getMember<size_t>("AssetsCount") == 1, "Legacy frame lists must still serialize.");
+        UT_EXPECT(scenario, legacyMembers.getMember<size_t>("AssetsCount") == 1);
         AnimatedSprite legacyRestored(legacyMembers);
-        require(legacyRestored.createRenderer(renderer.get()), "Legacy frame lists must still reload.");
+        UT_EXPECT(scenario, legacyRestored.createRenderer(fixture.renderer));
+    }
 
-        std::unique_ptr<Object> polymorphic = std::make_unique<AnimatedSprite>(members);
-        require(polymorphic->createRenderer(renderer.get()), "Animations must support base-class ownership.");
+    void baseClassOwnership(UnitTest::Scenario& scenario, AnimationFixture& fixture)
+    {
+        fixture.loadAnimation(scenario);
+        std::unique_ptr<Object> polymorphic = std::make_unique<AnimatedSprite>(fixture.sprite->serialize());
+        UT_EXPECT(scenario, polymorphic->createRenderer(fixture.renderer));
         polymorphic.reset();
+    }
 
-        std::filesystem::remove(fixture.directory / "animation.gif");
-        require(!sprite.setAnimation(fixture.assetID()), "An unreadable GIF must be rejected.");
-        require(hasPixel(sprite, 255), "Decode failure must preserve the existing animation.");
+    void unreadableGIF(UnitTest::Scenario& scenario, AnimationFixture& fixture)
+    {
+        fixture.loadAnimation(scenario);
+        fixture.sprite->update();
+        UT_REQUIRE(scenario, hasPixel(*fixture.sprite, 255));
+        UT_REQUIRE(scenario, std::filesystem::remove(fixture.directory / "animation.gif"));
+        UT_EXPECT(scenario, !fixture.sprite->setAnimation(fixture.assetID()));
+        UT_EXPECT(scenario, hasPixel(*fixture.sprite, 255));
     }
 }
 
 int main()
 {
-    if (!SDL_Init(0))
-        return 1;
-    int result = 0;
-    try
-    {
-        testAnimation();
-    }
-    catch (const std::exception& error)
-    {
-        std::cerr << error.what() << '\n';
-        result = 1;
-    }
-    SDL_Quit();
-    return result;
+    UnitTest::Environment tests("Animated sprite");
+    tests.addScenario<AnimationFixture>("GIF playback starts on frame zero, advances, and wraps", playback);
+    tests.addScenario<AnimationFixture>("Unknown IDs are rejected without changing the current frame", rejectUnknownIDs);
+    tests.addScenario<AnimationFixture>("Static images are rejected as animation sources", rejectStaticImages);
+    tests.addScenario<AnimationFixture>("Replacement resets playback without stale textures", replaceAnimation);
+    tests.addScenario<AnimationFixture>("Serialization preserves the source and reloads all frames", serializeAnimation);
+    tests.addScenario<AnimationFixture>("Legacy frame lists still serialize and reload", legacyFrameLists);
+    tests.addScenario<AnimationFixture>("Animations support base-class ownership", baseClassOwnership);
+    tests.addScenario<AnimationFixture>("Unreadable GIFs preserve the current animation", unreadableGIF);
+    return tests.run();
 }

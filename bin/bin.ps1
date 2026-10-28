@@ -137,6 +137,59 @@ function Invoke-BuildTool {
     }
 }
 
+function Invoke-TestTool {
+    param([string]$Executable, [string[]]$Arguments)
+    $tool = Get-Command $Executable -CommandType Application -ErrorAction Stop
+    $previousErrorActionPreference = $ErrorActionPreference
+    $PSNativeCommandUseErrorActionPreference = $false
+    try {
+        $ErrorActionPreference = 'Continue'
+        & $tool.Source @Arguments 2>&1 | ForEach-Object {
+            $line = [string]$_
+            if ($line -match '^(?<prefix>\s*(?:\d+:\s*)?\[\s*Summary\s*\]\s*)(?<passed>\d+) passed, (?<failed>\d+) failed\s*$') {
+                Write-Host $matches.prefix -NoNewline
+                Write-Host "$($matches.passed) passed" -ForegroundColor Green -NoNewline
+                Write-Host ', ' -NoNewline
+                if ([int]$matches.failed -gt 0) {
+                    Write-Host "$($matches.failed) failed" -ForegroundColor Red
+                }
+                else {
+                    Write-Host "$($matches.failed) failed"
+                }
+            }
+            elseif ($line -match '^\s*\d+% tests passed, (?<failed>\d+) tests failed out of (?<total>\d+)\s*$') {
+                $failed = [int]$matches.failed
+                $total = [int]$matches.total
+                Write-Host 'CTest summary: ' -NoNewline
+                Write-Host "$($total - $failed) passed" -ForegroundColor Green -NoNewline
+                Write-Host ', ' -NoNewline
+                if ($failed -gt 0) {
+                    Write-Host "$failed failed" -ForegroundColor Red -NoNewline
+                }
+                else {
+                    Write-Host "$failed failed" -NoNewline
+                }
+                Write-Host " out of $total tests"
+            }
+            elseif ($line -match '^\s*(?:\d+:\s*)?\[\s*OK\s*\]' -or $line -match '^\s*\d+/\d+\s+Test\s+#\d+:.*\bPassed\b') {
+                LogSuccess $line
+            }
+            elseif ($line -match '^\s*(?:\d+:\s*)?\[\s*FAILED\s*\]' -or $line -match '^\s*\d+/\d+\s+Test\s+#\d+:.*(?:\*\*\*|Not Run)' -or $line -match '^\s*(?:The following tests FAILED:|Errors while running CTest|No tests were found)' -or $line -match '^\s*\d+\s+-\s+.*\((?:Failed|Not Run|Timeout|SEGFAULT)[^)]*\)\s*$') {
+                LogError $line
+            }
+            else {
+                Write-Host $line
+            }
+        }
+    }
+    finally {
+        $ErrorActionPreference = $previousErrorActionPreference
+    }
+    if ($LASTEXITCODE -ne 0) {
+        throw "Unit tests failed with exit code $LASTEXITCODE."
+    }
+}
+
 function New-BuildProjects {
     param([object[]]$Definitions, [string]$Platform)
     $output = Join-Path $env:BUILD_HOME "out\vs-$Platform"
@@ -334,7 +387,7 @@ function executeUT {
     $targets = @($testComponents | ForEach-Object { "${_}_tests" })
     Invoke-BuildTool $cmake (@('--build', $output, '--config', $Configuration, '--parallel', '--target') + $targets)
     $pattern = '^(' + (($testComponents | ForEach-Object { [regex]::Escape($_) }) -join '|') + ')\.'
-    Invoke-BuildTool $ctest @('--test-dir', $output, '-C', $Configuration, '--output-on-failure', '--no-tests=error', '-R', $pattern)
+    Invoke-TestTool $ctest @('--test-dir', $output, '-C', $Configuration, '--verbose', '--no-tests=error', '-R', $pattern)
     LogSuccess "Tests passed for $($testComponents -join ', ') ($Configuration/$Platform)."
 }
 

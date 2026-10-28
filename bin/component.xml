@@ -20,6 +20,11 @@
         </dependencies>
     </component>
 
+    <component id="5" name="UnitTestEnvironment" rootdir="UnitTestEnvironment" template="library">
+        <dependencies>
+        </dependencies>
+    </component>
+
     <component id="4" name="WorldEditor" rootdir="WorldEditor" template="application">
         <dependencies>
             <dependency id="1" />

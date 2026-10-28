@@ -51,6 +51,52 @@ Assert-True ($loggingOutput.Count -eq 3) 'All error lines must be logged before 
 Assert-True (@($loggingOutput | Where-Object { $_.MessageData.Message -like '[[]ERROR[]]*' }).Count -eq 3) 'Compiler, linker and CMake errors must use LogError.'
 Assert-True ($ErrorActionPreference -eq 'Stop') 'Native logging must restore the caller error preference.'
 Assert-Throws { Invoke-BuildTool 'missing-build-tool-fixture.exe' @() } '*missing-build-tool-fixture.exe*'
+$loggingOutput = @(Invoke-TestTool $nativePowerShell @('-NoProfile', '-Command', @'
+[Console]::Out.WriteLine('1: [ RUN      ] Successful scenario')
+[Console]::Out.WriteLine('1: Application error: ordinary test output')
+[Console]::Out.WriteLine('1: Application warning: ordinary test output')
+[Console]::Out.WriteLine('1: [       OK ] Successful scenario')
+[Console]::Out.WriteLine('1: [ Summary  ] 6 passed, 0 failed')
+[Console]::Out.WriteLine('1/1 Test #1: Core.Example ... Passed 0.01 sec')
+[Console]::Out.WriteLine('100% tests passed, 0 tests failed out of 1')
+exit 0
+'@) 6>&1)
+foreach ($message in @('1: [       OK ] Successful scenario', '1/1 Test #1: Core.Example ... Passed 0.01 sec', '6 passed', '1 passed')) {
+    $record = @($loggingOutput | Where-Object { $_.MessageData.Message -eq $message })
+    Assert-True ($record.Count -eq 1 -and $record[0].MessageData.ForegroundColor -eq 'Green') 'Test successes and passed counts must be green and logged once.'
+}
+$records = @($loggingOutput | Where-Object { $_.MessageData.Message -eq '0 failed' })
+Assert-True ($records.Count -eq 2 -and @($records | Where-Object { $_.MessageData.ForegroundColor -eq $defaultHostRecord.MessageData.ForegroundColor }).Count -eq 2) 'Zero failed counts must use the default color in scenario and CTest summaries.'
+foreach ($message in @('1: [ RUN      ] Successful scenario', '1: Application error: ordinary test output', '1: Application warning: ordinary test output')) {
+    $record = @($loggingOutput | Where-Object { $_.MessageData.Message -eq $message })
+    Assert-True ($record.Count -eq 1 -and $record[0].MessageData.ForegroundColor -eq $defaultHostRecord.MessageData.ForegroundColor) 'Test output must not use compiler error or warning classification.'
+}
+$script:loggingFailure = $null
+$loggingOutput = @(& {
+    try {
+        Invoke-TestTool $nativePowerShell @('-NoProfile', '-Command', @'
+[Console]::Out.WriteLine('[ FAILED   ] Failed scenario')
+[Console]::Error.WriteLine('  Fixture teardown threw: fixture is locked')
+[Console]::Out.WriteLine('[ Summary  ] 25 passed, 2 failed')
+[Console]::Out.WriteLine('2: [ FAILED   ] Another failed scenario')
+[Console]::Out.WriteLine('1/2 Test #1: Core.Example ... ***Failed 0.01 sec')
+[Console]::Out.WriteLine('2/2 Test #2: Core.Crash ... ***Exception: SegFault 0.01 sec')
+[Console]::Out.WriteLine('0% tests passed, 2 tests failed out of 2')
+exit 9
+'@)
+    }
+    catch { $script:loggingFailure = $_.Exception.Message }
+} 6>&1)
+Assert-True ($loggingFailure -eq 'Unit tests failed with exit code 9.') 'Test failures must retain their exit code with a test-specific message.'
+$records = @($loggingOutput | Where-Object { $_.MessageData.Message -like '[[]ERROR[]]*' })
+Assert-True ($records.Count -eq 4 -and @($records | Where-Object { $_.MessageData.ForegroundColor -eq 'Red' }).Count -eq 4) 'Failed scenarios, failed tests, and native crashes must use LogError.'
+$record = @($loggingOutput | Where-Object { $_.MessageData.Message -eq '25 passed' })
+Assert-True ($record.Count -eq 1 -and $record[0].MessageData.ForegroundColor -eq 'Green') 'Mixed summaries must keep the passed count green.'
+$records = @($loggingOutput | Where-Object { $_.MessageData.Message -eq '2 failed' })
+Assert-True ($records.Count -eq 2 -and @($records | Where-Object { $_.MessageData.ForegroundColor -eq 'Red' }).Count -eq 2) 'Mixed summaries must keep failed counts red.'
+Assert-True (@($loggingOutput | Where-Object { $_.MessageData.Message -eq '  Fixture teardown threw: fixture is locked' }).Count -eq 1) 'Test diagnostics on stderr must remain visible once.'
+Assert-True ($ErrorActionPreference -eq 'Stop') 'Test logging must restore the caller error preference.'
+Assert-Throws { Invoke-TestTool 'missing-test-tool-fixture.exe' @() } '*missing-test-tool-fixture.exe*'
 if ($Integration) {
     $integrationCMake = Get-CMakePath
     $invokeNative = ${function:Invoke-BuildTool}
@@ -119,6 +165,12 @@ try {
         $script:toolCalls.Add([pscustomobject]@{ Executable = $Executable; Arguments = $Arguments })
         if ($script:failBuild -and $Arguments[0] -eq '--build') { throw 'Fixture build failed.' }
     }
+    $script:failTests = $false
+    function Invoke-TestTool {
+        param([string]$Executable, [string[]]$Arguments)
+        $script:toolCalls.Add([pscustomobject]@{ Executable = $Executable; Arguments = $Arguments })
+        if ($script:failTests) { throw 'Fixture tests failed.' }
+    }
     function Start-Process {
         param([string]$FilePath, [string]$WorkingDirectory, [string]$ErrorAction)
         $script:applicationLaunches.Add([pscustomobject]@{ FilePath = $FilePath; WorkingDirectory = $WorkingDirectory })
@@ -164,8 +216,13 @@ try {
     Assert-True ($toolCalls.Count -eq 3) 'Expected generation, test build, and CTest calls.'
     Assert-True ($toolCalls[1].Arguments[-1] -eq 'Core_tests') 'Must build only selected test targets.'
     Assert-True ($toolCalls[2].Executable -like '*ctest.exe') 'Must execute CTest.'
+    Assert-True ($toolCalls[2].Arguments -contains '--verbose') 'CTest must show successful scenario output for colored logging.'
     Assert-True ($toolCalls[2].Arguments[-1] -eq '^(Core)\.') 'CTest must select only the requested component.'
     Assert-True ($applicationLaunches.Count -eq 0) 'Unit tests must not launch applications.'
+    $script:failTests = $true
+    $loggingOutput = @(& { Assert-Throws { executeUT Core } '*Fixture tests failed*' } 6>&1)
+    $script:failTests = $false
+    Assert-True (@($loggingOutput | Where-Object { $_.MessageData.Message -like 'Tests passed for*' }).Count -eq 0) 'Failed test runs must not log a success message.'
 
     [xml]$xml = $fixture
     $secondApplication = $xml.components.component[1].CloneNode($true)

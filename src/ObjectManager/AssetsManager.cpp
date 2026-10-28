@@ -152,7 +152,7 @@ Asset* parserImage(const fs::path& assetPath)
     if (!surface) {
         std::cout << "Failed to load BMP image : "
             << assetPath.string() << ":\n  " << SDL_GetError() << '\n';
-        result = new Image(nullptr);
+        return nullptr;
     }
     else
     {
