@@ -1,0 +1,4 @@
+get_engine_sources("@COMPONENT_ROOT@" sources)
+add_executable(@COMPONENT_NAME@ ${sources})
+configure_engine_component(@COMPONENT_NAME@ "@COMPONENT_ROOT@")
+copy_engine_runtime(@COMPONENT_NAME@)

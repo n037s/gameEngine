@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+
+<components>
+
+    <component id="1" name="ObjectManager" rootdir="ObjectManager" template="library">
+        <dependencies>
+        </dependencies>
+    </component>
+
+    <component id="2" name="ControlManager" rootdir="ControlManager" template="library">
+        <dependencies>
+            <dependency id="1" />
+        </dependencies>
+    </component>
+
+    <component id="3" name="Viewer" rootdir="Viewer" template="library">
+        <dependencies>
+            <dependency id="1" />
+            <dependency id="2" />
+        </dependencies>
+    </component>
+
+    <component id="4" name="WorldEditor" rootdir="WorldEditor" template="application">
+        <dependencies>
+            <dependency id="1" />
+            <dependency id="2" />
+            <dependency id="3" />
+        </dependencies>
+    </component>
+</components>

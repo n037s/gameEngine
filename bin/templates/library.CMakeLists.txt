@@ -1,0 +1,3 @@
+get_engine_sources("@COMPONENT_ROOT@" sources)
+add_library(@COMPONENT_NAME@ STATIC ${sources})
+configure_engine_component(@COMPONENT_NAME@ "@COMPONENT_ROOT@")
