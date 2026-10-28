@@ -7,11 +7,12 @@
 
 const size2D clickingPrecisionArea = size2D(5, 5);
 
-void World::createCamera(const point2D pos, const size2D windowSize)
+Camera* World::createCamera(const point2D pos, const size2D windowSize)
 {
 	m_camera = Camera::getInstance();
 	m_camera->setPos(pos);
 	m_camera->setWindowSize(windowSize);
+	return m_camera;
 }
 
 void World::setCameraZLimits(const float zMin, const float zMax)
@@ -327,7 +328,8 @@ void World::onLeftClick(const point2D pos)
 void World::offLeftClick(const point2D pos)
 {
 	std::cout << "World is no more left clicked : " << pos.toString() << std::endl;
-	m_leftClickCallback(pos);
+	if (m_leftClickCallback)
+		m_leftClickCallback(pos);
 }
 
 bool World::checkRightClick(const ObjectPtr obj, const rect2D mouse, bool projected)

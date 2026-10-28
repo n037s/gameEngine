@@ -16,7 +16,8 @@ class World
 public:
 	World() {};
 
-	void createCamera(const point2D pos, const size2D windowSize);
+	Camera* createCamera(const point2D pos, const size2D windowSize);
+	Camera* getCamera() const { return m_camera; }
 	void setCameraZLimits(const float zMin, const float zMax);
 	void moveCameraPos(const float dx, const float dy);
 	float getCameraRenderingScale() const;

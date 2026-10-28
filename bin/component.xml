@@ -32,4 +32,13 @@
             <dependency id="3" />
         </dependencies>
     </component>
+
+    <component id="6" name="Main" rootdir="Main" template="application">
+        <dependencies>
+            <dependency id="1" />
+            <dependency id="2" />
+            <dependency id="3" />
+        </dependencies>
+    </component>
+
 </components>
