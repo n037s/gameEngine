@@ -16,7 +16,6 @@
     <component id="3" name="ControlManager" rootdir="ControlManager" template="library">
         <dependencies>
             <dependency id="2" />
-            <dependency id="6" />
         </dependencies>
     </component>
 

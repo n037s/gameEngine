@@ -54,6 +54,12 @@ bool PlayerControl::moveRight()
     return false;
 }
 
+bool PlayerControl::stopMoving()
+{
+    Player::getInstance()->event_stop_moving();
+    return true;
+}
+
 bool PlayerControl::resetPos()
 {
     Player::getInstance()->setPos(point2D(0, 0));

@@ -8,6 +8,7 @@ using namespace PlayerMovement;
 
 constexpr float playerSpeed = 2.3f;
 constexpr float allowedDistCameraToPlayer = 30.0f;
+constexpr uint16_t changeOrientationIterationThreshold = 3;
 
 const std::map<int, std::string> movementToAsset = {
     { IDLE_RIGHT, "FarmRPG/Character/Idle_right"},
@@ -22,47 +23,48 @@ const std::map<int, std::string> movementToAsset = {
 
 Player::Player(PlayerSingletonToken) : AnimatedSprite(point2D(0, 0), true, 250)
 {
-    std::cout << "Player created without members" << std::endl;
-    setMovementOrientation(IDLE_DOWN, true);
+    setMovementOrientation(MOVE_DOWN, true);
 }
 
 Player::Player(PlayerSingletonToken, const ObjectMemberHolder& members) : AnimatedSprite(members)
 {
-    std::cout << "Player created from members" << std::endl;
-    setMovementOrientation(IDLE_DOWN, true);
+    setMovementOrientation(MOVE_DOWN, true);
 }
 
 void Player::update()
 {
+    updateAnimation();
+
+    // TODO : This part should be performed only at frame rate
     if (m_plannedMovement != vector2D(0, 0))
     {
-        std::cout << "Player::update() - move for : " << m_plannedMovement.toString() << std::endl;
         // A movement is planned, let's do it. 
-        // TODO : correct the movement speed according to the FPS
-        auto mov = m_plannedMovement.normalized() * playerSpeed;
-        std::cout << "Movement of Player : " << mov.toString() << std::endl;
-        std::cout << "So position goes from : " << getPos().toString() << " - to " << (getPos() + Camera::getInstance()->windowToWorldDelta(mov)).toString() << std::endl;
-        setPos(getPos() + Camera::getInstance()->windowToWorldDelta(mov));
-    
         auto playerOrientation = computeOrientation();
         if (playerOrientation != m_lastMovement)
         {
-            setMovementOrientation(playerOrientation, false);
+            if (m_changeOrientationCount++; m_changeOrientationCount > changeOrientationIterationThreshold)
+            {
+                setMovementOrientation(playerOrientation, false);
+            }
         }
-    }
-    else
-    {
-        if ( m_lastMovement != IDLE)
+        else
         {
-            setMovementOrientation(m_lastMovement, true);
+            m_changeOrientationCount = 0;
         }
-    }
 
+        auto mov = m_plannedMovement.normalized() * playerSpeed;
+        setPos(m_pos + Camera::getInstance()->windowToWorldDelta(mov));
+    }
 }
 
 void Player::move(const vector2D& dx)
 {
     m_plannedMovement += dx;
+}
+
+void Player::event_stop_moving()
+{
+    setMovementOrientation(m_lastMovement, true);
 }
 
 void Player::setPos(const point2D& position)
@@ -75,6 +77,7 @@ void Player::setPos(const point2D& position)
 const PlayerMovement::Direction Player::computeOrientation()
 {
     PlayerMovement::Direction playerDirection{IDLE};
+
 
     // Decide the orientation of the player 
     if (std::abs(m_plannedMovement.x) >= std::abs(m_plannedMovement.y))
@@ -93,20 +96,20 @@ const PlayerMovement::Direction Player::computeOrientation()
 void Player::setMovementOrientation(const PlayerMovement::Direction& movementOrientation, bool idle)
 {
     m_lastMovement = movementOrientation;
+    m_changeOrientationCount = 0;
     
-    setAnimation(movementToAsset.at(movementOrientation + idle ? 1 : 0));
+    setAnimation(movementToAsset.at(movementOrientation + (idle ? 1 : 0)));
     if (idle) m_lastMovement = IDLE;
 }
 
 void Player::updateCameraPos()
 {
-    auto playerPos = Player::getInstance()->getPos();
     auto cameraPos = Camera::getInstance()->getPos();
 
-    if (const auto distance = (playerPos - cameraPos).length(); distance >= allowedDistCameraToPlayer )
+    if (const auto distance = (getPos() - cameraPos).length(); distance >= allowedDistCameraToPlayer )
     {
         // compute the vector to move and update camera position
-        vector2D moveVec = (playerPos - cameraPos).normalized() * (distance - allowedDistCameraToPlayer);
+        vector2D moveVec = (getPos() - cameraPos).normalized() * (distance - allowedDistCameraToPlayer);
         Camera::getInstance()->movePos(moveVec);
     }
 }

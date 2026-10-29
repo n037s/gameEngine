@@ -129,6 +129,11 @@ ObjectMemberHolder AnimatedSprite::serialize() const
 
 void AnimatedSprite::update()
 {
+	updateAnimation();
+}
+
+void AnimatedSprite::updateAnimation()
+{
 	if (m_assets.empty() || !m_renderer)
 		return;
 	// need to update with a frame rate. Not all the time. 

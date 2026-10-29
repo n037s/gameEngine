@@ -25,7 +25,7 @@ public:
 	bool moveDown();
 	bool moveLeft();
 	bool moveRight();
-
+	bool stopMoving();
 	bool resetPos();
 
 	void updateCameraPos();

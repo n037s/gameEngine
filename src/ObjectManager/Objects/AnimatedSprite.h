@@ -20,10 +20,12 @@ public:
 	ObjectMemberHolder serialize() const override;
 
 	const point2D getPos() const override { return m_pos + m_size / 2; }
+	const point2D getAnchor() const { return m_pos; }
 	void setPos(const point2D& pos) override { m_pos = pos - m_size / 2; }
 	const rect2D getShape() const override { return rect2D(m_pos, m_size); };
 
 	void update() override;
+	void updateAnimation();
 
 private:
 	int rotation_count{ 0 };

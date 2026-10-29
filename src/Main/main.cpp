@@ -44,6 +44,8 @@ void createPlayer(World& world, SDL_Renderer* renderer)
         std::cout << "Register a new player to the world" << std::endl;
         world.addObject(player);
     }
+    
+    player->updateCameraPos();
 }
 
 int main(int argc, char* argv[]) 
@@ -88,10 +90,10 @@ int main(int argc, char* argv[])
     viewer->setCommandProxy(&cmdProxy);
 
     // All this must be deleted, it will move the player
-    cmdProxy.bindCallback(SDLK_UP, &PlayerControl::moveUp);
-    cmdProxy.bindCallback(SDLK_DOWN, &PlayerControl::moveDown);
-    cmdProxy.bindCallback(SDLK_RIGHT, &PlayerControl::moveRight);
-    cmdProxy.bindCallback(SDLK_LEFT, &PlayerControl::moveLeft);
+    cmdProxy.bindCallback(SDLK_UP, &PlayerControl::moveUp, &PlayerControl::stopMoving);
+    cmdProxy.bindCallback(SDLK_DOWN, &PlayerControl::moveDown, &PlayerControl::stopMoving);
+    cmdProxy.bindCallback(SDLK_RIGHT, &PlayerControl::moveRight, &PlayerControl::stopMoving);
+    cmdProxy.bindCallback(SDLK_LEFT, &PlayerControl::moveLeft, &PlayerControl::stopMoving);
     cmdProxy.bindCallback(SDLK_R, &PlayerControl::resetPos);
     cmdProxy.bindCallback(SDLK_ESCAPE, Viewer::stopLoop);
 

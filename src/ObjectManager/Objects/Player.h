@@ -43,14 +43,18 @@ class Player : public AnimatedSprite
          * \param dx vector of the movement to plan
          */
         void move(const vector2D& dx);
+        void event_stop_moving();
         void setPos(const point2D& position) override;
+
+        void updateCameraPos();
 
     private: 
         const PlayerMovement::Direction computeOrientation();
         void setMovementOrientation(const PlayerMovement::Direction& movementOrientation, bool idle);
-        void updateCameraPos();
 
         bool m_inMovement{false};
         vector2D m_plannedMovement{0,0};
         PlayerMovement::Direction m_lastMovement{PlayerMovement::IDLE};
+
+        uint16_t m_changeOrientationCount{0};
 };
