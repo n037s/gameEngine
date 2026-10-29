@@ -95,6 +95,7 @@ int main(int argc, char* argv[])
     cmdProxy.bindCallback(SDLK_DOWN, &PlayerControl::moveDown, &PlayerControl::stopMoving);
     cmdProxy.bindCallback(SDLK_RIGHT, &PlayerControl::moveRight, &PlayerControl::stopMoving);
     cmdProxy.bindCallback(SDLK_LEFT, &PlayerControl::moveLeft, &PlayerControl::stopMoving);
+    cmdProxy.bindCallback(SDLK_R, &PlayerControl::resetPos);
     cmdProxy.bindCallback(SDLK_ESCAPE, Viewer::stopLoop);
 
     // Run application loop

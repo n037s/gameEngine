@@ -48,12 +48,12 @@ rect2D Camera::WindowToWorld(const rect2D& windowCoords) const
 
 point2D Camera::worldToWindowPoint(const point2D& position) const
 {
-    point2D projected = position - m_pos;
+    vector2D projected = position - m_pos;
     if (m_viewMode == ViewMode::Isometric)
     {
         const float heading = m_headingDegrees * degreesToRadians;
         const float tilt = m_tiltDegrees * degreesToRadians;
-        projected = point2D(std::cos(heading) * projected.x - std::sin(heading) * projected.y,
+        projected = vector2D(std::cos(heading) * projected.x - std::sin(heading) * projected.y,
             std::cos(tilt) * (std::sin(heading) * projected.x + std::cos(heading) * projected.y));
     }
     return projected / m_height + windowSize / 2;
@@ -61,13 +61,13 @@ point2D Camera::worldToWindowPoint(const point2D& position) const
 
 point2D Camera::windowToWorldDelta(const point2D& delta) const
 {
-    point2D unprojected = delta * m_height;
+    vector2D unprojected = delta.toVector() * m_height;
     if (m_viewMode == ViewMode::Isometric)
     {
         const float heading = m_headingDegrees * degreesToRadians;
         const float tilt = m_tiltDegrees * degreesToRadians;
         unprojected.y /= std::cos(tilt);
-        unprojected = point2D(std::cos(heading) * unprojected.x + std::sin(heading) * unprojected.y,
+        unprojected = vector2D(std::cos(heading) * unprojected.x + std::sin(heading) * unprojected.y,
             -std::sin(heading) * unprojected.x + std::cos(heading) * unprojected.y);
     }
     return unprojected;

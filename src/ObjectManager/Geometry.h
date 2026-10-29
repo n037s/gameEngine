@@ -3,10 +3,12 @@
 #include "SDL3/SDL.h"
 #include <string>
 
+class vector2D;
+
 class size2D
 {
 public:
-    size2D(float w = 0, float h = 0) noexcept : w(w), h(h) {}
+    explicit size2D(float w = 0, float h = 0) noexcept : w(w), h(h) {}
 
     size2D operator*(float mul) const noexcept;
     size2D operator/(float div) const noexcept;
@@ -25,20 +27,32 @@ public:
 
     point2D operator+(float add) const noexcept;
     point2D operator-(float substr) const noexcept;
-    point2D operator*(float mul) const noexcept;
-    point2D operator/(float div) const noexcept;
     point2D operator+(const point2D& other) const noexcept;
     point2D operator+(const size2D& other) const noexcept;
-    point2D operator-(const point2D& other) const noexcept;
+    vector2D operator-(const point2D& other) const noexcept;
     point2D operator-(const size2D& other) const noexcept;
     point2D operator*(const size2D& other) const noexcept;
     point2D operator/(const size2D& other) const noexcept;
     std::string toString() const;
 
     SDL_FPoint toSDL() const noexcept { return SDL_FPoint{ x, y }; }
+    vector2D toVector() const noexcept;
 
     float x;
     float y;
+};
+
+class vector2D : public point2D
+{
+public:
+    vector2D(float x = 0, float y = 0) noexcept : point2D(x, y) {}
+
+    float length() const noexcept;
+    vector2D normalized() const noexcept;
+    vector2D operator*(float mul) const noexcept;
+    vector2D operator/(float div) const noexcept;
+
+private:
 };
 
 class rect2D
@@ -46,7 +60,7 @@ class rect2D
 public:
     rect2D(float x = 0, float y = 0, float w = 0, float h = 0) noexcept
         : position(point2D{ x, y }), size(size2D{ w, h }) {}
-    rect2D(const point2D& topLeft = { 0,0 }, const size2D& size = { 0,0 }) noexcept
+    rect2D(const point2D& topLeft = { 0,0 }, const size2D& size = size2D{ 0,0 }) noexcept
         : position(topLeft), size(size) {}
     std::string toString() const;
 

@@ -1,11 +1,13 @@
 #include "PlayerControl.h"
 #include "Player.h"
+#include "Camera.h"
 
 #include <vector>
 
 const float move_sensibility = 2.3f;
 
 const std::vector<timeoutItem> playerControlTimeouts = {
+    timeoutItem(IDLE, 1),
     timeoutItem(MOVE_RIGHT, 20),
     timeoutItem(MOVE_LEFT, 20),
     timeoutItem(MOVE_UP, 20),
@@ -17,12 +19,13 @@ bool PlayerControl::moveUp()
     if (checkTimeout(playerControlTimeouts.at(MOVE_UP)))
 	{
 		const point2D dx(0, -move_sensibility);
-        if (m_lastMoveId != MOVE_UP)
+        if (m_lastMoveId == IDLE)
         {
             m_lastMoveId = MOVE_UP;
             Player::getInstance()->setAnimation("FarmRPG/Character/Walk_back");
         }
-		Player::getInstance()->movePos(dx);
+		Player::getInstance()->movePos(Camera::getInstance()->windowToWorldDelta(dx));
+        updateCameraPos();
         return true;
 	}
     return false;
@@ -38,7 +41,8 @@ bool PlayerControl::moveDown()
             m_lastMoveId = MOVE_DOWN;
             Player::getInstance()->setAnimation("FarmRPG/Character/Walk_front");
         }
-        Player::getInstance()->movePos(dx);
+        Player::getInstance()->movePos(Camera::getInstance()->windowToWorldDelta(dx));
+        updateCameraPos();
         return true;
     }
     return false;
@@ -55,7 +59,8 @@ bool PlayerControl::moveLeft()
             std::cout << "Move left animation set" << std::endl;
             Player::getInstance()->setAnimation("FarmRPG/Character/Walk_left");
         }
-        Player::getInstance()->movePos(dx);
+        Player::getInstance()->movePos(Camera::getInstance()->windowToWorldDelta(dx));
+        updateCameraPos();
         return true;
     }
     return false;
@@ -71,7 +76,8 @@ bool PlayerControl::moveRight()
             m_lastMoveId = MOVE_RIGHT;
             Player::getInstance()->setAnimation("FarmRPG/Character/Walk_right");
         }
-        Player::getInstance()->movePos(dx);
+        Player::getInstance()->movePos(Camera::getInstance()->windowToWorldDelta(dx));
+        updateCameraPos();
         return true;
     }
     return false;
@@ -94,5 +100,30 @@ bool PlayerControl::stopMoving()
             Player::getInstance()->setAnimation("FarmRPG/Character/Idle_right");
             break;
     }
+    m_lastMoveId = IDLE;
     return true;
+}
+
+bool PlayerControl::resetPos()
+{
+    Player::getInstance()->setPosition(point2D(0, 0));
+    Camera::getInstance()->setPos(point2D(0, 0));
+    Player::getInstance()->setAnimation("FarmRPG/Character/Idle_front");
+    m_lastMoveId = IDLE;
+    return true;
+}
+
+void PlayerControl::updateCameraPos()
+{
+    const float allowedDist = 30.0f;
+
+    auto playerPos = Player::getInstance()->getPos();
+    auto cameraPos = Camera::getInstance()->getPos();
+
+    if (const auto distance = (playerPos - cameraPos).length(); distance >= allowedDist )
+    {
+        // compute the vector to move and update camera position
+        vector2D moveVec = (playerPos - cameraPos).normalized() * (distance - allowedDist);
+        Camera::getInstance()->movePos(moveVec);
+    }
 }

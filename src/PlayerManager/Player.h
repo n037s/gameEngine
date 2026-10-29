@@ -16,6 +16,8 @@ class Player
         }
 
         void movePos(const point2D& dx);
+        void setPosition(const point2D& position);
+        point2D getPos() const { return m_position; }
         void setSprite(const std::shared_ptr<AnimatedSprite>& sprite);
         void setAnimation(const std::string& animation);
 

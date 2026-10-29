@@ -32,13 +32,18 @@ public:
 	template <typename Controller>
 	const bool bindCallback(const SDL_Keycode keycode, bool (Controller::*callback)(), bool (Controller::*onRelease)() = nullptr)
 	{
+		callbackFunction releaseCallback;
+		if (onRelease)
+		{
+			releaseCallback = [onRelease] {
+				return (Controller::getInstance().*onRelease)();
+			};
+		}
 		return bindCallback(keycode, 
 			[callback] {
 				return (Controller::getInstance().*callback)();
 			},
-			[onRelease] {
-				return (Controller::getInstance().*onRelease)();
-			}
+			releaseCallback
 		);
 	}
 

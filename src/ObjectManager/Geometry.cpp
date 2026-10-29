@@ -1,5 +1,6 @@
 #include "Geometry.h"
 #include <iostream>
+#include <cmath>
 
 // ------------------- size2D -------------------
 size2D size2D::operator*(float mul) const noexcept 
@@ -28,16 +29,6 @@ std::string size2D::toString() const
 }
 
 // ------------------- point2D -------------------
-point2D point2D::operator*(float mul) const noexcept 
-{ 
-    return point2D(x * mul, y * mul); 
-}
-
-point2D point2D::operator/(float div) const noexcept 
-{ 
-    return point2D(x / div, y / div); 
-}
-
 point2D point2D::operator+(float add) const noexcept 
 { 
     return point2D(x + add, y + add); 
@@ -58,9 +49,9 @@ point2D point2D::operator+(const size2D& other) const noexcept
     return point2D(x + other.w, y + other.h); 
 }
 
-point2D point2D::operator-(const point2D& other) const noexcept 
+vector2D point2D::operator-(const point2D& other) const noexcept 
 { 
-    return point2D(x - other.x, y - other.y); 
+    return vector2D(x - other.x, y - other.y); 
 }
 
 point2D point2D::operator-(const size2D& other) const noexcept 
@@ -81,6 +72,35 @@ point2D point2D::operator/(const size2D& other) const noexcept
 std::string point2D::toString() const 
 { 
     return "(" + std::to_string(x) + ";" + std::to_string(y) + ")"; 
+}
+
+vector2D point2D::toVector() const noexcept
+{
+    return vector2D(x, y);
+}
+
+// ------------------- vector2D ----------------
+float vector2D::length() const noexcept
+{
+    return std::sqrt(x * x + y * y);
+}
+
+vector2D vector2D::normalized() const noexcept
+{
+    float len = length();
+    if (len > 0)
+        return vector2D(x / len, y / len);
+    return vector2D(0, 0);
+}
+
+vector2D vector2D::operator*(float mul) const noexcept
+{
+    return vector2D(x * mul, y * mul);
+}
+
+vector2D vector2D::operator/(float div) const noexcept 
+{ 
+    return vector2D(x / div, y / div); 
 }
 
 // ------------------- rect2D -------------------

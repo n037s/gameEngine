@@ -1,4 +1,5 @@
 #include "Player.h"
+#include "Camera.h"
 
 Player* Player::m_instance = nullptr;
 
@@ -7,6 +8,13 @@ void Player::movePos(const point2D& dx)
     m_position.x += dx.x;
     m_position.y += dx.y;
 
+    if (const auto sprite = m_sprite.lock())
+        sprite->setPos(m_position);
+}
+
+void Player::setPosition(const point2D& position)
+{
+    m_position = position;
     if (const auto sprite = m_sprite.lock())
         sprite->setPos(m_position);
 }

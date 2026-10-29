@@ -4,7 +4,8 @@
 
 enum PlayerControlTimeout
 {
-    MOVE_RIGHT = 0,
+	IDLE = 0,
+    MOVE_RIGHT,
     MOVE_LEFT,
     MOVE_UP,
     MOVE_DOWN
@@ -26,6 +27,10 @@ public:
 	bool moveLeft();
 	bool moveRight();
 	bool stopMoving();
+
+	bool resetPos();
+
+	void updateCameraPos();
 
 	int m_lastMoveId{-1};
 };

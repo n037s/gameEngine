@@ -7,6 +7,10 @@
 
 #include <cmath>
 #include <sstream>
+#include <type_traits>
+
+static_assert(!std::is_convertible_v<float, size2D>);
+static_assert(std::is_same_v<decltype(point2D{} - point2D{}), vector2D>);
 
 namespace
 {
@@ -141,7 +145,7 @@ namespace
         {
             UT_EXPECT(scenario, nearPoint(steadyCorners[1] - steadyCorners[0], point2D(40 / zoom, 0)));
             UT_EXPECT(scenario, nearPoint(steadyCorners[3] - steadyCorners[0], point2D(0, 100 / zoom)));
-            UT_EXPECT(scenario, nearPoint((steadyCorners[2] + steadyCorners[3]) / 2,
+            UT_EXPECT(scenario, nearPoint((steadyCorners[2] + steadyCorners[3]).toVector() / 2,
                 camera->worldToWindowPoint(actor.position + point2D(20, 100))));
             const rect2D inside(steadyCorners[0] + point2D(1, 1), size2D(1, 1));
             UT_EXPECT(scenario, camera->intersectsWindowRect(actor, inside, true));
@@ -319,6 +323,18 @@ namespace
 int main()
 {
     UnitTest::Environment tests("Camera projection");
+    tests.addScenario("Vector scaling preserves both coordinates", [](UnitTest::Scenario& scenario) {
+        const vector2D displacement = point2D(7, 11) - point2D(1, 3);
+        UT_EXPECT(scenario, nearPoint(displacement, point2D(6, 8)));
+        UT_EXPECT(scenario, near(displacement.length(), 10));
+        UT_EXPECT(scenario, nearPoint(displacement * 2, point2D(12, 16)));
+        UT_EXPECT(scenario, nearPoint(displacement / 2, point2D(3, 4)));
+        UT_EXPECT(scenario, nearPoint(displacement.normalized(), point2D(0.6f, 0.8f)));
+        UT_EXPECT(scenario, nearPoint(vector2D().normalized(), point2D(0, 0)));
+        UT_EXPECT(scenario, nearPoint(point2D(6, 8).toVector(), displacement));
+        UT_EXPECT(scenario, nearPoint(point2D(6, 8) * size2D(2, 3), point2D(12, 24)));
+        UT_EXPECT(scenario, nearPoint(point2D(6, 8) / size2D(2, 4), point2D(3, 2)));
+    });
     tests.addScenario("Default camera view is top-down", [](UnitTest::Scenario& scenario) {
         UT_EXPECT(scenario, Camera::getInstance()->getViewMode() == Camera::ViewMode::TopDown);
     });
