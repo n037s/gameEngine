@@ -1,3 +1,0 @@
-﻿  Viewer.h
-x64\Debug\Viewer.obj : warning LNK4042: object specified more than once; extras ignored
-  Viewer.vcxproj -> C:\Leo\Perso\gameEngine\WorldEditor\x64\Debug\Viewer.lib
