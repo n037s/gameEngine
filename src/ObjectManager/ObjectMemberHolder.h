@@ -81,6 +81,8 @@ public:
 	void serialize(std::ostream& out);
 	void deserialize(std::istream& in);
 
+	const bool isEmpty() const;
+
 private:
 	std::map<std::string, Value*> m_list;
 };

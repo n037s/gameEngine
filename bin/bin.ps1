@@ -399,7 +399,6 @@ try {
     }
     elseif ($MyInvocation.InvocationName -ne '.') {
         Set-Location -LiteralPath $env:BUILD_HOME
-        help
     }
 }
 catch {

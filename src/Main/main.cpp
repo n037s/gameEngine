@@ -37,16 +37,13 @@ bool Osef2(point2D pos, Object* caller)
 
 void createPlayer(World& world, SDL_Renderer* renderer)
 {
-    auto playerSprite = std::dynamic_pointer_cast<AnimatedSprite>(world.getObjectByTypeName("AnimatedSprite"));
-    if (!playerSprite)
+    // If the player is not already in the map, it will be created
+    auto player = Player::getInstance();
+    if (world.getObjectByTypeName(player->getTypeName()) == nullptr)
     {
-        playerSprite = std::make_shared<AnimatedSprite>(point2D(0, 0), true, 250);
-        playerSprite->setAnimation("FarmRPG/Character/Idle_front");
-        playerSprite->createRenderer(renderer);
-        playerSprite->setZ(1);
-        world.addObject(playerSprite);
+        std::cout << "Register a new player to the world" << std::endl;
+        world.addObject(player);
     }
-    Player::getInstance()->setSprite(playerSprite);
 }
 
 int main(int argc, char* argv[]) 
@@ -91,10 +88,10 @@ int main(int argc, char* argv[])
     viewer->setCommandProxy(&cmdProxy);
 
     // All this must be deleted, it will move the player
-    cmdProxy.bindCallback(SDLK_UP, &PlayerControl::moveUp, &PlayerControl::stopMoving);
-    cmdProxy.bindCallback(SDLK_DOWN, &PlayerControl::moveDown, &PlayerControl::stopMoving);
-    cmdProxy.bindCallback(SDLK_RIGHT, &PlayerControl::moveRight, &PlayerControl::stopMoving);
-    cmdProxy.bindCallback(SDLK_LEFT, &PlayerControl::moveLeft, &PlayerControl::stopMoving);
+    cmdProxy.bindCallback(SDLK_UP, &PlayerControl::moveUp);
+    cmdProxy.bindCallback(SDLK_DOWN, &PlayerControl::moveDown);
+    cmdProxy.bindCallback(SDLK_RIGHT, &PlayerControl::moveRight);
+    cmdProxy.bindCallback(SDLK_LEFT, &PlayerControl::moveLeft);
     cmdProxy.bindCallback(SDLK_R, &PlayerControl::resetPos);
     cmdProxy.bindCallback(SDLK_ESCAPE, Viewer::stopLoop);
 

@@ -4,8 +4,7 @@
 
 enum PlayerControlTimeout
 {
-	IDLE = 0,
-    MOVE_RIGHT,
+    MOVE_RIGHT = 0,
     MOVE_LEFT,
     MOVE_UP,
     MOVE_DOWN
@@ -26,7 +25,6 @@ public:
 	bool moveDown();
 	bool moveLeft();
 	bool moveRight();
-	bool stopMoving();
 
 	bool resetPos();
 

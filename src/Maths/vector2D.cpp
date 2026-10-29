@@ -24,3 +24,20 @@ vector2D vector2D::operator/(float div) const noexcept
 { 
     return vector2D(x / div, y / div); 
 }
+
+vector2D& vector2D::operator+=(const vector2D& other) noexcept
+{
+    x += other.x;
+    y += other.y;
+    return *this;
+}
+
+bool vector2D::operator==(vector2D other) const noexcept
+{
+    return x == other.x && y == other.y;
+}
+
+bool vector2D::operator!=(vector2D other) const noexcept
+{
+    return x != other.x || y != other.y;
+}

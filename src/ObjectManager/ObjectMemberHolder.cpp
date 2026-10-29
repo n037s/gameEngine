@@ -223,6 +223,11 @@ void ObjectMemberHolder::deserialize(std::istream& in)
 	}
 }
 
+const bool ObjectMemberHolder::isEmpty() const
+{
+	return m_list.empty();
+}
+
 
 template<typename T>
 inline T Value::readData(std::istream& in)

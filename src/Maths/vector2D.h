@@ -11,6 +11,10 @@ public:
     vector2D normalized() const noexcept;
     vector2D operator*(float mul) const noexcept;
     vector2D operator/(float div) const noexcept;
+    vector2D& operator+=(const vector2D& other) noexcept;
+    
+    bool operator==(vector2D other) const noexcept;
+    bool operator!=(vector2D other) const noexcept; 
 
 private:
 };

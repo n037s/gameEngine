@@ -488,7 +488,10 @@ void World::parseFile(const std::string& filePath)
 			ObjectMemberHolder members;
 			members.deserialize(inFile);
 			if (auto object = ObjectManager::createObject(objectType, members))
+			{
+				std::cout << "Adding object " << object->getTypeName() << std::endl;
 				addObject(object);
+			}
 		}
 	}
 }
