@@ -169,6 +169,7 @@ int main(int argc, char* argv[])
 
     world.setWheelCallback([](float dz) { return CameraControl::getInstance().moveZ(dz); });
     world.setLeftClickCallback([](const point2D& clickPosition) { ObjectEditor::getInstance().updateSelectedObject(clickPosition); });
+    world.setMouseMoveCallback([&world](point2D position) { world.moveCameraPos(position.x, position.y); });
     world.setRedirectClickToObject(false); // deactivate click on objects
     viewer->setWhellCallback([viewer] (float dz) { return viewer->getWorld()->scroll(dz); });
 

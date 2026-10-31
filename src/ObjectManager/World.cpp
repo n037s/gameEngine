@@ -187,7 +187,8 @@ void World::mouseMove(const point2D pos)
 		// World grabbing
 		const point2D d_pos = m_lastClickedPos - pos;
 		m_lastClickedPos = pos;
-		moveCameraPos(d_pos.x, d_pos.y);
+		if (m_mouseMoveCallback)
+			m_mouseMoveCallback(d_pos);
 	}
 	else
 	{

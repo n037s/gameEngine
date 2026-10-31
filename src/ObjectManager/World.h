@@ -9,6 +9,7 @@
 #include "SDL3/SDL.h"
 
 using worldClickCallback = std::function<void(point2D position)>;
+using worldMouseMoveCallback = std::function<void(point2D position)>;
 using worldWheelCallback = std::function<bool(float dz)>;
 
 class World
@@ -41,6 +42,7 @@ public:
 
 	void setLeftClickCallback(worldClickCallback callback) { m_leftClickCallback = callback; }
 	void setRightClickCallback(worldClickCallback callback) { m_rightClickCallback = callback; }
+	void setMouseMoveCallback(worldMouseMoveCallback callback) { m_mouseMoveCallback = callback; }
 
 	bool isLeftClicked() const { return m_isLeftClicked; }
 	virtual void onLeftClick(const point2D pos);
@@ -89,5 +91,6 @@ private:
 	worldClickCallback m_leftClickCallback;
 	worldClickCallback m_rightClickCallback;
 	worldWheelCallback m_wheelCallback;
+	worldMouseMoveCallback m_mouseMoveCallback;
 };
 
