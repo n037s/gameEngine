@@ -8,6 +8,7 @@
 #include "SDL_ttf.h"
 
 #include "CommandProxy.h"
+#include "FrameRate.h"
 
 const int fps = 60;
 
@@ -63,9 +64,12 @@ Viewer::~Viewer()
 void Viewer::startLoop()
 {
     const Uint64 frameBudget = SDL_NS_PER_SECOND / fps;
+    FrameRate& frameRate = FrameRate::getInstance();
+    frameRate.reset();
     m_running = true;
     while (m_running) {
         const Uint64 frameStart = SDL_GetTicksNS();
+        frameRate.update();
 
         // Handle events
         SDL_Event event;

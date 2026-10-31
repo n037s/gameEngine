@@ -1,12 +1,13 @@
 #include "Player.h"
 #include "Camera.h"
+#include "FrameRate.h"
 
 #include <cmath>
 #include <map>
 
 using namespace PlayerMovement;
 
-constexpr float playerSpeed = 2.3f;
+constexpr float playerSpeed = 2.3f * 60.0f;
 constexpr float allowedDistCameraToPlayer = 30.0f;
 constexpr uint16_t changeOrientationIterationThreshold = 3;
 
@@ -35,7 +36,6 @@ void Player::update()
 {
     updateAnimation();
 
-    // TODO : This part should be performed only at frame rate
     if (m_plannedMovement != vector2D(0, 0))
     {
         // A movement is planned, let's do it. 
@@ -52,8 +52,8 @@ void Player::update()
             m_changeOrientationCount = 0;
         }
 
-        auto mov = m_plannedMovement.normalized() * playerSpeed;
-        setPos(m_pos + Camera::getInstance()->windowToWorldDelta(mov));
+        auto mov = m_plannedMovement.normalized() * FrameRate::getInstance().getDistanceFromSpeed(playerSpeed);
+        setPos(getPos() + Camera::getInstance()->windowToWorldDelta(mov));
     }
 }
 
@@ -64,12 +64,13 @@ void Player::move(const vector2D& dx)
 
 void Player::event_stop_moving()
 {
-    setMovementOrientation(m_lastMovement, true);
+    if (m_lastMovement != IDLE)
+        setMovementOrientation(m_lastMovement, true);
 }
 
 void Player::setPos(const point2D& position)
 {
-    m_pos = position;
+    AnimatedSprite::setPos(position);
     m_plannedMovement = vector2D(0, 0);
     updateCameraPos();
 }

@@ -1,57 +1,28 @@
 #include "PlayerControl.h"
 #include "Player.h"
 
-#include <vector>
-
-const std::vector<timeoutItem> playerControlTimeouts = {
-    timeoutItem(MOVE_RIGHT, 20),
-    timeoutItem(MOVE_LEFT, 20),
-    timeoutItem(MOVE_UP, 20),
-    timeoutItem(MOVE_DOWN, 20)
-};
-
 bool PlayerControl::moveUp()
 {
-    if (checkTimeout(playerControlTimeouts.at(MOVE_UP)))
-	{
-		const vector2D dx(0, -1);
-        Player::getInstance()->move(dx);
-        return true;
-	}
-    return false;
+    Player::getInstance()->move(vector2D(0, -1));
+    return true;
 }
 
 bool PlayerControl::moveDown()
 {
-    if (checkTimeout(playerControlTimeouts.at(MOVE_DOWN)))
-    {
-        const vector2D dx(0, 1);
-        Player::getInstance()->move(dx);
-        return true;
-    }
-    return false;
+    Player::getInstance()->move(vector2D(0, 1));
+    return true;
 }
 
 bool PlayerControl::moveLeft()
 {
-    if (checkTimeout(playerControlTimeouts.at(MOVE_LEFT)))
-    {
-        const vector2D dx(-1, 0);
-        Player::getInstance()->move(dx);
-        return true;
-    }
-    return false;
+    Player::getInstance()->move(vector2D(-1, 0));
+    return true;
 }
 
 bool PlayerControl::moveRight()
 {
-    if (checkTimeout(playerControlTimeouts.at(MOVE_RIGHT)))
-    {
-        const vector2D dx(1, 0);
-        Player::getInstance()->move(dx);
-        return true;
-    }
-    return false;
+    Player::getInstance()->move(vector2D(1, 0));
+    return true;
 }
 
 bool PlayerControl::stopMoving()

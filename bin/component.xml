@@ -7,37 +7,25 @@
         </dependencies>
     </component>
 
-    <component id="2" name="ObjectManager" rootdir="ObjectManager" template="library">
+    <component id="2" name="Utilities" rootdir="Utilities" template="library">
+        <dependencies>
+        </dependencies>
+    </component>
+
+    <component id="3" name="ObjectManager" rootdir="ObjectManager" template="library">
         <dependencies>
             <dependency id="1" />
-        </dependencies>
-    </component>
-
-    <component id="3" name="ControlManager" rootdir="ControlManager" template="library">
-        <dependencies>
             <dependency id="2" />
         </dependencies>
     </component>
 
-    <component id="4" name="Viewer" rootdir="Viewer" template="library">
+    <component id="4" name="ControlManager" rootdir="ControlManager" template="library">
         <dependencies>
-            <dependency id="2" />
             <dependency id="3" />
         </dependencies>
     </component>
 
-    <component id="5" name="UnitTestEnvironment" rootdir="UnitTestEnvironment" template="library">
-        <dependencies>
-        </dependencies>
-    </component>
-
-    <component id="6" name="PlayerManager" rootdir="PlayerManager" template="library">
-        <dependencies>
-            <dependency id="2" />
-        </dependencies>
-    </component>
-
-    <component id="7" name="WorldEditor" rootdir="WorldEditor" template="application">
+    <component id="5" name="Viewer" rootdir="Viewer" template="library">
         <dependencies>
             <dependency id="2" />
             <dependency id="3" />
@@ -45,11 +33,30 @@
         </dependencies>
     </component>
 
-    <component id="8" name="Main" rootdir="Main" template="application">
+    <component id="6" name="UnitTestEnvironment" rootdir="UnitTestEnvironment" template="library">
         <dependencies>
-            <dependency id="2" />
+        </dependencies>
+    </component>
+
+    <component id="7" name="PlayerManager" rootdir="PlayerManager" template="library">
+        <dependencies>
+            <dependency id="3" />
+        </dependencies>
+    </component>
+
+    <component id="8" name="WorldEditor" rootdir="WorldEditor" template="application">
+        <dependencies>
             <dependency id="3" />
             <dependency id="4" />
+            <dependency id="5" />
+        </dependencies>
+    </component>
+
+    <component id="9" name="Main" rootdir="Main" template="application">
+        <dependencies>
+            <dependency id="3" />
+            <dependency id="4" />
+            <dependency id="5" />
         </dependencies>
     </component>
 
