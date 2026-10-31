@@ -30,6 +30,7 @@
             <dependency id="2" />
             <dependency id="3" />
             <dependency id="4" />
+            <dependency id="10" />
         </dependencies>
     </component>
 
@@ -57,6 +58,11 @@
             <dependency id="3" />
             <dependency id="4" />
             <dependency id="5" />
+        </dependencies>
+    </component>
+
+    <component id="10" name="ConfigManager" rootdir="ConfigManager" template="library">
+        <dependencies>
         </dependencies>
     </component>
 

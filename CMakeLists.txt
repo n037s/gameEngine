@@ -14,6 +14,16 @@ set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Configurations" FORC
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 enable_testing()
 
+include(FetchContent)
+if(POLICY CMP0135)
+    cmake_policy(SET CMP0135 NEW)
+endif()
+set(tinyxml2_BUILD_TESTING OFF CACHE BOOL "Build TinyXML2 tests" FORCE)
+FetchContent_Declare(tinyxml2
+    URL https://codeload.github.com/leethomason/tinyxml2/zip/refs/tags/10.0.0
+    URL_HASH SHA256=6c60b185d3570d37196d5bde17ca4f63b44a9936b515450db75ac8de5e560910)
+FetchContent_MakeAvailable(tinyxml2)
+
 find_package(SDL3 CONFIG REQUIRED PATHS "${PROJECT_SOURCE_DIR}/extern/SDL3-3.2.26/cmake" NO_DEFAULT_PATH)
 find_package(SDL3_ttf CONFIG REQUIRED PATHS "${PROJECT_SOURCE_DIR}/extern/SDL3_ttf-3.1.0/cmake" NO_DEFAULT_PATH)
 find_package(SDL3_image CONFIG REQUIRED PATHS "${PROJECT_SOURCE_DIR}/extern/SDL3_image-3.2.4/cmake" NO_DEFAULT_PATH)
@@ -78,6 +88,10 @@ foreach(index RANGE ${last_component})
     endif()
     add_subdirectory("${component_project}" "components/${name}")
 endforeach()
+
+target_link_libraries(ConfigManager PRIVATE tinyxml2::tinyxml2)
+target_compile_definitions(ConfigManager PRIVATE
+    CONFIG_FOLDER="${PROJECT_SOURCE_DIR}/src/ConfigManager/ressources")
 
 foreach(index RANGE ${last_component})
     string(JSON name GET "${components}" ${index} name)

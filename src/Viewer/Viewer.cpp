@@ -10,13 +10,13 @@
 #include "CommandProxy.h"
 #include "FrameRate.h"
 
-const int fps = 60;
-
 Viewer* Viewer::m_instance = nullptr;
 bool Viewer::m_running = false;
 
 bool Viewer::Init(size2D windowSize)
 {
+    m_globalConfig = &GlobalConfig::getInstance();
+
     m_windowSize = windowSize;
     SDL_Init(SDL_INIT_VIDEO);
 
@@ -63,7 +63,7 @@ Viewer::~Viewer()
 
 void Viewer::startLoop()
 {
-    const Uint64 frameBudget = SDL_NS_PER_SECOND / fps;
+    const Uint64 frameBudget = SDL_NS_PER_SECOND / m_globalConfig->getFrameRateLimit();
     FrameRate& frameRate = FrameRate::getInstance();
     frameRate.reset();
     m_running = true;

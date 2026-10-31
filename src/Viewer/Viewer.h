@@ -2,6 +2,7 @@
 
 #include "World.h"
 #include "CommandProxy.h"
+#include "GlobalConfig.h"
 
 class Viewer
 {
@@ -35,6 +36,7 @@ private:
 	Viewer();
 	~Viewer();
 	static Viewer* m_instance;
+	GlobalConfig* m_globalConfig{ nullptr };
 	static bool m_running;
 
 	bool isFailure{ false };
