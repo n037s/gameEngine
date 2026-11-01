@@ -7,8 +7,10 @@
 #include "Geometry.h"
 #include "Font.h"
 #include "Color.h"
+#include "Logger.h"
 
 #include <variant>
+
 
 enum Type
 {
@@ -38,6 +40,7 @@ public:
 
 	template<typename T>
 	T getValue() const;
+	const std::string toString() const;
 	friend std::ostream& operator<<(std::ostream& out, const Value& value);
 
 	void serialize(std::ostream& out);
@@ -85,6 +88,7 @@ public:
 
 private:
 	std::map<std::string, Value*> m_list;
+	Logger* m_logger;
 };
 
 #endif // OBJECTMEMBERHOLDER_H

@@ -3,6 +3,7 @@
 #include "World.h"
 #include "CommandProxy.h"
 #include "GlobalConfig.h"
+#include "Logger.h"
 
 class Viewer
 {
@@ -35,6 +36,9 @@ public:
 private:
 	Viewer();
 	~Viewer();
+
+	Logger* m_logger{ nullptr };
+
 	static Viewer* m_instance;
 	GlobalConfig* m_globalConfig{ nullptr };
 	static bool m_running;

@@ -5,14 +5,16 @@
 #include "Geometry.h"
 #include <array>
 
+#include "Logger.h"
+
 /*
 * Bases of renderers
 */
 class BaseRenderer
 {
 public:
-	BaseRenderer() : m_renderer(nullptr), m_isGenerated(true) {};
-	BaseRenderer(SDL_Renderer* renderer) : m_renderer(renderer), m_isGenerated(true) {};
+	BaseRenderer() : m_renderer(nullptr), m_isGenerated(true), m_logger(Logger::getInstance(Components::ObjectManager)) {};
+	BaseRenderer(SDL_Renderer* renderer) : m_renderer(renderer), m_isGenerated(true), m_logger(Logger::getInstance(Components::ObjectManager)) {};
 	virtual ~BaseRenderer() = default;
 
 	void cleanSurfaceAndRenderer();
@@ -32,6 +34,7 @@ protected:
 	SDL_Texture* m_texture{ nullptr };
 	SDL_Surface* m_surface{ nullptr };
 	bool m_isGenerated;
+	Logger* m_logger{ nullptr };
 };
 
 

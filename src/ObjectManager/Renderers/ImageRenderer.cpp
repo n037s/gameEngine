@@ -44,7 +44,7 @@ void ImageRenderer::createTexture()
                     m_texture = m_textures.emplace(m_image, std::move(texture)).first->second.get();
             }
             if (!m_texture) {
-                std::cerr << "SDL_CreateTextureFromSurface Error: " << SDL_GetError() << std::endl;
+                m_logger->error("SDL_CreateTextureFromSurface Error: " + std::string(SDL_GetError()));
             }
             else
             {
@@ -53,11 +53,11 @@ void ImageRenderer::createTexture()
         }
         else
         {
-            std::cout << "WTF error surface pointer is null" << std::endl;
+            m_logger->error("WTF error surface pointer is null");
         }
     }
     else
     {
-        std::cout << "Asset is not loaded" << std::endl;
+        m_logger->error("Asset is not loaded");
     }
 }

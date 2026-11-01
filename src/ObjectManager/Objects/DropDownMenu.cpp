@@ -101,11 +101,11 @@ void DropDownMenu::addSubMenuButton(std::string label, ItemPtr item)
 	// We can't save the function in the file ... 
 	std::string func_name = "DropDownCallback" + UIDGenerator::generateUID();
 	ButtonCallbackRegistery::instance()->registerCallback(func_name, [this, item](point2D pos, Object* caller) {
-		std::cout << "SUBMENU is clicked on, menu list before : " << std::endl;
+		this->m_logger->log("SUBMENU is clicked on, menu list before : ");
 		printMenu(nullptr);
 		item->isOpen = !item->isOpen;
 		this->display(nullptr, 0, true);
-		std::cout << "SUBMENU is clicked on, menu list after : " << std::endl;
+		this->m_logger->log("SUBMENU is clicked on, menu list after : ");
 		printMenu(nullptr);
 		return true;
 		});
@@ -352,7 +352,7 @@ void DropDownMenu::printMenu(ItemPtr menu, int level)
 	{
 		if (item->isSubMenu)
 		{
-			std::cout << padding + item->label << std::endl;
+			m_logger->info(padding + item->label);
 			if (item->isOpen)
 			{
 				// We create a button open menu
@@ -362,7 +362,7 @@ void DropDownMenu::printMenu(ItemPtr menu, int level)
 		else
 		{
 			// We create a simple button with its callback
-			std::cout << padding + item->label << std::endl;
+			m_logger->info(padding + item->label);
 		}
 	}
 }
@@ -520,6 +520,6 @@ bool DropDownMenu::scroll(float dz)
 		}
 		return true;
 	}
-	std::cout << "scrolling on drop down menu with " << dz << std::endl;
+	m_logger->info("scrolling on drop down menu with " + std::to_string(dz));
 	return true;
 }

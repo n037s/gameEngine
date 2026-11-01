@@ -2,7 +2,6 @@
 //
 #include "Viewer.h"
 
-#include <iostream>
 #include <string>
 
 #include "SDL_ttf.h"
@@ -15,16 +14,17 @@ bool Viewer::m_running = false;
 
 bool Viewer::Init(size2D windowSize)
 {
+    m_logger = Logger::getInstance("Viewer");
     m_globalConfig = &GlobalConfig::getInstance();
 
     m_windowSize = windowSize;
     SDL_Init(SDL_INIT_VIDEO);
 
-    std::cout << "Viewer::Init() - Appication basepath : " << SDL_GetBasePath() << std::endl;
+    m_logger->info("Viewer::Init() - Appication basepath : " + std::string(SDL_GetBasePath()));
 
     m_window = SDL_CreateWindow("MyApp", (int)m_windowSize.w, (int)m_windowSize.h, 0);
     if (m_window == nullptr) {
-        std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
+        m_logger->error("SDL_CreateWindow Error: " + std::string(SDL_GetError()));
         SDL_Quit();
         isFailure = true;
     }
@@ -32,7 +32,7 @@ bool Viewer::Init(size2D windowSize)
     {
         m_renderer = SDL_CreateRenderer(m_window, NULL);
         if (m_renderer == nullptr) {
-            std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
+            m_logger->error("SDL_CreateRenderer Error: " + std::string(SDL_GetError()));
             SDL_DestroyWindow(m_window);
             SDL_Quit();
             isFailure = true;
@@ -40,7 +40,7 @@ bool Viewer::Init(size2D windowSize)
     }
 
     if (!TTF_Init()) {
-        SDL_Log("Couldn't initialize SDL_ttf: %s\n", SDL_GetError());
+        m_logger->error("Couldn't initialize SDL_ttf: " + std::string(SDL_GetError()));
         return false; // SDL_APP_FAILURE;
     }
 
@@ -113,15 +113,15 @@ void Viewer::manageUserInput(SDL_Event event)
     {
         const SDL_Keycode keycode = event.key.key;
 
-        std::cout << "key pressed : " << SDL_GetKeyName(keycode) << " returns : " <<
-            (m_commandProxy->addRunningCallback(keycode) ? "true" : "false") << std::endl;
+        m_logger->info("key pressed : " + std::string(SDL_GetKeyName(keycode)) + " returns : " +
+            (m_commandProxy->addRunningCallback(keycode) ? "true" : "false"));
         
         break;
     }
     case SDL_EVENT_KEY_UP:
     {
         const SDL_Keycode keycode = event.key.key;
-        std::cout << "key released : " << SDL_GetKeyName(keycode) << std::endl;
+        m_logger->info("key released : " + std::string(SDL_GetKeyName(keycode)));
         m_commandProxy->removeRunningCallback(keycode);
         break;
     }

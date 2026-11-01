@@ -6,6 +6,8 @@
 #include <memory>
 
 #include "Asset.h"
+#include "Logger.h"
+
 
 enum Alignement
 {
@@ -45,6 +47,7 @@ private:
 	std::string m_fontID;
 	float m_policySize;
 	TextAlignement m_textAlignement;
+	Logger* m_logger;
 };
 
 using FontPtr = std::shared_ptr<Font>;

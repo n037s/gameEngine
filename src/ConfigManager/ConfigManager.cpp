@@ -2,7 +2,6 @@
 
 #include <stdexcept>
 #include <tinyxml2.h>
-#include <iostream>
 
 namespace
 {
@@ -17,7 +16,8 @@ namespace
 	}
 }
 
-ConfigManager::ConfigManager(const std::filesystem::path& filePath) : m_filePath(CONFIG_FOLDER / filePath)
+ConfigManager::ConfigManager(const std::filesystem::path& filePath)
+	: m_logger(Logger::getInstance(Components::ConfigManager)), m_filePath(CONFIG_FOLDER / filePath)
 {
 }
 
@@ -27,28 +27,44 @@ void ConfigManager::loadConfig()
 {
 	auto document = std::make_unique<tinyxml2::XMLDocument>();
 	if (document->LoadFile(m_filePath.string().c_str()) != tinyxml2::XML_SUCCESS)
-		throw std::runtime_error("Cannot load configuration '" + m_filePath.string() + "': " + document->ErrorStr());
+	{
+		const auto message = "Cannot load configuration '" + m_filePath.string() + "': " + document->ErrorStr();
+		m_logger->error(message);
+		throw std::runtime_error(message);
+	}
 
 	const auto* root = document->RootElement();
 	if (!root || document->FirstChildElement() != document->LastChildElement()
 		|| m_filePath.stem().string() != root->Name())
-		throw std::runtime_error("Configuration root must match file name: " + m_filePath.stem().string());
+	{
+		const auto message = "Configuration root must match file name: " + m_filePath.stem().string();
+		m_logger->error(message);
+		throw std::runtime_error(message);
+	}
 
 	m_document.swap(document);
 	try
 	{
 		parseConfig();
 	}
+	catch (const std::exception& exception)
+	{
+		m_document.swap(document);
+		m_logger->error("Cannot parse configuration '" + m_filePath.string() + "': " + exception.what());
+		throw;
+	}
 	catch (...)
 	{
 		m_document.swap(document);
+		m_logger->error("Cannot parse configuration: " + m_filePath.string());
 		throw;
 	}
+	m_logger->info("Loaded configuration: " + m_filePath.string());
 }
 
 void ConfigManager::parseConfig()
 {
-    std::cout << "[ERROR] Parsing of configuration file not defined" << std::endl;
+	m_logger->error("Parsing of configuration file not defined: " + m_filePath.string());
 }
 
 std::filesystem::path ConfigManager::getConfigFolder() const
@@ -59,7 +75,12 @@ std::filesystem::path ConfigManager::getConfigFolder() const
 void ConfigManager::saveConfig() const
 {
 	if (m_document->SaveFile(m_filePath.string().c_str()) != tinyxml2::XML_SUCCESS)
-		throw std::runtime_error("Cannot save configuration: " + m_filePath.string());
+	{
+		const auto message = "Cannot save configuration: " + m_filePath.string();
+		m_logger->error(message);
+		throw std::runtime_error(message);
+	}
+	m_logger->info("Saved configuration: " + m_filePath.string());
 }
 
 std::string ConfigManager::getValue(const std::string& section, const std::string& parameter) const

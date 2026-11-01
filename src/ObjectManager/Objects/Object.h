@@ -6,6 +6,7 @@
 #include "BaseRenderer.h"
 #include "ObjectMemberHolder.h"
 #include "UIDGenerator.h"
+#include "Logger.h"
 
 #include "SDL3/SDL.h"
 
@@ -181,6 +182,7 @@ public:
 
 protected:
 	std::string m_uid{ UIDGenerator::generateUID() };
+	Logger* m_logger{ Logger::getInstance(Components::ObjectManager) };
 
 	ObjectMemberHolder m_members;
 	point2D m_pos{ 0, 0 };

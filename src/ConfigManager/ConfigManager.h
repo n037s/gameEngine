@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <memory>
 #include <string>
+#include "Logger.h"
 
 namespace tinyxml2 { class XMLDocument; }
 
@@ -24,6 +25,8 @@ class ConfigManager
         void setValue(const std::string& section, const std::string& parameter, const std::string& value);
 
         std::filesystem::path getConfigFolder() const;
+
+        Logger* m_logger;
 
     private:
         std::filesystem::path m_filePath;

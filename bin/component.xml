@@ -9,6 +9,7 @@
 
     <component id="2" name="Utilities" rootdir="Utilities" template="library">
         <dependencies>
+            <dependency id="11" />
         </dependencies>
     </component>
 
@@ -16,12 +17,14 @@
         <dependencies>
             <dependency id="1" />
             <dependency id="2" />
+            <dependency id="11" />
         </dependencies>
     </component>
 
     <component id="4" name="ControlManager" rootdir="ControlManager" template="library">
         <dependencies>
             <dependency id="3" />
+            <dependency id="11" />
         </dependencies>
     </component>
 
@@ -31,6 +34,7 @@
             <dependency id="3" />
             <dependency id="4" />
             <dependency id="10" />
+            <dependency id="11" />
         </dependencies>
     </component>
 
@@ -42,6 +46,7 @@
     <component id="7" name="PlayerManager" rootdir="PlayerManager" template="library">
         <dependencies>
             <dependency id="3" />
+            <dependency id="11" />
         </dependencies>
     </component>
 
@@ -50,6 +55,7 @@
             <dependency id="3" />
             <dependency id="4" />
             <dependency id="5" />
+            <dependency id="11" />
         </dependencies>
     </component>
 
@@ -58,10 +64,17 @@
             <dependency id="3" />
             <dependency id="4" />
             <dependency id="5" />
+            <dependency id="11" />
         </dependencies>
     </component>
 
     <component id="10" name="ConfigManager" rootdir="ConfigManager" template="library">
+        <dependencies>
+            <dependency id="11" />
+        </dependencies>
+    </component>
+
+    <component id="11" name="Logger" rootdir="Logger" template="library">
         <dependencies>
         </dependencies>
     </component>

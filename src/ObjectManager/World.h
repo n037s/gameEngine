@@ -5,6 +5,7 @@
 
 #include "Object.h"
 #include "Camera.h"
+#include "Logger.h"
 
 #include "SDL3/SDL.h"
 
@@ -15,7 +16,7 @@ using worldWheelCallback = std::function<bool(float dz)>;
 class World
 {
 public:
-	World() {};
+	World() : m_logger(Logger::getInstance(Components::ObjectManager)) {};
 
 	Camera* createCamera(const point2D pos, const size2D windowSize);
 	Camera* getCamera() const { return m_camera; }
@@ -78,6 +79,8 @@ private:
 	bool checkRightClickReleased(const ObjectPtr object, const rect2D mouse, bool projected = false);
 
 	Camera* m_camera{ nullptr };
+	Logger* m_logger{ nullptr };
+
 	std::list<ObjectPtr> m_objects{ std::list<ObjectPtr>() };
 	std::list<ObjectPtr> m_overlayObjects{ std::list<ObjectPtr>() };
 	std::map<std::string, ObjectPtr> m_UIDToObjects{ std::map<std::string, ObjectPtr>() };

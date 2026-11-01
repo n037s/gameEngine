@@ -1,6 +1,5 @@
 #include "AssetsManager.h"
 
-#include <iostream>
 #include <algorithm>
 #include <cctype>
 
@@ -25,6 +24,7 @@ AssetsManager* AssetsManager::m_instance = nullptr;
 AssetsManager::AssetsManager() 
 { 
     m_nameToPath = std::map<std::string, fs::path>();
+    m_logger = Logger::getInstance(Components::ObjectManager);
     Init(); 
 };
 
@@ -50,12 +50,12 @@ void AssetsManager::Init()
         }
         else
         {
-            std::cerr << "Error: Asset folder is not a directory. " << m_assetsFolderPath << std::endl;
+            m_logger->error("Asset folder is not a directory: " + m_assetsFolderPath);
         }
     }
     else
     {
-        std::cout << "Error: Asset folder does not exist. " << m_assetsFolderPath << std::endl;
+        m_logger->error("Asset folder does not exist: " + m_assetsFolderPath);
     }
 }
 
@@ -150,8 +150,7 @@ Asset* parserImage(const fs::path& assetPath)
 
     SDL_Surface* surface = IMG_Load(assetPath.string().c_str());
     if (!surface) {
-        std::cout << "Failed to load BMP image : "
-            << assetPath.string() << ":\n  " << SDL_GetError() << '\n';
+        AssetsManager::getInstance()->m_logger->error("Failed to load BMP image: " + assetPath.string() + " - " + SDL_GetError());
         return nullptr;
     }
     else

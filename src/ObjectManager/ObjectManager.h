@@ -3,7 +3,7 @@
 #include <string>
 #include <map>
 #include <functional>
-
+#include "Logger.h"
 #include "Object.h"
 
 #include "AnimatedSprite.h"
@@ -31,7 +31,7 @@ public:
         }
         else
         {
-            std::cout << "[ERROR] ObjectManager::createObject() - No Object registerer for object type : " << name << std::endl;
+            m_logger->error("ObjectManager::createObject() - No Object registerer for object type : " + name);
         }
         return nullptr; // Unknown item
     }
@@ -41,6 +41,8 @@ private:
         static std::unordered_map<std::string, objectDeserializer> registry;
         return registry;
     }
+
+    static Logger* m_logger;
 };
 
 struct ObjectRegister {

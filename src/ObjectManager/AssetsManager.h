@@ -8,6 +8,8 @@
 
 #include "Asset.h"
 
+#include "Logger.h"
+
 namespace fs = std::filesystem;
 
 using parsingFunction = std::function<Asset* (const fs::path& assetPath)>;
@@ -32,6 +34,8 @@ public:
 	std::list<std::string> getAssets() const { return m_imageIDs; }
 	std::list<std::string> getAnimatedAssets() const { return m_animationIDs; }
 	std::list<std::string> getFont() const { return m_fontIDs; }
+
+	Logger* m_logger;
 
 private:
 	AssetsManager();

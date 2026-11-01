@@ -47,7 +47,7 @@ void Button::onHover(point2D pos)
 	m_color.r += 30;
 	m_color.g += 30;
 	m_color.b += 30;
-	std::cout << " -> " << m_color.toString() << std::endl;
+	m_logger->info(" -> " + m_color.toString());
 	ButtonRenderer* renderer = dynamic_cast<ButtonRenderer*>(m_renderer);
 	if (renderer)
 		renderer->setColor(m_color.toSDL());
@@ -59,7 +59,7 @@ void Button::offHover(point2D pos)
 	m_color.r -= 30;
 	m_color.g -= 30;
 	m_color.b -= 30;
-	std::cout << " -> " << m_color.toString() << std::endl;
+	m_logger->info(" -> " + m_color.toString());
 	ButtonRenderer* renderer = dynamic_cast<ButtonRenderer*>(m_renderer);
 	if (renderer)
 		renderer->setColor(m_color.toSDL());
@@ -68,10 +68,10 @@ void Button::offHover(point2D pos)
 bool Button::leftClick(point2D pos)
 {
 	bool success = false;
-	std::cout << "button is clicked on : " << (m_callback != nullptr) << "calling " << m_callbackID << std::endl;
+	m_logger->info("button is clicked on : " + std::to_string(m_callback != nullptr) + " calling " + m_callbackID);
 	if (m_callback != nullptr)
 		success = m_callback(pos, this);
-	std::cout << "is successfull ? " << success << std::endl;
+	m_logger->info("is successfull ? " + std::to_string(success));
 	return success;
 }
 

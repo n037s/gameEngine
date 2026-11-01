@@ -40,7 +40,7 @@ bool BaseRenderer::render(const SDL_FRect& renderingRect)
         success = SDL_RenderTexture(m_renderer, m_texture, NULL, &renderingRect);
         if (!success)
         {
-            std::cout << "[Error] rendering - " << SDL_GetError() << std::endl;
+            m_logger->error("rendering - " + std::string(SDL_GetError()));
         }
     }
     return success;
@@ -61,6 +61,6 @@ bool BaseRenderer::renderQuad(const std::array<point2D, 4>& corners)
     const int indices[] = { 0, 1, 2, 0, 2, 3 };
     const bool success = SDL_RenderGeometry(m_renderer, m_texture, vertices, 4, indices, 6);
     if (!success)
-        std::cout << "[Error] rendering quad - " << SDL_GetError() << std::endl;
+        m_logger->error("rendering quad - " + std::string(SDL_GetError()));
     return success;
 }

@@ -4,14 +4,14 @@
 
 #include "AssetsManager.h"
 
-
 Font::Font()
-    : m_fontID(""), m_policySize(0), m_textAlignement{ Alignement::CENTER, Alignement::CENTER }, m_font(nullptr), m_isGenerated(false)
+    : m_fontID(""), m_policySize(0), m_textAlignement{ Alignement::CENTER, Alignement::CENTER }, m_font(nullptr), m_isGenerated(false), m_logger(Logger::getInstance(Components::ObjectManager))
 {
+
 }
 
 Font::Font(const std::string& fontID, float policySize, TextAlignement textAlignement)
-    : m_fontID(fontID), m_policySize(policySize), m_textAlignement(textAlignement), m_font(nullptr), m_isGenerated(false)
+    : m_fontID(fontID), m_policySize(policySize), m_textAlignement(textAlignement), m_font(nullptr), m_isGenerated(false), m_logger(Logger::getInstance(Components::ObjectManager))
 {
     loadFont();
 }
@@ -41,7 +41,7 @@ void Font::loadFont()
     if (!m_font)
     {
         m_isGenerated = false;
-        std::cout << "Error loading font: " << SDL_GetError() << '\n';
+        m_logger->error("Error loading font: " + std::string(SDL_GetError()));
     }
     else
     {

@@ -24,7 +24,7 @@ void TextRenderer::generateTexture()
 	cleanSurfaceAndRenderer();
 	if (!m_font->isGenerated())
 	{
-		std::cout << "Error loading font: " << SDL_GetError() << '\n';
+		m_logger->error("loading font: " + std::string(SDL_GetError()));
 	}
 	else
 	{
@@ -32,16 +32,16 @@ void TextRenderer::generateTexture()
 		SDL_Surface* textSurface = TTF_RenderText_Blended(m_font->toSDL(), m_text.c_str(), 0, m_color);
 		if (!m_surface || !textSurface)
 		{
-			std::cout << "Error generating text surface" << SDL_GetError() << std::endl;
+			m_logger->error("Error generating text surface: " + std::string(SDL_GetError()));
 		}
 		else
 		{
 			if (setupTextInSurface(textSurface))
 			{
 				m_texture = SDL_CreateTextureFromSurface(m_renderer, m_surface);
-				if (!m_surface)
+				if (!m_texture)
 				{
-					std::cout << "Error generating text texture" << SDL_GetError() << std::endl;
+					m_logger->error("Error generating text texture: " + std::string(SDL_GetError()));
 				}
 				else
 				{
@@ -99,7 +99,7 @@ bool TextRenderer::setupTextInSurface(SDL_Surface* textSurface)
 	SDL_SetSurfaceBlendMode(textSurface, SDL_BLENDMODE_NONE);
 	bool success = SDL_BlitSurface(textSurface, &textRect, m_surface, &surfaceRect);
 	if (!success)
-		std::cout << "[ERROR] Generating text, blit is unsuccessfull" << std::endl;
+		m_logger->error("Generating text, blit is unsuccessfull");
 	
 	return success;
 }

@@ -7,7 +7,7 @@
 
 using namespace PlayerMovement;
 
-constexpr float playerSpeed = 2.3f * 60.0f;
+constexpr float playerSpeed = 140.0f; // Player speed in units per second
 constexpr float allowedDistCameraToPlayer = 30.0f;
 constexpr uint16_t changeOrientationIterationThreshold = 3;
 

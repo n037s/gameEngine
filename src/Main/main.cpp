@@ -4,6 +4,7 @@
 #include "CommandProxy.h"
 #include "Controls.h"
 
+#include "Logger.h"
 #include "World.h"
 #include "ObjectManager.h"
 #include "ButtonCallbackRegistery.h"
@@ -11,24 +12,25 @@
 #include "AssetsManager.h"
 #include "Player.h"
 
-#include <iostream>
 #include <sstream>
+
+Logger* g_logger = Logger::getInstance("Main");
 
 bool Osef2(point2D pos, Object* caller)
 {
     const std::string objectUID = "e9337627-78e6-4df5-809c-544d88884ac3";
 
-    std::cout << "osef2 called" << std::endl;
+    g_logger->info("osef2 called");
     World* world = Viewer::getInstance()->getWorld();
     if (!world)
     {
-        std::cerr << "Cannot toggle object visibility: no world is loaded." << std::endl;
+        g_logger->error("Cannot toggle object visibility: no world is loaded.");
         return false;
     }
     auto object = world->getObjectByUID(objectUID);
     if (!object)
     {
-        std::cerr << "Cannot toggle object visibility: target object " << objectUID << " was not found." << std::endl;
+        g_logger->error("Cannot toggle object visibility: target object " + objectUID + " was not found.");
         return false;
     }
     object->setIsHidden(!object->isHidden());
@@ -41,7 +43,7 @@ void createPlayer(World& world, SDL_Renderer* renderer)
     auto player = Player::getInstance();
     if (world.getObjectByTypeName(player->getTypeName()) == nullptr)
     {
-        std::cout << "Register a new player to the world" << std::endl;
+        g_logger->info("Register a new player to the world");
         world.addObject(player);
     }
     

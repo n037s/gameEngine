@@ -1,4 +1,4 @@
-	#include "World.h"
+#include "World.h"
 #include <iostream>
 #include <fstream>
 
@@ -60,7 +60,7 @@ bool World::removeObject(const ObjectPtr object, std::list<ObjectPtr>& object_li
 		success = true;
 	}
 	else
-		std::cout << "Object is not found to deletion" << std::endl;
+		m_logger->warning("Object is not found to deletion");
 	
 	m_UIDToObjects.erase(object->getUID());
 	sortObjectListByZ(object_list);
@@ -334,11 +334,11 @@ void World::releaseLeftClick(const point2D pos)
 
 void World::onLeftClick(const point2D pos)
 {
-	std::cout << "World have been click on at this position : " << pos.toString() << std::endl;
+	m_logger->info("World have been click on at this position : " + pos.toString());
 }
 void World::offLeftClick(const point2D pos)
 {
-	std::cout << "World is no more left clicked : " << pos.toString() << std::endl;
+	m_logger->info("World is no more left clicked : " + pos.toString());
 	if (m_leftClickCallback)
 		m_leftClickCallback(pos);
 }
@@ -440,11 +440,12 @@ void World::releaseRightClick(const point2D pos)
 
 void World::onRightClick(const point2D pos)
 {
-	std::cout << "World have been right clicked on at this position : " << pos.toString() << std::endl;
+	m_logger->info("World have been right clicked on at this position : " + pos.toString());
 }
+
 void World::offRightClick(const point2D pos)
 {
-	std::cout << "World is no more right clicked : " << pos.toString() << std::endl;
+	m_logger->info("World is no more right clicked : " + pos.toString());
 	if (m_rightClickCallback)
 		m_rightClickCallback(pos);
 }
@@ -455,14 +456,14 @@ bool World::scroll(float dz) const
 	if (m_hoveredObject)
 	{
 		// let's try to scroll on the item 
-		std::cout << "trying to scroll on the hovered item" << m_hoveredObject->getTypeName() << std::endl;
+		m_logger->info("Trying to scroll on the hovered item " + m_hoveredObject->getTypeName());
 		result = m_hoveredObject->scroll(dz);
 	}
 
 	if (!result)
 	{
 		// let's scroll on the world
-		std::cout << "scrolling on the world" << std::endl;
+		m_logger->info("scrolling on the world");
 		result = m_wheelCallback(dz);
 	}
 
@@ -474,23 +475,23 @@ void World::parseFile(const std::string& filePath)
 	std::ifstream inFile(filePath, std::ios::binary);
 	if (!inFile)
 	{
-		std::cout << "[Error] World::parseFile() - Cannot open file " << filePath << std::endl;
+		m_logger->error("World::parseFile() - Cannot open file " + filePath);
 	}
 	else
 	{
 		const size_t object_size = Value::readNextValue(inFile).getValue<size_t>();
 
-		std::cout << "---- detected " << object_size << " objects ----" << std::endl;
+		m_logger->info("---- detected " + std::to_string(object_size) + " objects ----");
 		for (size_t i = 0; i < object_size; ++i)
 		{
 			const std::string objectType = Value::readNextValue(inFile).getValue<std::string>();
-			std::cout << "[" << objectType << "]" << std::endl;
+			m_logger->info("[" + objectType + "]");
 
 			ObjectMemberHolder members;
 			members.deserialize(inFile);
 			if (auto object = ObjectManager::createObject(objectType, members))
 			{
-				std::cout << "Adding object " << object->getTypeName() << std::endl;
+				m_logger->info("Adding object " + object->getTypeName());
 				addObject(object);
 			}
 		}
@@ -515,7 +516,7 @@ void World::saveFile(const std::string& filePath)
 	std::ofstream outFile(filePath, std::ios::binary);
 	if (!outFile)
 	{
-		std::cout << "[Error] World::saveFile() - Cannot open file " << filePath << std::endl;
+		m_logger->error("World::saveFile() - Cannot open file " + filePath);
 	}
 	else
 	{

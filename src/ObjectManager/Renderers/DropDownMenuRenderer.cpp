@@ -51,7 +51,7 @@ void DropDownMenuRenderer::update()
 		bool success = SDL_BlitSurface(objSurface, &(surfaceShape), m_surface, &(rel_pos));
 		SDL_SetSurfaceBlendMode(objSurface, blendMode);
 		if (!success)
-			std::cout << "[ERROR] Button renderer - blit is not successfull" << std::endl;
+			m_logger->error("Button renderer - blit is not successfull");
 		else
 			i++;
 	}

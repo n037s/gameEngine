@@ -146,46 +146,55 @@ Value Value::readNextValue(std::istream& in)
 	return item;
 }
 
-std::ostream& operator<<(std::ostream& out, const Value& value)
+const std::string Value::toString() const
 {
-	switch (value.data.index())
+	std::string output{""};
+
+	switch (data.index())
 	{
 	case BOOL:
-		out << (value.getValue<bool>())?"true":"false";
+		output = (getValue<bool>())?"true":"false";
 		break;
 	case INT:
-		out << value.getValue<int>();
+		output = std::to_string(getValue<int>());
 		break;
 	case FLOAT:
-		out << value.getValue<float>();
+		output = std::to_string(getValue<float>());
 		break;
 	case SIZE_T:
-		out << value.getValue<size_t>();
+		output = std::to_string(getValue<size_t>());
 		break;
 	case STRING:
-		out << value.getValue<std::string>();
+		output = getValue<std::string>();
 		break;
 	case POINT2D:
-		out << value.getValue<point2D>().x << ";" << value.getValue<point2D>().y;
+		output = std::to_string(getValue<point2D>().x) + ";" + std::to_string(getValue<point2D>().y);
 		break;
 	case SIZE2D:
-		out << value.getValue<size2D>().w << "x" << value.getValue<size2D>().h;
+		output = std::to_string(getValue<size2D>().w) + "x" + std::to_string(getValue<size2D>().h);
 		break;
 	case COLOR:
-		out << static_cast<int>(value.getValue<Color>().r) << ";" << static_cast<int>(value.getValue<Color>().g) << ";" <<
-			static_cast<int>(value.getValue<Color>().b) << ";" << static_cast<int>(value.getValue<Color>().a);
+		output = std::to_string(static_cast<int>(getValue<Color>().r)) + ";" + std::to_string(static_cast<int>(getValue<Color>().g)) + ";" +
+			std::to_string(static_cast<int>(getValue<Color>().b)) + ";" + std::to_string(static_cast<int>(getValue<Color>().a));
 		break;
 	case FONT:
-		out << "Font";
+		output = "Font";
 		break;
 	}
 	
+	return output;
+}
+
+std::ostream& operator<<(std::ostream& out, const Value& value)
+{
+	out << value.toString();
 	return out;
 }
 
 ObjectMemberHolder::ObjectMemberHolder()
 {
 	m_list = std::map<std::string, Value*>();
+	m_logger = Logger::getInstance(Components::ObjectManager);
 }
 
 ObjectMemberHolder::~ObjectMemberHolder()
@@ -215,10 +224,10 @@ void ObjectMemberHolder::deserialize(std::istream& in)
 	for (size_t i = 0; i < memberCount; ++i)
 	{
 		std::string memberName = Value::readNextValue(in).getValue<std::string>();
-		std::cout << "    [" << memberName << "]" << std::endl;
+		m_logger->log("    [" + memberName + "]");
 		Value* memberValue = new Value("\0");
 		memberValue->deserialize(in);
-		std::cout << "        value = " << *memberValue << std::endl;
+		m_logger->log("        value = " + memberValue->toString());
 		m_list[memberName] = memberValue;
 	}
 }
