@@ -19,6 +19,7 @@ public:
 	bool setAsset(const std::string& assetID);
 	const point2D getPos() const override { return m_pos + m_size / 2; }
 	void setPos(const point2D& pos) override { m_pos = pos - m_size / 2; }
+	void setSize(const size2D& size) { m_size = size; }
 	const rect2D getShape() const override { return rect2D(m_pos, m_size); };
 
 private:
