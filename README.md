@@ -96,5 +96,5 @@ Objects can be stready or flat.
 
 
 TO BE DONE :
-* Should be able to modify object properties ( button callback, text label )
+* Should be able to modify object properties ( button callback, text label, size )
 * Introduce 3D Objects

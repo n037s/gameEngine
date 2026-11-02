@@ -14,6 +14,34 @@ enum ObjectControlTimeout
     MOVE_UP
 };
 
+enum EdgeType
+{
+    NONE = 0, 
+    TOP_LEFT,
+    TOP,
+    TOP_RIGHT,
+    RIGHT,
+    BOTTOM_RIGHT,
+    BOTTOM,
+    BOTTOM_LEFT,
+    LEFT
+};
+
+enum EdgeAction
+{
+	None = 0,
+	Grab, 
+	Resize_NE,
+	Resize_NW,
+	Resize_SE,
+	Resize_SW,
+	Resize_N,
+	Resize_S,
+	Resize_E,
+	Resize_W
+};
+
+
 class SelectionBoundsObject final : public Object, public BaseController
 	{
 	public:
@@ -40,8 +68,12 @@ class SelectionBoundsObject final : public Object, public BaseController
 		void setupCallbacks();
 		point2D toTargetSpace(point2D windowPos) const;
 		void dragTarget(point2D windowPos);
+		void updateCursor(point2D pos);
+
+		const EdgeType getEdge(point2D pos) const;
 
 		ObjectPtr target;
 		std::weak_ptr<ContextualObjectMenu> m_contextMenu;
 		point2D m_grabOffset{ 0, 0 };
+		EdgeAction m_edgeAction{ EdgeAction::None };
 	};

@@ -171,7 +171,7 @@ int main(int argc, char* argv[])
         [] { 
         auto mouseCursorManager = MouseCursor::getInstance();
         auto cursorType = mouseCursorManager->getCursorType();
-        mouseCursorManager->setCursor((cursorType + 1 <= MouseCursorType::None) ? static_cast<MouseCursorType>(cursorType + 1) : MouseCursorType::Default); 
+        mouseCursorManager->setCursor((cursorType + 1 <= MouseCursor::None) ? static_cast<MouseCursor::Type>(cursorType + 1) : MouseCursor::Default); 
         return true;});
 
     world.setWheelCallback([](float dz) { return CameraControl::getInstance().moveZ(dz); });

@@ -25,8 +25,11 @@ MouseCursor::~MouseCursor()
     m_cursorType = Default;
 }
 
-void MouseCursor::setCursor(MouseCursorType type)
+void MouseCursor::setCursor(Type type)
 {
+    if (m_cursorType == type)
+        return;
+
     if (m_cursor)
         SDL_DestroyCursor(m_cursor);
 

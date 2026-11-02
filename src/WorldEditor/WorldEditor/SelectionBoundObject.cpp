@@ -3,6 +3,9 @@
 #include "Viewer.h"
 #include "CommandProxy.h"
 #include "ContextualObjectMenu.h"
+#include "MouseCursor.h"
+
+constexpr float EDGE_THRESHOLD = 15.0f;
 
 std::string SelectionBoundsObject::getTypeName() const
 {
@@ -64,31 +67,118 @@ bool SelectionBoundsObject::leftClick(point2D pos)
     if (!target)
         return false;
 
-    m_grabOffset = target->getPos() - toTargetSpace(pos);
+    // Verify if we are close to a edge or a corner.
+    auto posInTarget = toTargetSpace(pos);
+    switch (getEdge(posInTarget))
+    {
+    case TOP_LEFT:
+        m_logger->log("SelectionBoundsObject::leftClick() - clicked the top-left corner");
+        m_edgeAction = EdgeAction::Resize_NW;
+        break;
+    case TOP_RIGHT:
+        m_logger->log("SelectionBoundsObject::leftClick() - clicked the top-right corner");
+        m_edgeAction = EdgeAction::Resize_NE;
+        break;
+    case BOTTOM_LEFT:
+        m_logger->log("SelectionBoundsObject::leftClick() - clicked the bottom-left corner");
+        m_edgeAction = EdgeAction::Resize_SW;
+        break;
+    case BOTTOM_RIGHT:
+        m_logger->log("SelectionBoundsObject::leftClick() - clicked the bottom-right corner");
+        m_edgeAction = EdgeAction::Resize_SE;
+        break;
+    case TOP:
+        m_logger->log("SelectionBoundsObject::leftClick() - clicked the top edge");
+        m_edgeAction = EdgeAction::Resize_N;
+        break;
+    case BOTTOM:
+        m_logger->log("SelectionBoundsObject::leftClick() - clicked the bottom edge");
+        m_edgeAction = EdgeAction::Resize_S;
+        break;
+    case LEFT:
+        m_logger->log("SelectionBoundsObject::leftClick() - clicked the left edge");
+        m_edgeAction = EdgeAction::Resize_W;
+        break;
+    case RIGHT:
+        m_logger->log("SelectionBoundsObject::leftClick() - clicked the right edge");
+        m_edgeAction = EdgeAction::Resize_E;
+        break;
+    default:
+        m_logger->log("SelectionBoundsObject::leftClick() - clicked outside of edges");
+        m_grabOffset = target->getPos() - posInTarget;
+        m_edgeAction = EdgeAction::Grab;
+        break;
+    }
+
     return true;
 }
 
 bool SelectionBoundsObject::releaseLeftClick(point2D pos)
 {
+    m_edgeAction = EdgeAction::None;
     return target != nullptr;
 }
 
 void SelectionBoundsObject::dragTarget(point2D windowPos)
 {
-    if (target && isLeftClicked())
-        target->setPos(toTargetSpace(windowPos) + m_grabOffset);
+    target->setPos(toTargetSpace(windowPos) + m_grabOffset);
+}
+
+void SelectionBoundsObject::updateCursor(point2D pos)
+{
+    auto posInTarget = toTargetSpace(pos);
+    auto mouse = MouseCursor::getInstance();
+
+    switch (getEdge(posInTarget))
+    {
+    case TOP_LEFT:
+        mouse->setCursor(MouseCursor::NW_Resize);
+        break;
+    case TOP_RIGHT:
+        mouse->setCursor(MouseCursor::NE_Resize);
+        break;
+    case BOTTOM_LEFT:
+        mouse->setCursor(MouseCursor::SW_Resize);
+        break;
+    case BOTTOM_RIGHT:
+        mouse->setCursor(MouseCursor::SE_Resize);
+        break;
+    case TOP:
+        mouse->setCursor(MouseCursor::N_Resize);
+        break;
+    case BOTTOM:
+        mouse->setCursor(MouseCursor::S_Resize);
+        break;
+    case LEFT:
+        mouse->setCursor(MouseCursor::W_Resize);
+        break;
+    case RIGHT:
+        mouse->setCursor(MouseCursor::E_Resize);
+        break;
+    default:
+        mouse->setCursor(MouseCursor::Move);
+        break;
+    }
 }
 
 void SelectionBoundsObject::hover(point2D pos)
 {
     Object::hover(pos);
-    dragTarget(pos);
+    if (target && m_edgeAction == EdgeAction::Grab)
+        dragTarget(pos);
+    else
+    {
+        updateCursor(pos);
+    }
+
 }
 
 void SelectionBoundsObject::leftFocus(point2D pos)
 {
     Object::leftFocus(pos);
-    dragTarget(pos);
+    if (target && m_edgeAction == EdgeAction::Grab)
+        dragTarget(pos);
+    MouseCursor::getInstance()->setCursor(MouseCursor::Default);
 }
 
 bool SelectionBoundsObject::rightClick(point2D pos)
@@ -98,7 +188,7 @@ bool SelectionBoundsObject::rightClick(point2D pos)
 
 bool SelectionBoundsObject::releaseRightClick(point2D pos)
 {
-    std::cout << "Right click on SelectionBoundsObject" << std::endl;
+    m_logger->info("Right click on SelectionBoundsObject");
     if (!target)
         return false;
 
@@ -193,4 +283,79 @@ void SelectionBoundsObject::setupCallbacks()
             return result;
         });
     }
+}
+
+const EdgeType SelectionBoundsObject::getEdge(point2D pos) const
+{
+    EdgeType output{NONE};
+
+    if (!target)
+        return output;
+
+    auto shape = target->getShape();
+
+    if ( std::abs(pos.x - shape.position.x) < EDGE_THRESHOLD || 
+        std::abs(pos.x - (shape.position.x + shape.size.w)) < EDGE_THRESHOLD ||
+        std::abs(pos.y - shape.position.y) < EDGE_THRESHOLD || 
+        std::abs(pos.y - (shape.position.y + shape.size.h)) < EDGE_THRESHOLD )
+    {
+        // We are on an edge
+
+        if ( std::abs(shape.position.x - pos.x) < EDGE_THRESHOLD )
+        {
+            // We are on the left edge
+            if ( std::abs(shape.position.y - pos.y) < EDGE_THRESHOLD )
+            {
+                m_logger->log("Edge detected on the top left corner");
+                output = TOP_LEFT;
+            }
+            else if ( std::abs((shape.position.y + shape.size.h) - pos.y) < EDGE_THRESHOLD )
+            {
+                m_logger->log("Edge detected on the bottom left corner");
+                output = BOTTOM_LEFT;
+            }
+            else
+            {
+                m_logger->log("Edge detected on the left side");
+                output = LEFT;
+            }
+        }
+        else if ( std::abs((shape.position.x + shape.size.w) - pos.x) < EDGE_THRESHOLD )
+        {
+            // We are on the right edge
+            if ( std::abs(shape.position.y - pos.y) < EDGE_THRESHOLD )
+            {
+                m_logger->log("Edge detected on the top right corner");
+                output = TOP_RIGHT;
+            }
+            else if ( std::abs((shape.position.y + shape.size.h) - pos.y) < EDGE_THRESHOLD )
+            {
+                m_logger->log("Edge detected on the bottom right corner");
+                output = BOTTOM_RIGHT;
+            }
+            else
+            {
+                m_logger->log("Edge detected on the right side");
+                output = RIGHT;
+            }
+        }
+        else if ( std::abs(shape.position.y - pos.y) < EDGE_THRESHOLD )
+        {
+            // We are on the top edge
+            m_logger->log("Edge detected on the top side");
+            output = TOP;
+        }
+        else if ( std::abs((shape.position.y + shape.size.h) - pos.y) < EDGE_THRESHOLD )
+        {
+            // We are on the bottom edge
+            m_logger->log("Edge detected on the bottom side");
+            output = BOTTOM;
+        }
+    }
+    else
+    {
+        m_logger->info("No edge detected : " + shape.toString() + " - " + pos.toString());
+    }
+
+    return output;
 }
