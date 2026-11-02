@@ -25,7 +25,7 @@ namespace Components
 class Logger
 {
     public:
-        static Logger* getInstance(const std::string& component = "Logger");
+        static Logger* getInstance(const std::string& component);
         static Logger* getInstance(Components::Components component);
         ~Logger() = default;
 

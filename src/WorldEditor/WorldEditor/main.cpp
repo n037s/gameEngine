@@ -12,6 +12,7 @@
 
 #include "ObjectDropDown.h"
 #include "ObjectEditor.h"
+#include "MouseCursor.h"
 
 #include <iostream>
 #include <sstream>
@@ -166,6 +167,12 @@ int main(int argc, char* argv[])
     cmdProxy.bindCallback(SDLK_LEFT, &CameraControl::moveLeft);
     cmdProxy.bindCallback(SDLK_C, &CameraControl::toggleViewMode);
     cmdProxy.bindCallback(SDLK_ESCAPE, Viewer::stopLoop);
+    cmdProxy.bindCallback(SDLK_P, [] { return true;}, 
+        [] { 
+        auto mouseCursorManager = MouseCursor::getInstance();
+        auto cursorType = mouseCursorManager->getCursorType();
+        mouseCursorManager->setCursor((cursorType + 1 <= MouseCursorType::None) ? static_cast<MouseCursorType>(cursorType + 1) : MouseCursorType::Default); 
+        return true;});
 
     world.setWheelCallback([](float dz) { return CameraControl::getInstance().moveZ(dz); });
     world.setLeftClickCallback([](const point2D& clickPosition) { ObjectEditor::getInstance().updateSelectedObject(clickPosition); });
