@@ -123,7 +123,7 @@ bool SelectionBoundsObject::releaseLeftClick(point2D pos)
 
 void SelectionBoundsObject::dragTarget(point2D windowPos)
 {
-    target->setPos(toTargetSpace(windowPos) + m_grabOffset);
+    target->setPos((toTargetSpace(windowPos) + m_grabOffset).round());
 }
 
 void SelectionBoundsObject::updateCursor(point2D pos)
