@@ -1,98 +1,127 @@
 #include "CommandProxy.h"
 
-CommandProxy::CommandProxy()
+#include <algorithm>
+#include <string>
+
+CommandProxy::CommandProxy() : m_logger(Logger::getInstance(Components::Viewer))
 {
-	m_callbacks = std::map<SDL_Keycode, callbackFunction>();
-	m_runningCallbacks = std::list<SDL_Keycode>();
 }
 
-const bool CommandProxy::bindCallback(const SDL_Keycode keycode, const callbackFunction& callback, const callbackFunction& onRelease)
+SDL_Keymod CommandProxy::normalizeModifiers(SDL_Keymod modifiers)
 {
-	bool success = false;
-
-	if (m_callbacks.find(keycode) == m_callbacks.end()) // no callback already exists
+	SDL_Keymod normalized = SDL_KMOD_NONE;
+	for (SDL_Keymod group : { SDL_KMOD_CTRL, SDL_KMOD_ALT, SDL_KMOD_SHIFT, SDL_KMOD_GUI })
 	{
-		m_callbacks[keycode] = callback;
-		if (onRelease != nullptr)
-		{
-			m_onReleaseCallbacks[keycode] = onRelease;
-		}
-		success = true;
+		if (modifiers & group)
+			normalized |= group;
 	}
-
-	return success;
+	return normalized;
 }
 
-const bool CommandProxy::unbindCallback(const SDL_Keycode keycode)
+const bool CommandProxy::bindCallback(const Key keycode, const callbackFunction& callback, const callbackFunction& onRelease)
 {
-	bool success = false;
+	const Key binding = Key::fromSDL(keycode.getKeycode(), normalizeModifiers(keycode.getModifierMask()));
+	if (!m_callbacks.emplace(binding, callback).second)
+	{
+		m_logger->error("Callback already exists for keycode " + std::to_string(keycode.getKeycode()) +
+			" with modifiers " + std::to_string(keycode.getModifierMask()));
+		return false;
+	}
+	if (onRelease)
+		m_onReleaseCallbacks.emplace(binding, onRelease);
+	return true;
+}
 
-	if (m_callbacks.find(keycode) != m_callbacks.end()) // the callback exists
-	{
-		m_callbacks.erase(keycode);
-		success = true;
-	}
-	if (m_onReleaseCallbacks.find(keycode) != m_onReleaseCallbacks.end()) // the callback exists
-	{
-		m_onReleaseCallbacks.erase(keycode);
-	}
-	
-	return success;
+const bool CommandProxy::unbindCallback(const Key keycode)
+{
+	const Key binding = Key::fromSDL(keycode.getKeycode(), normalizeModifiers(keycode.getModifierMask()));
+	m_onReleaseCallbacks.erase(binding);
+	m_runningCallbacks.remove(binding);
+	return m_callbacks.erase(binding) != 0;
 }
 
 const bool CommandProxy::clearCallbacks()
 {
 	bool success = true;
 
-	m_callbacks = std::map<SDL_Keycode, callbackFunction>();
-	m_onReleaseCallbacks = std::map<SDL_Keycode, callbackFunction>();
+	m_callbacks.clear();
+	m_onReleaseCallbacks.clear();
+	m_pressedKeys.clear();
+	m_runningCallbacks.clear();
 
 	return success;
 }
 
-const bool CommandProxy::runCallback(const SDL_Keycode keycode) const
+CommandProxy::CallbackMap::const_iterator CommandProxy::findCallback(const Key keycode) const
 {
-	bool success = false;
+	const SDL_Keymod normalized = normalizeModifiers(keycode.getModifierMask());
+	const auto callback = m_callbacks.find(Key::fromSDL(keycode.getKeycode(), normalized));
+	if (callback != m_callbacks.end() || normalized == SDL_KMOD_NONE)
+		return callback;
+	return m_callbacks.find(Key(keycode.getKeycode()));
+}
 
-	auto callback = m_callbacks.find(keycode);
-	if (callback != m_callbacks.end()) // callback is found
-	{
-		success = (callback->second)();
-	}
-
-	return success;
+const bool CommandProxy::runCallback(const Key keycode) const
+{
+	const auto callback = findCallback(keycode);
+	return callback != m_callbacks.end() && (callback->second)();
 }
 
 const void CommandProxy::runCallbacks() const
 {
-	for (SDL_Keycode keycode : m_runningCallbacks)
+	const auto runningCallbacks = m_runningCallbacks;
+	for (const Key& binding : runningCallbacks)
 	{
-		runCallback(keycode);
+		if (std::find(m_runningCallbacks.begin(), m_runningCallbacks.end(), binding) != m_runningCallbacks.end())
+			runCallback(binding);
 	}
 }
 
-bool CommandProxy::addRunningCallback(const SDL_Keycode keycode)
+bool CommandProxy::addRunningCallback(const Key keycode)
 {
-	bool success = false;
-	auto keycodeIterator = std::find(m_runningCallbacks.begin(), m_runningCallbacks.end(), keycode);
-	if (keycodeIterator == m_runningCallbacks.end())
-	{
-		m_runningCallbacks.push_back(keycode);
-		success = true;
-	}
-	return success;
+	const SDL_Keycode pressedKey = keycode.getKeycode();
+	const bool added = std::find(m_pressedKeys.begin(), m_pressedKeys.end(), pressedKey) == m_pressedKeys.end();
+	if (added)
+		m_pressedKeys.push_back(pressedKey);
+	updateRunningCallbacks(keycode.getModifierMask());
+	return added;
 }
 
-void CommandProxy::removeRunningCallback(const SDL_Keycode keycode)
+void CommandProxy::removeRunningCallback(const Key keycode)
 {
-	auto keycodeIterator = std::find(m_runningCallbacks.begin(), m_runningCallbacks.end(), keycode);
-	if (keycodeIterator != m_runningCallbacks.end())
+	m_pressedKeys.remove(keycode.getKeycode());
+	updateRunningCallbacks(keycode.getModifierMask());
+}
+
+void CommandProxy::updateRunningCallbacks(SDL_Keymod modifiers)
+{
+	std::list<Key> nextCallbacks;
+	for (SDL_Keycode keycode : m_pressedKeys)
 	{
-		m_runningCallbacks.erase(keycodeIterator);
-		auto onReleaseCallback = m_onReleaseCallbacks.find(keycode);
-		if (onReleaseCallback != m_onReleaseCallbacks.end()) // callback is found
+		SDL_Keymod keyModifiers = modifiers;
+		switch (keycode)
 		{
-			(onReleaseCallback->second)();
+		case SDLK_LCTRL: case SDLK_RCTRL: keyModifiers &= ~SDL_KMOD_CTRL; break;
+		case SDLK_LALT: case SDLK_RALT: keyModifiers &= ~SDL_KMOD_ALT; break;
+		case SDLK_LSHIFT: case SDLK_RSHIFT: keyModifiers &= ~SDL_KMOD_SHIFT; break;
+		case SDLK_LGUI: case SDLK_RGUI: keyModifiers &= ~SDL_KMOD_GUI; break;
+		}
+		const auto callback = findCallback(Key::fromSDL(keycode, keyModifiers));
+		if (callback != m_callbacks.end())
+			nextCallbacks.push_back(callback->first);
+	}
+	const auto previousCallbacks = m_runningCallbacks;
+	m_runningCallbacks = nextCallbacks;
+	for (const Key& binding : previousCallbacks)
+	{
+		if (std::find(nextCallbacks.begin(), nextCallbacks.end(), binding) == nextCallbacks.end())
+		{
+			auto onReleaseCallback = m_onReleaseCallbacks.find(binding);
+			if (onReleaseCallback != m_onReleaseCallbacks.end())
+			{
+				const auto callback = onReleaseCallback->second;
+				callback();
+			}
 		}
 	}
 }

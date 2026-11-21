@@ -69,10 +69,13 @@ class SelectionBoundsObject final : public Object, public BaseController
 		point2D toTargetSpace(point2D windowPos) const;
 		void dragTarget(point2D windowPos);
 		void updateCursor(point2D pos);
+		ObjectPtr copyObject(const ObjectPtr& object) const;
+		bool addCopy(const ObjectPtr& object, point2D position);
 
 		const EdgeType getEdge(point2D pos) const;
 
 		ObjectPtr target;
+		ObjectPtr m_clipboard;
 		std::weak_ptr<ContextualObjectMenu> m_contextMenu;
 		point2D m_grabOffset{ 0, 0 };
 		EdgeAction m_edgeAction{ EdgeAction::None };

@@ -70,7 +70,11 @@ public:
 	~ObjectMemberHolder();
 
 	template<typename T>
-	void addMember(std::string member_name, T value) { m_list[member_name] = new Value(value); }
+	void addMember(std::string member_name, T value) {
+		auto& member = m_list[member_name];
+		delete member;
+		member = new Value(value);
+	}
 
 	template<typename U>
 	U getMember(std::string member_name, U defaultValue = U{}) const {

@@ -3,7 +3,9 @@
 #include "Viewer.h"
 #include "CommandProxy.h"
 #include "ContextualObjectMenu.h"
+#include "Mouse.h"
 #include "MouseCursor.h"
+#include "ObjectManager.h"
 
 constexpr float EDGE_THRESHOLD = 15.0f;
 
@@ -218,6 +220,35 @@ const std::vector<timeoutItem> objectControlTimeouts = {
     timeoutItem(MOVE_UP, 100)
 };
 
+ObjectPtr SelectionBoundsObject::copyObject(const ObjectPtr& object) const
+{
+    if (!object || object->getTypeName() == "Player")
+        return nullptr;
+
+    auto members = object->serialize();
+    members.addMember("UID", UIDGenerator::generateUID());
+    return ObjectManager::createObject(object->getTypeName(), members);
+}
+
+bool SelectionBoundsObject::addCopy(const ObjectPtr& object, point2D position)
+{
+    auto viewer = Viewer::getInstance();
+    auto world = viewer->getWorld();
+    if (!world)
+        return false;
+
+    auto copy = copyObject(object);
+    if (!copy)
+        return false;
+    copy->setPos(position);
+    if (!copy->createRenderer(viewer->getRenderer()))
+        return false;
+    if (!world->addObject(copy))
+        return false;
+    setTarget(std::move(copy));
+    return true;
+}
+
 void SelectionBoundsObject::setupCallbacks()
 {
     auto cmdProxy = Viewer::getInstance()->getCommandProxy();
@@ -228,9 +259,31 @@ void SelectionBoundsObject::setupCallbacks()
     cmdProxy->unbindCallback(SDLK_S);
     cmdProxy->unbindCallback(SDLK_D);
     cmdProxy->unbindCallback(SDLK_Z);
+    cmdProxy->unbindCallback(Key(SDLK_C, { KeyModifier::Ctrl }));
+    cmdProxy->unbindCallback(Key(SDLK_D, { KeyModifier::Ctrl }));
+    cmdProxy->unbindCallback(Key(SDLK_V, { KeyModifier::Ctrl }));
+
+    cmdProxy->bindCallback(Key(SDLK_V, { KeyModifier::Ctrl }), [] { return true; }, [this] {
+        if (!m_clipboard)
+            return false;
+        point2D position = Mouse::getInstance()->getPos();
+        if (!m_clipboard->isSteady())
+            position = Camera::getInstance()->windowToWorldPoint(position);
+        return addCopy(m_clipboard, position);
+    });
 
     if ( target)
     {
+        cmdProxy->bindCallback(Key(SDLK_C, { KeyModifier::Ctrl }), [] { return true; }, [this] {
+            auto copy = copyObject(target);
+            if (!copy)
+                return false;
+            m_clipboard = std::move(copy);
+            return true;
+        });
+        cmdProxy->bindCallback(Key(SDLK_D, { KeyModifier::Ctrl }), [] { return true; }, [this] {
+            return target && addCopy(target, target->getPos() + point2D(20, 20));
+        });
         // We bind new callbacks to manage the object
         cmdProxy->bindCallback(SDLK_BACKSPACE, [this]() {
             bool result{false};

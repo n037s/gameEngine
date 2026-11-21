@@ -114,7 +114,7 @@ void Viewer::manageUserInput(SDL_Event event)
         const SDL_Keycode keycode = event.key.key;
 
         m_logger->info("key pressed : " + std::string(SDL_GetKeyName(keycode)) + " returns : " +
-            (m_commandProxy->addRunningCallback(keycode) ? "true" : "false"));
+            (m_commandProxy->addRunningCallback(Key::fromSDL(keycode, event.key.mod)) ? "true" : "false"));
         
         break;
     }
@@ -122,7 +122,7 @@ void Viewer::manageUserInput(SDL_Event event)
     {
         const SDL_Keycode keycode = event.key.key;
         m_logger->info("key released : " + std::string(SDL_GetKeyName(keycode)));
-        m_commandProxy->removeRunningCallback(keycode);
+        m_commandProxy->removeRunningCallback(Key::fromSDL(keycode, event.key.mod));
         break;
     }
     case SDL_EVENT_MOUSE_BUTTON_DOWN:

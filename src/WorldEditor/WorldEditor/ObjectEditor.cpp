@@ -34,7 +34,10 @@ void ObjectEditor::updateBoundaries()
 	if (!selectedObject)
 	{
 		if (boundariesObject)
+		{
+			std::static_pointer_cast<SelectionBoundsObject>(boundariesObject)->setTarget(nullptr);
 			boundariesObject->setIsHidden(true);
+		}
 		return;
 	}
 

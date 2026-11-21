@@ -10,12 +10,12 @@
     <component id="2" name="Utilities" rootdir="Utilities" template="library">
         <dependencies>
             <dependency id="11" />
+            <dependency id="1" />
         </dependencies>
     </component>
 
     <component id="3" name="ObjectManager" rootdir="ObjectManager" template="library">
         <dependencies>
-            <dependency id="1" />
             <dependency id="2" />
             <dependency id="11" />
         </dependencies>
