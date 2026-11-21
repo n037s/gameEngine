@@ -43,6 +43,11 @@ point2D point2D::operator/(const size2D& other) const noexcept
     return point2D(x / other.w, y / other.h); 
 }
 
+point2D point2D::round() const noexcept
+{
+    return point2D(int(x), int(y));
+}
+
 std::string point2D::toString() const 
 { 
     return "(" + std::to_string(x) + ";" + std::to_string(y) + ")"; 

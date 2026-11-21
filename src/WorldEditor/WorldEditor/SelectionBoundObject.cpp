@@ -303,7 +303,7 @@ void SelectionBoundsObject::setupCallbacks()
             if (target && checkTimeout(objectControlTimeouts.at(MOVE_LEFT)))
             {
                 std::cout << "moving object to the left" << std::endl;
-                target->setPos(target->getPos() + point2D(-dm, 0));
+                target->setPos(target->getPos().round() + point2D(-dm, 0));
                 result = true;
             }
             return result;
@@ -312,7 +312,7 @@ void SelectionBoundsObject::setupCallbacks()
             bool result{false};
             if (target && checkTimeout(objectControlTimeouts.at(MOVE_DOWN)))
             {
-                target->setPos(target->getPos() + point2D(0, dm));
+                target->setPos(target->getPos().round() + point2D(0, dm));
                 result = true;
             }
             return result;
@@ -321,7 +321,7 @@ void SelectionBoundsObject::setupCallbacks()
             bool result{false};
             if (target && checkTimeout(objectControlTimeouts.at(MOVE_RIGHT)))
             {
-                target->setPos(target->getPos() + point2D(dm, 0));
+                target->setPos(target->getPos().round() + point2D(dm, 0));
                 result = true;
             }
             return result;
@@ -330,7 +330,7 @@ void SelectionBoundsObject::setupCallbacks()
             bool result{false};
             if (target && checkTimeout(objectControlTimeouts.at(MOVE_UP)))
             {
-                target->setPos(target->getPos() + point2D(0, -dm));
+                target->setPos(target->getPos().round() + point2D(0, -dm));
                 result = true;
             }
             return result;

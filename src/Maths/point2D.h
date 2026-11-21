@@ -20,6 +20,7 @@ public:
     point2D operator-(const size2D& other) const noexcept;
     point2D operator*(const size2D& other) const noexcept;
     point2D operator/(const size2D& other) const noexcept;
+    point2D round() const noexcept;
     std::string toString() const;
 
     SDL_FPoint toSDL() const noexcept { return SDL_FPoint{ x, y }; }
