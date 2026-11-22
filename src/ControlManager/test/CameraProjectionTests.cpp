@@ -38,6 +38,20 @@ namespace
     {
     public:
         using Object::Object;
+        std::vector<const Object*>* drawOrder{nullptr};
+        mutable size_t shapeQueries{0};
+        const rect2D getShape() const override
+        {
+            ++shapeQueries;
+            return Object::getShape();
+        }
+        bool render() override
+        {
+            if (!drawOrder)
+                return Object::render();
+            drawOrder->push_back(this);
+            return true;
+        }
         bool createRenderer(SDL_Renderer* renderer) override
         {
             SDL_Surface* surface = SDL_CreateSurface(8, 8, SDL_PIXELFORMAT_RGBA32);
@@ -298,6 +312,46 @@ namespace
         UT_EXPECT(scenario, red == (mode == Camera::ViewMode::Isometric ? 0 : 255));
     }
 
+    void worldDepthOrdering(UnitTest::Scenario& scenario, CameraFixture& fixture, bool steady)
+    {
+        World world;
+        world.createCamera(point2D(0, 0), size2D(256, 256));
+        fixture.camera->setIsometricAngles(50, 0);
+        fixture.camera->setViewMode(Camera::ViewMode::Isometric);
+        std::vector<const Object*> drawOrder;
+        auto front = std::make_shared<TestObject>(point2D(-10, -60), size2D(20, 100));
+        auto back = std::make_shared<TestObject>(point2D(-10, -10), size2D(20, 20));
+        front->setSteady(steady);
+        back->setSteady(true);
+        front->drawOrder = &drawOrder;
+        back->drawOrder = &drawOrder;
+        world.addObject(front);
+        world.addObject(back);
+        const auto expectOrder = [&](const Object* first, const Object* second) {
+            drawOrder.clear();
+            world.render(nullptr);
+            UT_REQUIRE(scenario, drawOrder.size() == 2);
+            UT_EXPECT(scenario, drawOrder[0] == first && drawOrder[1] == second);
+        };
+        expectOrder(back.get(), front.get());
+        front->setPos(point2D(-10, -100));
+        expectOrder(front.get(), back.get());
+        fixture.camera->setIsometricAngles(50, 180);
+        expectOrder(back.get(), front.get());
+        front->setZ(-1);
+        expectOrder(front.get(), back.get());
+        front->setZ(0);
+        fixture.camera->setViewMode(Camera::ViewMode::TopDown);
+        expectOrder(front.get(), back.get());
+        fixture.camera->setViewMode(Camera::ViewMode::Isometric);
+        expectOrder(back.get(), front.get());
+        world.removeObject(front);
+        world.removeObject(back);
+        world.addOverlayObject(front);
+        world.addOverlayObject(back);
+        expectOrder(front.get(), back.get());
+    }
+
     void worldRendering(UnitTest::Scenario& scenario, RenderingFixture& fixture, bool steady)
     {
         const auto renderer = fixture.renderer;
@@ -323,6 +377,42 @@ namespace
 int main()
 {
     UnitTest::Environment tests("Camera projection");
+    tests.addScenario<CameraFixture>("Unchanged isometric frames only check ordering linearly", [](UnitTest::Scenario& scenario, CameraFixture& fixture) {
+        World world;
+        world.createCamera(point2D(0, 0), size2D(256, 256));
+        fixture.camera->setViewMode(Camera::ViewMode::Isometric);
+        fixture.camera->setIsometricAngles(50, 0);
+        std::vector<const Object*> drawOrder;
+        std::vector<std::shared_ptr<TestObject>> objects;
+        for (size_t index = 0; index < 32; ++index)
+        {
+            auto object = std::make_shared<TestObject>(point2D(0, static_cast<float>(index)), size2D(8, 8));
+            object->drawOrder = &drawOrder;
+            world.addObject(object);
+            objects.push_back(object);
+        }
+        for (size_t frame = 0; frame < 2; ++frame)
+        {
+            for (const auto& object : objects)
+                object->shapeQueries = 0;
+            drawOrder.clear();
+            world.render(nullptr);
+            UT_REQUIRE(scenario, drawOrder.size() == objects.size());
+            size_t shapeQueries = 0;
+            for (size_t index = 0; index < objects.size(); ++index)
+            {
+                shapeQueries += objects[index]->shapeQueries;
+                UT_EXPECT(scenario, drawOrder[index] == objects[index].get());
+            }
+            UT_EXPECT(scenario, shapeQueries <= 4 * objects.size());
+        }
+    });
+    tests.addScenario<CameraFixture>("Steady objects follow projected anchor depth", [](UnitTest::Scenario& scenario, CameraFixture& fixture) {
+        worldDepthOrdering(scenario, fixture, true);
+    });
+    tests.addScenario<CameraFixture>("Ground and steady objects share projected depth ordering", [](UnitTest::Scenario& scenario, CameraFixture& fixture) {
+        worldDepthOrdering(scenario, fixture, false);
+    });
     tests.addScenario("Vector scaling preserves both coordinates", [](UnitTest::Scenario& scenario) {
         const vector2D displacement = point2D(7, 11) - point2D(1, 3);
         UT_EXPECT(scenario, nearPoint(displacement, point2D(6, 8)));

@@ -1,4 +1,5 @@
 #include "World.h"
+#include <algorithm>
 #include <iostream>
 #include <fstream>
 
@@ -132,9 +133,19 @@ void World::sortObjectsByZ()
 
 void World::sortObjectListByZ(std::list<ObjectPtr>& object_list)
 {
-	object_list.sort([](const ObjectPtr& a, const ObjectPtr& b) {
-		return *a < b.get();
-	});
+	const bool sortByDepth = &object_list == &m_objects && m_camera
+		&& m_camera->getViewMode() == Camera::ViewMode::Isometric;
+	const auto less = [this, sortByDepth](const ObjectPtr& first, const ObjectPtr& second) {
+		if (first->getZ() != second->getZ() || !sortByDepth)
+			return first->getZ() < second->getZ();
+		const rect2D firstShape = first->getShape();
+		const rect2D secondShape = second->getShape();
+		const point2D firstAnchor = firstShape.position + point2D(firstShape.size.w / 2, firstShape.size.h);
+		const point2D secondAnchor = secondShape.position + point2D(secondShape.size.w / 2, secondShape.size.h);
+		return m_camera->worldToWindowPoint(firstAnchor).y < m_camera->worldToWindowPoint(secondAnchor).y;
+	};
+	if (!std::is_sorted(object_list.begin(), object_list.end(), less))
+		object_list.sort(less);
 }
 
 void World::render(SDL_Renderer* renderer)
@@ -143,6 +154,8 @@ void World::render(SDL_Renderer* renderer)
 	if (!m_camera)
 		return;
 	
+	sortObjectListByZ(m_objects);
+
 	// retrieve objects to displays and with camera render them at good position
 	const rect2D renderingRect(point2D(0, 0), m_camera->getWindowSize());
 
@@ -227,6 +240,7 @@ void World::Hovering(const point2D pos)
 {
 	if (!m_camera)
 		return;
+	sortObjectListByZ(m_objects);
 	const rect2D mouseRect = rect2D(pos, clickingPrecisionArea);
 	m_hoveredObject = nullptr;
 
