@@ -15,6 +15,7 @@ public:
     void generateTexture();
 
     void setColor(SDL_Color color);
+    void setLabel(const std::string& label, FontPtr font = nullptr);
     void setPreview(Image* preview);
 
 private:

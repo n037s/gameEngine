@@ -22,7 +22,7 @@ void DropDownMenuRenderer::clearItems()
 	m_objects.clear();
 }
 
-void DropDownMenuRenderer::addItem(ButtonRenderer* object, point2D position)
+void DropDownMenuRenderer::addItem(BaseRenderer* object, point2D position)
 {
 	m_objects.emplace_back(object, position);
 }

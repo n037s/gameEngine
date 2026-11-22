@@ -128,7 +128,7 @@ void DropDownMenu::updateRendererMenu()
 		{
 			if (!item->getRenderer())
 				item->createRenderer(sdl_renderer);
-			auto item_renderer = dynamic_cast<ButtonRenderer*>(item->getRenderer());
+			auto item_renderer = item->getRenderer();
 			if (item_renderer)
 				renderer->addItem(item_renderer, item->getPos() - m_pos);
 		}
@@ -183,6 +183,19 @@ void DropDownMenu::addItem(const std::string& ID, const std::string& callbackID,
 
 	if (m_renderer)
 		display(nullptr);
+}
+
+void DropDownMenu::addObject(const std::string& label, ObjectPtr object)
+{
+	if (!object)
+		return;
+	if (!m_items)
+		m_items = std::make_shared<Item>("main", true);
+	auto item = std::make_shared<Item>(label, false);
+	item->object = std::move(object);
+	m_items->items.push_back(item);
+	if (m_renderer)
+		display(nullptr, 0, true);
 }
 
 ItemPtr DropDownMenu::getChildItem(const std::string& label, ItemPtr parent) const
@@ -324,6 +337,12 @@ void DropDownMenu::displayColumn(ItemPtr menu, point2D position, float parentWid
 		{
 			button = previous->first;
 			button->leftFocus(position);
+			m_objectList.push_back(button);
+		}
+		else if (item->object)
+		{
+			button = item->object;
+			button->setSize(size2D(width, m_itemSize.h));
 			m_objectList.push_back(button);
 		}
 		else
@@ -550,10 +569,42 @@ bool DropDownMenu::releaseLeftClick(point2D pos)
 		if (item->isLeftClicked())
 		{
 			item->offLeftClick(pos);
+			if (item->wantsTextInput())
+				m_textInputItem = item;
+			updateRenderer();
 			return true;
 		}
 	}
 	return true;
+}
+
+bool DropDownMenu::wantsTextInput() const
+{
+	const auto item = m_textInputItem.lock();
+	return item && item->wantsTextInput();
+}
+
+void DropDownMenu::handleTextInput(const std::string& text)
+{
+	if (const auto item = m_textInputItem.lock())
+		item->handleTextInput(text);
+	updateRenderer();
+}
+
+void DropDownMenu::handleTextKey(SDL_Keycode key, SDL_Keymod modifiers)
+{
+	if (const auto item = m_textInputItem.lock())
+		item->handleTextKey(key, modifiers);
+	updateRenderer();
+}
+
+void DropDownMenu::finishTextInput(bool commit)
+{
+	const auto item = m_textInputItem.lock();
+	m_textInputItem.reset();
+	if (item)
+		item->finishTextInput(commit);
+	updateRenderer();
 }
 
 bool DropDownMenu::scroll(float dz)

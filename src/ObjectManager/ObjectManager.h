@@ -8,6 +8,7 @@
 
 #include "AnimatedSprite.h"
 #include "Button.h"
+#include "IntSelector.h"
 #include "FrameRateText.h"
 #include "Sprite.h"
 #include "Text.h"
@@ -54,6 +55,7 @@ struct ObjectRegister {
 // ===== Objects Registration =====
 static ObjectRegister AnimatedSpriteReg("AnimatedSprite", [](const ObjectMemberHolder& members) { return std::make_shared<AnimatedSprite>(members); });
 static ObjectRegister ButtonReg("Button", [](const ObjectMemberHolder& members) { return std::make_shared<Button>(members); });
+static ObjectRegister IntSelectorReg("IntSelector", [](const ObjectMemberHolder& members) { return std::make_shared<IntSelector>(members); });
 static ObjectRegister FrameRateTextReg("FrameRateText", [](const ObjectMemberHolder& members) { return std::make_shared<FrameRateText>(members); });
 static ObjectRegister SpriteReg("Sprite", [](const ObjectMemberHolder& members) { return std::make_shared<Sprite>(members); });
 static ObjectRegister TextReg("Text", [](const ObjectMemberHolder& members) { return std::make_shared<Text>(members); });

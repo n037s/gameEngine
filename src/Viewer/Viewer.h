@@ -24,7 +24,7 @@ public:
 	SDL_Window* getWindow() const { return m_window; }
 	SDL_Renderer* getRenderer() const { return m_renderer; }
 
-	void setWorld(World* world) { m_world = world; }
+	void setWorld(World* world);
 	World* getWorld() { return m_world; }
 	void setCommandProxy(CommandProxy* cmdProxy) { m_commandProxy = cmdProxy; }
 	CommandProxy* getCommandProxy() const { return m_commandProxy; }
@@ -36,6 +36,7 @@ public:
 private:
 	Viewer();
 	~Viewer();
+	void syncTextInput();
 
 	Logger* m_logger{ nullptr };
 

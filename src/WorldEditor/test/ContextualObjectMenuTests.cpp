@@ -4,6 +4,7 @@
 #include "Viewer.h"
 #include "Sprite.h"
 #include "AnimatedSprite.h"
+#include "IntSelector.h"
 #include "AssetsManager.h"
 #include "Camera.h"
 #include "SelectionBoundObject.h"
@@ -560,6 +561,118 @@ void contextualPreviewItems(UnitTest::Scenario& scenario, MenuFixture& fixture)
         && !item->previewAnimation);
 }
 
+void selectorViewerInput(UnitTest::Scenario& scenario, RenderingFixture& fixture)
+{
+    auto viewer = Viewer::getInstance();
+    viewer->setWorld(&fixture.world);
+    auto selector = std::make_shared<IntSelector>(rect2D(10, 10, 150, 30), 8,
+        Color(180, 180, 180, 255), std::make_shared<Font>("arial", 20.0f), Color(0, 0, 0, 255));
+    UT_REQUIRE(scenario, selector->createRenderer(fixture.renderer));
+    fixture.world.addOverlayObject(selector);
+    int calls = 0;
+    int releases = 0;
+    fixture.commandProxy.bindCallback(Key(SDLK_A), [&calls] { ++calls; return true; },
+        [&releases] { ++releases; return true; });
+    fixture.commandProxy.addRunningCallback(Key(SDLK_A));
+
+    SDL_Event event{};
+    event.type = SDL_EVENT_MOUSE_BUTTON_DOWN;
+    event.button.button = SDL_BUTTON_LEFT;
+    event.button.x = 80;
+    event.button.y = 25;
+    viewer->manageUserInput(event);
+    event.type = SDL_EVENT_MOUSE_BUTTON_UP;
+    viewer->manageUserInput(event);
+    UT_REQUIRE(scenario, fixture.world.hasTextInputFocus());
+    UT_EXPECT(scenario, releases == 1);
+    event = {};
+    event.type = SDL_EVENT_KEY_DOWN;
+    event.key.key = SDLK_A;
+    viewer->manageUserInput(event);
+    fixture.commandProxy.runCallbacks();
+    UT_EXPECT(scenario, calls == 0);
+    event = {};
+    event.type = SDL_EVENT_TEXT_INPUT;
+    event.text.text = "-345";
+    viewer->manageUserInput(event);
+    event = {};
+    event.type = SDL_EVENT_KEY_DOWN;
+    event.key.key = SDLK_RETURN;
+    viewer->manageUserInput(event);
+    UT_EXPECT(scenario, selector->getValue() == -345 && !fixture.world.hasTextInputFocus());
+    event = {};
+    event.type = SDL_EVENT_MOUSE_BUTTON_DOWN;
+    event.button.button = SDL_BUTTON_LEFT;
+    event.button.x = 80;
+    event.button.y = 25;
+    viewer->manageUserInput(event);
+    event.type = SDL_EVENT_MOUSE_BUTTON_UP;
+    viewer->manageUserInput(event);
+    event = {};
+    event.type = SDL_EVENT_TEXT_INPUT;
+    event.text.text = "12";
+    viewer->manageUserInput(event);
+    event = {};
+    event.type = SDL_EVENT_WINDOW_FOCUS_LOST;
+    viewer->manageUserInput(event);
+    UT_EXPECT(scenario, selector->getValue() == 12 && !fixture.world.hasTextInputFocus());
+}
+
+void contextualZSelector(UnitTest::Scenario& scenario, RenderingFixture& fixture)
+{
+    auto viewer = Viewer::getInstance();
+    viewer->setWorld(&fixture.world);
+    fixture.target->setZ(2.4f);
+    auto other = std::make_shared<MenuTarget>();
+    other->setZ(5.0f);
+    fixture.world.addOverlayObject(other);
+    auto menu = std::make_shared<ContextualObjectMenu>(fixture.target, point2D(10, 10), fixture.world);
+    UT_REQUIRE(scenario, menu->createRenderer(fixture.renderer));
+    fixture.world.addOverlayObject(menu);
+    const auto steady = menu->getChildItem("set Steady", nullptr);
+    const auto item = menu->getChildItem("Z", nullptr);
+    UT_REQUIRE(scenario, steady && item);
+    const auto selector = std::dynamic_pointer_cast<IntSelector>(item->object);
+    UT_REQUIRE(scenario, selector);
+    UT_EXPECT(scenario, selector->getValue() == 2 && fixture.target->getZ() == 2.4f
+        && selector->getPos().x == 10 && selector->getPos().y == 40);
+    auto surface = menu->getRenderer()->getSurface();
+    Uint8 red, green, blue, alpha;
+    UT_EXPECT(scenario, surface && SDL_ReadSurfacePixel(surface, 5, 35, &red, &green, &blue, &alpha)
+        && alpha > 0);
+
+    fixture.world.leftClick(point2D(80, 55));
+    fixture.world.releaseLeftClick(point2D(80, 55));
+    UT_REQUIRE(scenario, fixture.world.hasTextInputFocus());
+    fixture.world.textKey(SDLK_RETURN, SDL_KMOD_NONE);
+    UT_EXPECT(scenario, fixture.target->getZ() == 2.0f);
+
+    fixture.world.leftClick(point2D(175, 55));
+    fixture.world.releaseLeftClick(point2D(175, 55));
+    UT_EXPECT(scenario, selector->getValue() == 3 && fixture.target->getZ() == 3.0f && !menu->isHidden());
+    fixture.world.leftClick(point2D(15, 55));
+    fixture.world.releaseLeftClick(point2D(15, 55));
+    UT_EXPECT(scenario, selector->getValue() == 2 && fixture.target->getZ() == 2.0f);
+
+    fixture.world.leftClick(point2D(80, 55));
+    fixture.world.releaseLeftClick(point2D(80, 55));
+    UT_REQUIRE(scenario, fixture.world.hasTextInputFocus());
+    SDL_Event event{};
+    event.type = SDL_EVENT_TEXT_INPUT;
+    event.text.text = "6";
+    viewer->manageUserInput(event);
+    event = {};
+    event.type = SDL_EVENT_KEY_DOWN;
+    event.key.key = SDLK_RETURN;
+    viewer->manageUserInput(event);
+    UT_EXPECT(scenario, !fixture.world.hasTextInputFocus() && selector->getValue() == 6
+        && fixture.target->getZ() == 6.0f && !menu->isHidden());
+    fixture.world.Hovering(point2D(250, 250));
+    UT_EXPECT(scenario, fixture.world.getHoveredObject() == fixture.target);
+    fixture.world.leftClick(point2D(300, 250));
+    UT_EXPECT(scenario, menu->isHidden() && fixture.target->getZ() == 6.0f);
+}
+
 int main()
 {
     RenderingFixture::Runtime runtime;
@@ -594,10 +707,12 @@ int main()
     tests.addScenario<MenuFixture>("Asset categories are sorted and disjoint", assetCategories);
     tests.addScenario<MenuFixture>("Sprite menus exclude unsupported assets", filterSpriteAssets);
     tests.addScenario<MenuFixture>("Nested asset selection updates the sprite", selectNestedAsset);
+    tests.addScenario<RenderingFixture>("Context menu edits Z and updates object order", contextualZSelector);
     tests.addScenario<RenderingFixture>("Asset menu scrolls and selects visible entries", scrollAssetMenu);
     tests.addScenario<RenderingFixture>("Asset replacement refreshes the rendered texture", replaceRenderedSpriteAsset);
     tests.addScenario<RenderingFixture>("Wide menus remain inside the viewport", fitWideMenu);
     tests.addScenario<RenderingFixture>("Menu thumbnails render and animations advance", previewMenuItems);
     tests.addScenario<MenuFixture>("Context menus attach asset previews", contextualPreviewItems);
+    tests.addScenario<RenderingFixture>("Viewer routes text input without game commands", selectorViewerInput);
     return tests.run();
 }

@@ -52,6 +52,8 @@ bool World::addObject(const ObjectPtr object, std::list<ObjectPtr>& object_list)
 bool World::removeObject(const ObjectPtr object, std::list<ObjectPtr>& object_list)
 {
 	bool success = false;
+	if (m_textInputFocus.lock() == object)
+		finishTextInput();
 
 	auto target = std::find(object_list.begin(), object_list.end(), object);
 	if (target != object_list.end())
@@ -168,8 +170,11 @@ void World::render(SDL_Renderer* renderer)
 		}
 	}
 }
+
 void World::update()
 {
+	if (auto focused = m_textInputFocus.lock(); focused && (focused->isHidden() || !focused->wantsTextInput()))
+		finishTextInput();
 	for (const ObjectPtr& obj : m_objects)
 	{
 		obj->update();
@@ -259,6 +264,7 @@ void World::leftClick(const point2D pos)
 {
 	if (!m_camera)
 		return;
+	finishTextInput();
 	const rect2D mouseRect = rect2D(pos, clickingPrecisionArea);
 
 	bool isAnObjectClickedOn = false;
@@ -300,6 +306,12 @@ bool World::checkLeftClickReleased(const ObjectPtr object, const rect2D mouse, b
 	if (isOnItem && object->isLeftClicked())
 	{
 		result = object->offLeftClick(position);
+		if (object->wantsTextInput())
+		{
+			if (m_textInputFocus.lock() != object)
+				finishTextInput();
+			m_textInputFocus = object;
+		}
 	}
 	object->setLeftClicked(false);
 
@@ -366,6 +378,7 @@ void World::rightClick(const point2D pos)
 {
 	if (!m_camera)
 		return;
+	finishTextInput();
 	const rect2D mouseRect = rect2D(pos, clickingPrecisionArea);
 
 	bool isAnObjectClickedOn = false;
@@ -530,4 +543,35 @@ void World::saveFile(const std::string& filePath)
 			members.serialize(outFile);
 		}
 	}
+}
+
+bool World::hasTextInputFocus() const
+{
+	const auto focused = m_textInputFocus.lock();
+	return focused && !focused->isHidden() && focused->wantsTextInput();
+}
+
+void World::textInput(const std::string& text)
+{
+	if (hasTextInputFocus())
+		m_textInputFocus.lock()->handleTextInput(text);
+}
+
+bool World::textKey(SDL_Keycode key, SDL_Keymod modifiers)
+{
+	if (!hasTextInputFocus())
+		return false;
+	const auto focused = m_textInputFocus.lock();
+	focused->handleTextKey(key, modifiers);
+	if (!focused->wantsTextInput())
+		m_textInputFocus.reset();
+	return true;
+}
+
+void World::finishTextInput(bool commit)
+{
+	const auto focused = m_textInputFocus.lock();
+	m_textInputFocus.reset();
+	if (focused)
+		focused->finishTextInput(commit);
 }

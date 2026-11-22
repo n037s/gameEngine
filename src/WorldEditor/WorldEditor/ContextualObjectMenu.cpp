@@ -6,7 +6,11 @@
 #include "Sprite.h"
 #include "AnimatedSprite.h"
 #include "Image.h"
+#include "IntSelector.h"
 
+#include <algorithm>
+#include <cmath>
+#include <limits>
 
 ContextualObjectMenu::ContextualObjectMenu(ObjectPtr target, point2D position, World& world)
 	: DropDownMenu(rect2D(position, size2D(180, 30)), size2D(180, 30),
@@ -69,6 +73,25 @@ ContextualObjectMenu::ContextualObjectMenu(ObjectPtr target, point2D position, W
 		}
 		sortItems();
 	}
+	const double z = target->getZ();
+	const double roundedZ = std::isfinite(z) ? std::round(z) : 0.0;
+	const int initialZ = static_cast<int>(std::clamp(roundedZ,
+		static_cast<double>(std::numeric_limits<int>::min()), static_cast<double>(std::numeric_limits<int>::max())));
+	auto zSelector = std::make_shared<IntSelector>(rect2D(position, size2D(180, 30)), initialZ,
+		Color(180, 180, 180, 150), std::make_shared<Font>("arial", 20.0f), Color(0, 0, 0, 255));
+	zSelector->setLabelPrefix("Z: ");
+	const auto updateZ = [weakTarget, &world](int value) {
+		if (const auto object = weakTarget.lock())
+		{
+			if (object->getZ() == static_cast<float>(value))
+				return;
+			object->setZ(static_cast<float>(value));
+			world.sortObjectsByZ();
+		}
+	};
+	zSelector->setOnChange(updateZ);
+	zSelector->setOnCommit(updateZ);
+	addObject("Z", zSelector);
 	m_isHovered = true;
 }
 

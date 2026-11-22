@@ -125,3 +125,9 @@ void CommandProxy::updateRunningCallbacks(SDL_Keymod modifiers)
 		}
 	}
 }
+
+void CommandProxy::releaseRunningCallbacks()
+{
+	m_pressedKeys.clear();
+	updateRunningCallbacks(SDL_KMOD_NONE);
+}

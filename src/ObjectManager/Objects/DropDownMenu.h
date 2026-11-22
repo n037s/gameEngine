@@ -27,6 +27,7 @@ struct Item
 
 	// if not SubMenu :
 	std::string callbackID;
+	ObjectPtr object;
 	Image* preview{ nullptr };
 	std::string previewAnimationID;
 	std::shared_ptr<AnimatedSprite> previewAnimation;
@@ -48,6 +49,7 @@ public:
 
 	void addItem(const std::string& ID, const std::string& callbackID = "Nothing", Image* preview = nullptr,
 		const std::string& previewAnimationID = "");
+	void addObject(const std::string& label, ObjectPtr object);
 	ItemPtr getChildItem(const std::string& label, ItemPtr parent) const;
 	void setCascading(bool cascading) { m_cascading = cascading; m_cascadeOrigin = m_pos; }
 	void sortItems();
@@ -59,6 +61,10 @@ public:
 	void leftFocus(point2D pos) override;
 	bool leftClick(point2D pos) override;
 	bool releaseLeftClick(point2D pos) override;
+	bool wantsTextInput() const override;
+	void handleTextInput(const std::string& text) override;
+	void handleTextKey(SDL_Keycode key, SDL_Keymod modifiers) override;
+	void finishTextInput(bool commit) override;
 
 	bool scroll(float dz) override;
 
@@ -69,6 +75,7 @@ private:
 	bool m_cascading{ false };
 	point2D m_cascadeOrigin;
 	ItemPtr m_hoveredMenu;
+	std::weak_ptr<Object> m_textInputItem;
 	std::vector<std::pair<ObjectPtr, ItemPtr>> m_visibleItems;
 	void displayCascading(ItemPtr menu, bool reuseVisibleItems);
 	void displayColumn(ItemPtr menu, point2D position, float parentWidth,

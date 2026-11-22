@@ -86,3 +86,13 @@ void  ButtonRenderer::setColor(SDL_Color color)
 	m_color = color;
 	generateTexture();
 }
+
+void ButtonRenderer::setLabel(const std::string& label, FontPtr font)
+{
+	if (m_label == label && (!font || m_font == font))
+		return;
+	m_label = label;
+	if (font)
+		m_font = std::move(font);
+	generateTexture();
+}

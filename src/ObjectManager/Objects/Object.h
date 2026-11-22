@@ -64,7 +64,40 @@ public:
 	 * @brief the item is no more hovered
 	 */
 	virtual void leftFocus(point2D pos);
+
+	/*
+	 * @brief callback for outside click
+	 *
+	 * @param pos - position of the outside click
+	 */
 	virtual void outsideClick(point2D) {}
+
+	/*
+	 * @brief check if the item wants text input
+	 */
+	virtual bool wantsTextInput() const { return false; }
+
+	/*
+	 * @brief handle text input
+	 *
+	 * @param text - the text input
+	 */
+	virtual void handleTextInput(const std::string&) {}
+
+	/*
+	 * @brief handle text key input
+	 *
+	 * @param key - the key pressed
+	 * @param mod - the key modifier
+	 */
+	virtual void handleTextKey(SDL_Keycode, SDL_Keymod) {}
+
+	/*
+	 * @brief finish text input
+	 *
+	 * @param success - whether the text input was successful
+	 */
+	virtual void finishTextInput(bool) {}
 
 	void setLeftClicked(bool isLeftClicked) { m_isLeftClicked = isLeftClicked; }
 	bool isLeftClicked() const { return m_isLeftClicked; }
@@ -158,6 +191,13 @@ public:
 	 * @param pos - new position of the item
 	 */
 	virtual void setPos(const point2D& pos) { m_pos = pos; }
+
+	/*
+	 * @brief set the size of the item
+	 *
+	 * @param size - new size of the item
+	 */
+	virtual void setSize(const size2D& size) { m_size = size; }
 
 	/*
 	 * @brief get the shape and the position of the item

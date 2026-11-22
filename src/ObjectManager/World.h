@@ -51,6 +51,10 @@ public:
 	void leftClick(const point2D pos);
 	void releaseLeftClick(const point2D pos);
 	void setRedirectClickToObject(bool redirect) { redirectClickToObject = redirect; }
+	bool hasTextInputFocus() const;
+	void textInput(const std::string& text);
+	bool textKey(SDL_Keycode key, SDL_Keymod modifiers);
+	void finishTextInput(bool commit = true);
 
 	bool isRightClicked() const { return m_isRightClicked; }
 	virtual void onRightClick(const point2D pos);
@@ -85,6 +89,7 @@ private:
 	std::list<ObjectPtr> m_overlayObjects{ std::list<ObjectPtr>() };
 	std::map<std::string, ObjectPtr> m_UIDToObjects{ std::map<std::string, ObjectPtr>() };
 	ObjectPtr m_hoveredObject = nullptr;
+	std::weak_ptr<Object> m_textInputFocus;
 
 	bool m_isLeftClicked{ false };
 	bool m_isRightClicked{ false };

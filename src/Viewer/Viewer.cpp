@@ -84,6 +84,7 @@ void Viewer::startLoop()
         SDL_RenderClear(m_renderer);
 
         m_world->update();
+        syncTextInput();
         m_world->render(m_renderer);
 
         // Present the screen
@@ -102,8 +103,20 @@ bool Viewer::stopLoop()
     return true;
 }
 
+void Viewer::setWorld(World* world)
+{
+    if (m_world == world)
+        return;
+    if (m_world)
+        m_world->finishTextInput();
+    m_world = world;
+    if (m_window && SDL_TextInputActive(m_window))
+        SDL_StopTextInput(m_window);
+}
+
 void Viewer::manageUserInput(SDL_Event event)
 {
+    const bool hadTextFocus = m_world && m_world->hasTextInputFocus();
     switch (event.type)
     {
     case SDL_EVENT_QUIT:
@@ -113,11 +126,24 @@ void Viewer::manageUserInput(SDL_Event event)
     {
         const SDL_Keycode keycode = event.key.key;
 
+        if (m_world && m_world->textKey(keycode, event.key.mod))
+            break;
+
         m_logger->info("key pressed : " + std::string(SDL_GetKeyName(keycode)) + " returns : " +
             (m_commandProxy->addRunningCallback(Key::fromSDL(keycode, event.key.mod)) ? "true" : "false"));
         
         break;
     }
+    case SDL_EVENT_TEXT_INPUT:
+        if (m_world && event.text.text)
+            m_world->textInput(event.text.text);
+        break;
+    case SDL_EVENT_WINDOW_FOCUS_LOST:
+        if (m_world)
+            m_world->finishTextInput();
+        if (m_commandProxy)
+            m_commandProxy->releaseRunningCallbacks();
+        break;
     case SDL_EVENT_KEY_UP:
     {
         const SDL_Keycode keycode = event.key.key;
@@ -167,5 +193,20 @@ void Viewer::manageUserInput(SDL_Event event)
         break;
     }
     }
-    
+    const bool hasTextFocus = m_world && m_world->hasTextInputFocus();
+    if (!hadTextFocus && hasTextFocus && m_commandProxy)
+        m_commandProxy->releaseRunningCallbacks();
+    syncTextInput();
+}
+
+void Viewer::syncTextInput()
+{
+    const bool hasTextFocus = m_world && m_world->hasTextInputFocus();
+    if (m_window && hasTextFocus != SDL_TextInputActive(m_window))
+    {
+        if (hasTextFocus)
+            SDL_StartTextInput(m_window);
+        else
+            SDL_StopTextInput(m_window);
+    }
 }

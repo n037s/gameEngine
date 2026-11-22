@@ -101,6 +101,11 @@ public:
 	 */
 	void removeRunningCallback(const Key keycode);
 
+	/*
+	 * @brief release all running callbacks
+	 */
+	void releaseRunningCallbacks();
+
 private:
 	using CallbackMap = std::map<Key, callbackFunction>;
 
