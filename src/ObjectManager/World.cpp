@@ -136,13 +136,27 @@ void World::sortObjectListByZ(std::list<ObjectPtr>& object_list)
 	const bool sortByDepth = &object_list == &m_objects && m_camera
 		&& m_camera->getViewMode() == Camera::ViewMode::Isometric;
 	const auto less = [this, sortByDepth](const ObjectPtr& first, const ObjectPtr& second) {
-		if (first->getZ() != second->getZ() || !sortByDepth)
+		if (!sortByDepth)
 			return first->getZ() < second->getZ();
+		const bool firstIsSteady = first->isSteady();
+		const bool secondIsSteady = second->isSteady();
+
+		if (firstIsSteady && !secondIsSteady)
+			return false;
+		if (!firstIsSteady && secondIsSteady)
+			return true;
+		if (!firstIsSteady && !secondIsSteady)
+			return first->getZ() < second->getZ();
+
 		const rect2D firstShape = first->getShape();
 		const rect2D secondShape = second->getShape();
 		const point2D firstAnchor = firstShape.position + point2D(firstShape.size.w / 2, firstShape.size.h);
 		const point2D secondAnchor = secondShape.position + point2D(secondShape.size.w / 2, secondShape.size.h);
-		return m_camera->worldToWindowPoint(firstAnchor).y < m_camera->worldToWindowPoint(secondAnchor).y;
+		const float firstDepth = m_camera->worldToWindowPoint(firstAnchor).y;
+		const float secondDepth = m_camera->worldToWindowPoint(secondAnchor).y;
+		if (firstDepth != secondDepth)
+			return firstDepth < secondDepth;
+		return first->getZ() > second->getZ();
 	};
 	if (!std::is_sorted(object_list.begin(), object_list.end(), less))
 		object_list.sort(less);
