@@ -150,7 +150,7 @@ Asset* parserImage(const fs::path& assetPath)
 
     SDL_Surface* surface = IMG_Load(assetPath.string().c_str());
     if (!surface) {
-        AssetsManager::getInstance()->m_logger->error("Failed to load BMP image: " + assetPath.string() + " - " + SDL_GetError());
+        Logger::getInstance(Components::ObjectManager)->error("Failed to load image: " + assetPath.string() + " - " + SDL_GetError());
         return nullptr;
     }
     else

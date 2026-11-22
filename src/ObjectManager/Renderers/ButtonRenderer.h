@@ -3,6 +3,8 @@
 #include "Geometry.h"
 #include "Font.h"
 
+class Image;
+
 class ButtonRenderer :
     public BaseRenderer
 {
@@ -13,6 +15,7 @@ public:
     void generateTexture();
 
     void setColor(SDL_Color color);
+    void setPreview(Image* preview);
 
 private:
     size2D m_size;
@@ -20,5 +23,6 @@ private:
     std::string m_label;
     FontPtr m_font;
     SDL_Color m_fontColor;
+    Image* m_preview{ nullptr };
 };
 

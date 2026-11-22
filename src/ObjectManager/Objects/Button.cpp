@@ -83,9 +83,17 @@ bool Button::releaseLeftClick(point2D pos)
 	return success;
 }
 
+void Button::setPreview(Image* preview)
+{
+	m_preview = preview;
+	if (m_renderer)
+		static_cast<ButtonRenderer*>(m_renderer)->setPreview(preview);
+}
+
 bool Button::createRenderer(SDL_Renderer* renderer)
 {
 	m_renderer = new ButtonRenderer(renderer, m_size, m_color.toSDL(), m_label, m_font, m_fontColor.toSDL());
+	static_cast<ButtonRenderer*>(m_renderer)->setPreview(m_preview);
 	m_size = m_renderer->getSize();
 
 	return m_renderer->isGenerated();

@@ -3,6 +3,9 @@
 
 #include "DropDownMenuRenderer.h"
 
+class Image;
+class AnimatedSprite;
+
 struct Item
 {
 	Item(std::string label, bool isSubMenu, std::string callbackID = "") : label(label), isSubMenu(isSubMenu), callbackID(callbackID) 
@@ -24,6 +27,9 @@ struct Item
 
 	// if not SubMenu :
 	std::string callbackID;
+	Image* preview{ nullptr };
+	std::string previewAnimationID;
+	std::shared_ptr<AnimatedSprite> previewAnimation;
 };
 
 using ItemPtr = std::shared_ptr<Item>;
@@ -35,11 +41,13 @@ public:
 	DropDownMenu(rect2D shape, size2D itemSize, Color buttonColor, FontPtr font);
 
 	bool createRenderer(SDL_Renderer* renderer) override;
+	void update() override;
 
 	std::string getTypeName() const override { return "DropDownMenu"; }
 	ObjectMemberHolder serialize() const override;
 
-	void addItem(const std::string& ID, const std::string& callbackID = "Nothing");
+	void addItem(const std::string& ID, const std::string& callbackID = "Nothing", Image* preview = nullptr,
+		const std::string& previewAnimationID = "");
 	ItemPtr getChildItem(const std::string& label, ItemPtr parent) const;
 	void setCascading(bool cascading) { m_cascading = cascading; m_cascadeOrigin = m_pos; }
 	void sortItems();
@@ -62,11 +70,13 @@ private:
 	point2D m_cascadeOrigin;
 	ItemPtr m_hoveredMenu;
 	std::vector<std::pair<ObjectPtr, ItemPtr>> m_visibleItems;
-	void displayColumn(ItemPtr menu, point2D position, float parentWidth = 0);
+	void displayCascading(ItemPtr menu, bool reuseVisibleItems);
+	void displayColumn(ItemPtr menu, point2D position, float parentWidth,
+		const std::vector<std::pair<ObjectPtr, ItemPtr>>& previousItems);
 	void sortItems(ItemPtr menu);
 	void closeSubMenus(ItemPtr menu);
 
-	void addItemButton(std::string label, std::string callbackID, size2D size = size2D());
+	void addItemButton(std::string label, std::string callbackID, size2D size = size2D(), Image* preview = nullptr);
 	void addSubMenuButton(std::string label, ItemPtr item);
 
 	void updateRendererMenu();

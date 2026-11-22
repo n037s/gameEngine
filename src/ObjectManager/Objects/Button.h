@@ -9,6 +9,8 @@
 #include <functional>
 #include <string>
 
+class Image;
+
 class Button : public Object
 {
 public:
@@ -17,6 +19,7 @@ public:
 		const std::string& callbackID = "", const std::string& releaseCallbackID = "");
 
 	bool createRenderer(SDL_Renderer* renderer) override;
+	void setPreview(Image* preview);
 
 	std::string getTypeName() const override { return "Button"; }
 	ObjectMemberHolder serialize() const override;
@@ -37,6 +40,7 @@ private:
 	std::string m_callbackReleaseID;
 	buttonCallback m_callback;
 	buttonCallback m_releaseCallback;
+	Image* m_preview{ nullptr };
 	
 };
 

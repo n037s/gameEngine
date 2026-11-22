@@ -1,6 +1,9 @@
 #include "ButtonRenderer.h"
 
 #include "TextRenderer.h"
+#include "Image.h"
+
+#include <algorithm>
 
 #include <iostream>
 
@@ -29,7 +32,8 @@ void ButtonRenderer::generateTexture()
 	const SDL_Rect brect = { static_cast<int>(rel_pos.x), static_cast<int>(rel_pos.y), static_cast<int>(m_size.w), static_cast<int>(m_size.h) };
 	SDL_FillSurfaceRect(m_surface, &brect, SDL_MapSurfaceRGBA(m_surface, m_color.r, m_color.g, m_color.b, m_color.a));
 
-	TextRenderer const textRend = TextRenderer(m_renderer, m_label, m_size, m_font, m_fontColor);
+	const float previewSpace = m_preview && m_preview->getSurface() ? std::min(m_size.h, m_size.w) : 0;
+	TextRenderer const textRend = TextRenderer(m_renderer, m_label, size2D(m_size.w - previewSpace, m_size.h), m_font, m_fontColor);
 
 	auto textSurface = textRend.getSurface();
 
@@ -37,7 +41,7 @@ void ButtonRenderer::generateTexture()
 	{
 		for (int row = 0; row < m_surface->h; ++row)
 		{
-			for (int column = 0; column < m_surface->w; ++column)
+			for (int column = 0; column < textSurface->w; ++column)
 			{
 				Uint8 red, green, blue, alpha;
 				if (!SDL_ReadSurfacePixel(textSurface, column, row, &red, &green, &blue, &alpha) || alpha == 0)
@@ -55,7 +59,26 @@ void ButtonRenderer::generateTexture()
 		}
 	}
 
+	if (previewSpace > 4)
+	{
+		auto imageSurface = m_preview->getSurface();
+		const float scale = std::min((previewSpace - 4) / imageSurface->w, (m_size.h - 4) / imageSurface->h);
+		const int width = std::max(1, static_cast<int>(imageSurface->w * scale));
+		const int height = std::max(1, static_cast<int>(imageSurface->h * scale));
+		const SDL_Rect destination{ static_cast<int>(m_size.w - previewSpace + (previewSpace - width) / 2),
+			static_cast<int>((m_size.h - height) / 2), width, height };
+		SDL_BlitSurfaceScaled(imageSurface, nullptr, m_surface, &destination, SDL_SCALEMODE_NEAREST);
+	}
+
 	m_texture = SDL_CreateTextureFromSurface(m_renderer, m_surface);
+}
+
+void ButtonRenderer::setPreview(Image* preview)
+{
+	if (m_preview == preview)
+		return;
+	m_preview = preview;
+	generateTexture();
 }
 
 void  ButtonRenderer::setColor(SDL_Color color)

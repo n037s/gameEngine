@@ -15,6 +15,7 @@ public:
 
 	bool createRenderer(SDL_Renderer* renderer) override;
 	bool setAnimation(const std::string& assetID);
+	Image* getCurrentAsset() const { return m_currentAsset; }
 
 	std::string getTypeName() const override { return "AnimatedSprite"; }
 	ObjectMemberHolder serialize() const override;

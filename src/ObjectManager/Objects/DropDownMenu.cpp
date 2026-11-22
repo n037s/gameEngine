@@ -2,6 +2,7 @@
 
 #include "ButtonCallbackRegistery.h"
 #include "Button.h"
+#include "AnimatedSprite.h"
 
 #include <algorithm>
 #include <cctype>
@@ -57,7 +58,7 @@ bool DropDownMenu::createRenderer(SDL_Renderer* renderer)
 }
 
 
-void DropDownMenu::addItemButton(std::string label, std::string callbackID, size2D size)
+void DropDownMenu::addItemButton(std::string label, std::string callbackID, size2D size, Image* preview)
 {
 	int itemCount = static_cast<int>(m_objectList.size());
 	size2D dy = m_itemSize * size2D(0, itemCount);
@@ -76,7 +77,8 @@ void DropDownMenu::addItemButton(std::string label, std::string callbackID, size
 	members.addMember("butonCallbackOnClick", std::string("Nothing"));
 	members.addMember("buttonCallbackOnRelease", callbackID);
 	
-	ObjectPtr object = std::make_shared<Button>(members);
+	auto object = std::make_shared<Button>(members);
+	object->setPreview(preview);
 	m_objectList.push_back(object);
 }
 
@@ -124,7 +126,8 @@ void DropDownMenu::updateRendererMenu()
 		renderer->setSize(m_size);
 		for (auto item : m_objectList)
 		{
-			item->createRenderer(sdl_renderer);
+			if (!item->getRenderer())
+				item->createRenderer(sdl_renderer);
 			auto item_renderer = dynamic_cast<ButtonRenderer*>(item->getRenderer());
 			if (item_renderer)
 				renderer->addItem(item_renderer, item->getPos() - m_pos);
@@ -133,7 +136,8 @@ void DropDownMenu::updateRendererMenu()
 	}
 }
 
-void DropDownMenu::addItem(const std::string& ID, const std::string& callbackID)
+void DropDownMenu::addItem(const std::string& ID, const std::string& callbackID, Image* preview,
+	const std::string& previewAnimationID)
 {
 	// ID is as subMenu1/subMenu2/item
 	// First if the structure is not created, let's create it.
@@ -171,6 +175,8 @@ void DropDownMenu::addItem(const std::string& ID, const std::string& callbackID)
 		{
 			// let's add an item
 			ItemPtr new_item = std::make_shared<Item>(word, false, callbackID);
+			new_item->preview = preview;
+			new_item->previewAnimationID = previewAnimationID;
 			node->items.push_back(new_item);
 		}
 	}
@@ -203,26 +209,7 @@ void DropDownMenu::display(ItemPtr menu, int level, bool isMenuChanged)
 		return;
 	if (m_cascading && level == 0)
 	{
-		if (auto renderer = dynamic_cast<DropDownMenuRenderer*>(m_renderer))
-			renderer->clearItems();
-		m_objectList.clear();
-		m_visibleItems.clear();
-		displayColumn(menu, m_cascadeOrigin);
-		if (!m_objectList.empty())
-		{
-			m_pos = m_objectList.front()->getPos();
-			point2D bottomRight = m_pos;
-			for (const auto& button : m_objectList)
-			{
-				const auto shape = button->getShape();
-				m_pos.x = std::min(m_pos.x, shape.position.x);
-				m_pos.y = std::min(m_pos.y, shape.position.y);
-				bottomRight.x = std::max(bottomRight.x, shape.position.x + shape.size.w);
-				bottomRight.y = std::max(bottomRight.y, shape.position.y + shape.size.h);
-			}
-			m_size = size2D(bottomRight.x - m_pos.x, bottomRight.y - m_pos.y);
-		}
-		updateRendererMenu();
+		displayCascading(menu, false);
 		return;
 	}
 	if (level == 0)
@@ -247,7 +234,7 @@ void DropDownMenu::display(ItemPtr menu, int level, bool isMenuChanged)
 		else
 		{
 			// We create a simple button with its callback
-			addItemButton(padding + item->label, item->callbackID);
+			addItemButton(padding + item->label, item->callbackID, size2D(), item->preview);
 		}
 	}
 
@@ -257,7 +244,35 @@ void DropDownMenu::display(ItemPtr menu, int level, bool isMenuChanged)
 		updateRenderer();
 }
 
-void DropDownMenu::displayColumn(ItemPtr menu, point2D position, float parentWidth)
+void DropDownMenu::displayCascading(ItemPtr menu, bool reuseVisibleItems)
+{
+	if (auto renderer = dynamic_cast<DropDownMenuRenderer*>(m_renderer))
+		renderer->clearItems();
+	std::vector<std::pair<ObjectPtr, ItemPtr>> previousItems;
+	if (reuseVisibleItems)
+		previousItems = std::move(m_visibleItems);
+	m_objectList.clear();
+	m_visibleItems.clear();
+	displayColumn(menu, m_cascadeOrigin, 0, previousItems);
+	if (!m_objectList.empty())
+	{
+		m_pos = m_objectList.front()->getPos();
+		point2D bottomRight = m_pos;
+		for (const auto& button : m_objectList)
+		{
+			const auto shape = button->getShape();
+			m_pos.x = std::min(m_pos.x, shape.position.x);
+			m_pos.y = std::min(m_pos.y, shape.position.y);
+			bottomRight.x = std::max(bottomRight.x, shape.position.x + shape.size.w);
+			bottomRight.y = std::max(bottomRight.y, shape.position.y + shape.size.h);
+		}
+		m_size = size2D(bottomRight.x - m_pos.x, bottomRight.y - m_pos.y);
+	}
+	updateRendererMenu();
+}
+
+void DropDownMenu::displayColumn(ItemPtr menu, point2D position, float parentWidth,
+	const std::vector<std::pair<ObjectPtr, ItemPtr>>& previousItems)
 {
 	float width = m_itemSize.w;
 	for (const auto& item : menu->items)
@@ -267,7 +282,7 @@ void DropDownMenu::displayColumn(ItemPtr menu, point2D position, float parentWid
 		const auto label = item->label + (item->isSubMenu ? " >" : "");
 		if (m_font && m_font->isGenerated()
 			&& TTF_GetStringSize(m_font->toSDL(), label.c_str(), 0, &textWidth, &textHeight))
-			width = std::max(width, static_cast<float>(textWidth + 20));
+			width = std::max(width, static_cast<float>(textWidth + 20 + (item->preview ? m_itemSize.h : 0)));
 	}
 	int outputWidth = 0;
 	int outputHeight = 0;
@@ -291,9 +306,32 @@ void DropDownMenu::displayColumn(ItemPtr menu, point2D position, float parentWid
 	for (size_t index = menu->firstVisibleItem; index < menu->firstVisibleItem + visibleCount; ++index)
 	{
 		const auto& item = menu->items[index];
-		addItemButton(item->label + (item->isSubMenu ? " >" : ""),
-			item->isSubMenu ? "Nothing" : item->callbackID, size2D(width, m_itemSize.h));
-		const auto button = m_objectList.back();
+		if (sdl_renderer && !item->previewAnimationID.empty() && !item->previewAnimation)
+		{
+			auto animation = std::make_shared<AnimatedSprite>(point2D(0, 0), true, 100);
+			if (animation->setAnimation(item->previewAnimationID) && animation->createRenderer(sdl_renderer))
+			{
+				item->previewAnimation = animation;
+				item->preview = animation->getCurrentAsset();
+			}
+		}
+		const auto previous = std::find_if(previousItems.begin(), previousItems.end(), [&](const auto& entry) {
+			const auto shape = entry.first->getShape();
+			return entry.second == item && shape.size.w == width && shape.size.h == m_itemSize.h;
+		});
+		ObjectPtr button;
+		if (previous != previousItems.end())
+		{
+			button = previous->first;
+			button->leftFocus(position);
+			m_objectList.push_back(button);
+		}
+		else
+		{
+			addItemButton(item->label + (item->isSubMenu ? " >" : ""),
+				item->isSubMenu ? "Nothing" : item->callbackID, size2D(width, m_itemSize.h), item->preview);
+			button = m_objectList.back();
+		}
 		button->setPos(position);
 		m_visibleItems.emplace_back(button, item);
 		if (item->isSubMenu && item->isOpen)
@@ -304,7 +342,27 @@ void DropDownMenu::displayColumn(ItemPtr menu, point2D position, float parentWid
 		position.y += m_itemSize.h;
 	}
 	if (openMenu)
-		displayColumn(openMenu, openPosition, width);
+		displayColumn(openMenu, openPosition, width, previousItems);
+}
+
+void DropDownMenu::update()
+{
+	bool changed = false;
+	for (const auto& entry : m_visibleItems)
+	{
+		const auto& item = entry.second;
+		if (!item->previewAnimation)
+			continue;
+		item->previewAnimation->update();
+		if (item->preview != item->previewAnimation->getCurrentAsset())
+		{
+			item->preview = item->previewAnimation->getCurrentAsset();
+			static_cast<Button*>(entry.first.get())->setPreview(item->preview);
+			changed = true;
+		}
+	}
+	if (changed)
+		updateRenderer();
 }
 
 void DropDownMenu::sortItems()
@@ -516,7 +574,7 @@ bool DropDownMenu::scroll(float dz)
 		if (previous != m_hoveredMenu->firstVisibleItem)
 		{
 			closeSubMenus(m_hoveredMenu);
-			display(nullptr, 0, true);
+			displayCascading(m_items, true);
 		}
 		return true;
 	}

@@ -5,6 +5,7 @@
 #include "AssetsManager.h"
 #include "Sprite.h"
 #include "AnimatedSprite.h"
+#include "Image.h"
 
 
 ContextualObjectMenu::ContextualObjectMenu(ObjectPtr target, point2D position, World& world)
@@ -43,7 +44,7 @@ ContextualObjectMenu::ContextualObjectMenu(ObjectPtr target, point2D position, W
 				});
 			m_assetCallbackIDs.push_back(callbackID);
 			const auto relativePath = fs::path(assets->getPath(assetID)).lexically_relative(assets->getAssetsPath());
-			addItem("set asset/" + relativePath.generic_string(), callbackID);
+			addItem("set asset/" + relativePath.generic_string(), callbackID, dynamic_cast<Image*>(assets->getAsset(assetID)));
 		}
 		sortItems();
 	}
@@ -64,7 +65,7 @@ ContextualObjectMenu::ContextualObjectMenu(ObjectPtr target, point2D position, W
 				});
 			m_assetCallbackIDs.push_back(callbackID);
 			const auto relativePath = fs::path(assets->getPath(assetID)).lexically_relative(assets->getAssetsPath());
-			addItem("set animation/" + relativePath.generic_string(), callbackID);
+			addItem("set animation/" + relativePath.generic_string(), callbackID, dynamic_cast<Image*>(assets->getAsset(assetID)), assetID);
 		}
 		sortItems();
 	}

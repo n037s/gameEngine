@@ -3,6 +3,7 @@
 #include "World.h"
 #include "Viewer.h"
 #include "Sprite.h"
+#include "AnimatedSprite.h"
 #include "AssetsManager.h"
 #include "Camera.h"
 #include "SelectionBoundObject.h"
@@ -48,8 +49,12 @@ void MenuFixture::setUp()
         throw std::runtime_error("Asset fixture directory already exists: " + directory.string());
     const unsigned char gif[] = {
         'G', 'I', 'F', '8', '9', 'a', 1, 0, 1, 0, 0x80, 0, 0,
-        0, 0, 0, 255, 255, 255, 0x2c, 0, 0, 0, 0, 1, 0, 1, 0, 0,
-        2, 2, 0x44, 1, 0, 0x3b
+        0, 0, 0, 255, 255, 255,
+        0x21, 0xf9, 4, 0, 1, 0, 0, 0,
+        0x2c, 0, 0, 0, 0, 1, 0, 1, 0, 0, 2, 2, 0x44, 1, 0,
+        0x21, 0xf9, 4, 0, 1, 0, 0, 0,
+        0x2c, 0, 0, 0, 0, 1, 0, 1, 0, 0, 2, 2, 0x4c, 1, 0,
+        0x3b
     };
     {
         std::ofstream output(directory / "animation.GIF", std::ios::binary);
@@ -410,6 +415,9 @@ void scrollAssetMenu(UnitTest::Scenario& scenario, RenderingFixture& fixture)
 {
     auto renderer = fixture.renderer;
     bool selected = false;
+    point2D selectedPosition;
+    std::string selectedUID;
+    BaseRenderer* selectedRenderer = nullptr;
     const std::string callbackID = "AssetMenuScrollTest";
     struct CallbackCleanup
     {
@@ -417,12 +425,20 @@ void scrollAssetMenu(UnitTest::Scenario& scenario, RenderingFixture& fixture)
         ~CallbackCleanup() { ButtonCallbackRegistery::instance()->unregisterCallback(id); }
     } cleanup{callbackID};
     ButtonCallbackRegistery::instance()->registerCallback(callbackID,
-        [&selected](point2D, Object*) { selected = true; return true; });
+        [&selected, &selectedPosition, &selectedUID, &selectedRenderer](point2D, Object* caller) {
+            selected = true;
+            selectedPosition = caller->getShape().position;
+            selectedUID = caller->getUID();
+            selectedRenderer = caller->getRenderer();
+            return true;
+        });
     DropDownMenu scrollMenu(rect2D(10, 10, 180, 30), size2D(180, 30),
         Color(180, 180, 180, 255), std::make_shared<Font>("arial", 20.0f));
     scrollMenu.setCascading(true);
+    auto preview = dynamic_cast<Image*>(AssetsManager::getInstance()->getAsset("zzAssetCategoryTests/still"));
+    UT_REQUIRE(scenario, preview);
     for (int index = 0; index < 22; ++index)
-        scrollMenu.addItem("folder/entry" + std::to_string(index), callbackID);
+        scrollMenu.addItem("folder/entry" + std::to_string(index), callbackID, preview);
     UT_REQUIRE(scenario, scrollMenu.createRenderer(renderer));
     scrollMenu.hover(point2D(20, 20));
     const auto folder = scrollMenu.getChildItem("folder", nullptr);
@@ -433,6 +449,28 @@ void scrollAssetMenu(UnitTest::Scenario& scenario, RenderingFixture& fixture)
         && SDL_ReadSurfacePixel(surface, 185, 5, &red, &green, &blue, &alpha)
         && alpha == 255);
     scrollMenu.hover(point2D(200, 20));
+    scrollMenu.leftClick(point2D(200, 45));
+    scrollMenu.releaseLeftClick(point2D(200, 45));
+    UT_REQUIRE(scenario, selected && selectedRenderer);
+    const auto originalUID = selectedUID;
+    const auto originalRenderer = selectedRenderer;
+    selected = false;
+    scrollMenu.leftClick(point2D(200, 45));
+    scrollMenu.scroll(-1);
+    scrollMenu.releaseLeftClick(point2D(200, 15));
+    UT_EXPECT(scenario, selected && selectedPosition.x == 190 && selectedPosition.y == 0
+        && selectedUID == originalUID && selectedRenderer == originalRenderer);
+    selected = false;
+    scrollMenu.leftClick(point2D(200, 45));
+    scrollMenu.scroll(1);
+    scrollMenu.releaseLeftClick(point2D(200, 75));
+    UT_EXPECT(scenario, selected && selectedPosition.x == 190 && selectedPosition.y == 60);
+    selected = false;
+    scrollMenu.leftClick(point2D(200, 15));
+    scrollMenu.scroll(-1);
+    scrollMenu.releaseLeftClick(point2D(200, 15));
+    UT_EXPECT(scenario, !selected);
+    scrollMenu.scroll(1);
     for (int index = 0; index < 30; ++index)
         scrollMenu.scroll(-1);
     UT_EXPECT(scenario, folder->firstVisibleItem == 6);
@@ -475,6 +513,53 @@ void fitWideMenu(UnitTest::Scenario& scenario, RenderingFixture& fixture)
         && shape.size.w > 360);
 }
 
+void previewMenuItems(UnitTest::Scenario& scenario, RenderingFixture& fixture)
+{
+    auto imageSurface = SDL_CreateSurface(2, 1, SDL_PIXELFORMAT_RGBA8888);
+    UT_REQUIRE(scenario, imageSurface);
+    SDL_FillSurfaceRect(imageSurface, nullptr, SDL_MapSurfaceRGBA(imageSurface, 255, 0, 0, 255));
+    Image image(imageSurface);
+    DropDownMenu menu(rect2D(10, 10, 180, 30), size2D(180, 30),
+        Color(180, 180, 180, 255), std::make_shared<Font>("arial", 20.0f));
+    menu.setCascading(true);
+    menu.addItem("still", "Nothing", &image);
+    const std::string animationID = "zzAssetCategoryTests/animation";
+    auto animationImage = dynamic_cast<Image*>(AssetsManager::getInstance()->getAsset(animationID));
+    UT_REQUIRE(scenario, animationImage);
+    menu.addItem("animation", "Nothing", animationImage, animationID);
+    UT_REQUIRE(scenario, menu.createRenderer(fixture.renderer));
+    const auto pixelIs = [&](int x, int y, Uint8 expectedRed, Uint8 expectedGreen, Uint8 expectedBlue) {
+        Uint8 red = 0, green = 0, blue = 0, alpha = 0;
+        return SDL_ReadSurfacePixel(menu.getRenderer()->getSurface(), x, y, &red, &green, &blue, &alpha)
+            && red == expectedRed && green == expectedGreen && blue == expectedBlue && alpha == 255;
+    };
+    UT_EXPECT(scenario, pixelIs(165, 15, 255, 0, 0));
+    UT_EXPECT(scenario, pixelIs(165, 2, 180, 180, 180));
+    UT_EXPECT(scenario, pixelIs(165, 45, 0, 0, 0));
+    menu.hover(point2D(20, 20));
+    UT_EXPECT(scenario, pixelIs(165, 15, 255, 0, 0));
+    SDL_Delay(120);
+    menu.update();
+    UT_EXPECT(scenario, pixelIs(165, 45, 255, 255, 255));
+}
+
+void contextualPreviewItems(UnitTest::Scenario& scenario, MenuFixture& fixture)
+{
+    ContextualObjectMenu spriteMenu(fixture.sprite, point2D(10, 10), fixture.world);
+    const auto imageFolder = spriteMenu.getChildItem("zzAssetCategoryTests", spriteMenu.getChildItem("set asset", nullptr));
+    UT_REQUIRE(scenario, imageFolder);
+    const auto image = spriteMenu.getChildItem("still.BMP", imageFolder);
+    UT_EXPECT(scenario, image && image->preview == AssetsManager::getInstance()->getAsset("zzAssetCategoryTests/still"));
+
+    auto animation = std::make_shared<AnimatedSprite>(point2D(0, 0), false, 100);
+    ContextualObjectMenu animationMenu(animation, point2D(10, 10), fixture.world);
+    const auto animationFolder = animationMenu.getChildItem("zzAssetCategoryTests", animationMenu.getChildItem("set animation", nullptr));
+    UT_REQUIRE(scenario, animationFolder);
+    const auto item = animationMenu.getChildItem("animation.GIF", animationFolder);
+    UT_EXPECT(scenario, item && item->preview && item->previewAnimationID == "zzAssetCategoryTests/animation"
+        && !item->previewAnimation);
+}
+
 int main()
 {
     RenderingFixture::Runtime runtime;
@@ -512,5 +597,7 @@ int main()
     tests.addScenario<RenderingFixture>("Asset menu scrolls and selects visible entries", scrollAssetMenu);
     tests.addScenario<RenderingFixture>("Asset replacement refreshes the rendered texture", replaceRenderedSpriteAsset);
     tests.addScenario<RenderingFixture>("Wide menus remain inside the viewport", fitWideMenu);
+    tests.addScenario<RenderingFixture>("Menu thumbnails render and animations advance", previewMenuItems);
+    tests.addScenario<MenuFixture>("Context menus attach asset previews", contextualPreviewItems);
     return tests.run();
 }
