@@ -97,4 +97,11 @@ Objects can be stready or flat.
 
 TO BE DONE :
 * Should be able to modify object properties ( button callback, text label, size )
-* Introduce 3D Objects
+* Add object collision in isometric view. -> colliders are not ok now, rectangles must not be flat in isometric views, they should be non steady items. 
+* Introduce 3D Objects ?
+* Introduce path planning from A to B with obstacles knowledge. 
+* Introduce NPC object, another player not playable that can move using the path planning and routines 
+* Introduce player movement using click
+* Introduce interractible object, working as button in close range from player. 
+* Introduce control configuration. 
+* Introduce controllers management. 

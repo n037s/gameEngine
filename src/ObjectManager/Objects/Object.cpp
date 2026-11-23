@@ -8,6 +8,7 @@ Object::Object(const ObjectMemberHolder& members)
 	m_z = members.getMember<float>("objectHeight");
 	m_isHidden = members.getMember<bool>("isObjectHidden");
 	m_steady = members.getMember<bool>("isObjectSteady", false);
+	m_depth = members.getMember<float>("objectDepth", 0);
 }
 
 
@@ -20,6 +21,7 @@ ObjectMemberHolder Object::serialize() const
 	memberHolder.addMember("objectSize", m_size);
 	memberHolder.addMember("isObjectHidden", m_isHidden);
 	memberHolder.addMember("isObjectSteady", m_steady);
+	memberHolder.addMember("objectDepth", m_depth);
 
 	return memberHolder;
 }

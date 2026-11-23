@@ -212,6 +212,9 @@ public:
 	void setZ(float z) { m_z = z; }
 	float getZ() const { return m_z; }
 
+	float getDepth() const { return m_depth; }
+	void setDepth(float depth) { m_depth = depth; }
+
 	BaseRenderer* getRenderer() const { return m_renderer; }
 
 	bool operator>(const Object* other) const { return (m_z > other->m_z); }
@@ -228,6 +231,7 @@ protected:
 	point2D m_pos{ 0, 0 };
 	float m_z{ 0 };
 	bool m_steady{ false };
+	float m_depth{ 0 };
 	size2D m_size{ 0,0 };
 	rect2D m_renderingRect{ 0,0,0,0 };
 	std::array<point2D, 4> m_renderingCorners{};

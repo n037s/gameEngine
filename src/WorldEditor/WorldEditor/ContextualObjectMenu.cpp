@@ -21,6 +21,8 @@ ContextualObjectMenu::ContextualObjectMenu(ObjectPtr target, point2D position, W
 	setSteady(true);
 	setCascading(true);
 	setZ(100001.0f);
+
+	// Is Steady button
 	const bool steady = !target->isSteady();
 	const std::weak_ptr<Object> weakTarget = target;
 	ButtonCallbackRegistery::instance()->registerCallback(m_callbackID,
@@ -32,6 +34,8 @@ ContextualObjectMenu::ContextualObjectMenu(ObjectPtr target, point2D position, W
 			return object != nullptr;
 		});
 	addItem(steady ? "set Steady" : "unset Steady", m_callbackID);
+
+	// For Sprite, set the asset
 	if (const auto sprite = std::dynamic_pointer_cast<Sprite>(target))
 	{
 		const std::weak_ptr<Sprite> weakSprite = sprite;
@@ -52,6 +56,8 @@ ContextualObjectMenu::ContextualObjectMenu(ObjectPtr target, point2D position, W
 		}
 		sortItems();
 	}
+
+	// For AnimatedSprite, set the animation
     if (const auto animation = std::dynamic_pointer_cast<AnimatedSprite>(target))
 	{
         std::cout << "Creating animation menu" << std::endl;
@@ -73,6 +79,7 @@ ContextualObjectMenu::ContextualObjectMenu(ObjectPtr target, point2D position, W
 		}
 		sortItems();
 	}
+	// Z selector for the object
 	const double z = target->getZ();
 	const double roundedZ = std::isfinite(z) ? std::round(z) : 0.0;
 	const int initialZ = static_cast<int>(std::clamp(roundedZ,
@@ -92,6 +99,25 @@ ContextualObjectMenu::ContextualObjectMenu(ObjectPtr target, point2D position, W
 	zSelector->setOnChange(updateZ);
 	zSelector->setOnCommit(updateZ);
 	addObject("Z", zSelector);
+	// Object depth selector
+	const float depth = target->getDepth();
+	const float roundedDepth = std::isfinite(depth) ? std::round(depth) : 0.0f;
+	const int initialDepth = static_cast<int>(std::clamp(roundedDepth,
+		static_cast<float>(std::numeric_limits<int>::min()), static_cast<float>(std::numeric_limits<int>::max())));
+	auto depthSelector = std::make_shared<IntSelector>(rect2D(position, size2D(180, 30)), initialDepth,
+		Color(180, 180, 180, 150), std::make_shared<Font>("arial", 20.0f), Color(0, 0, 0, 255));
+	depthSelector->setLabelPrefix("Depth: ");
+	const auto updateDepth = [weakTarget](int value) {
+		if (const auto object = weakTarget.lock())
+		{
+			if (object->getDepth() == static_cast<float>(value))
+				return;
+			object->setDepth(static_cast<float>(value));
+		}
+	};
+	depthSelector->setOnChange(updateDepth);
+	depthSelector->setOnCommit(updateDepth);
+	addObject("Depth", depthSelector);
 	m_isHovered = true;
 }
 
